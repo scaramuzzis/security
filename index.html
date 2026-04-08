@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Security Scanner - Web Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: #10b981;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f1ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .checkbox-group {
+            margin: 20px 0;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1em;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .results {
+            grid-column: 1 / -1;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-critical {
+            background: #dc2626;
+            color: white;
+        }
+
+        .severity-high {
+            background: #f97316;
+            color: white;
+        }
+
+        .severity-medium {
+            background: #fbbf24;
+            color: #333;
+        }
+
+        .severity-low {
+            background: #10b981;
+            color: white;
+        }
+
+        .vuln-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .vuln-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .vuln-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .vuln-cve {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .vuln-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .error {
+            background: #fee2e2;
+            border: 1px solid #dc2626;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .threat-item {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .recommendation-item {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🛡️ AI Security Scanner</h1>
+            <p>Upload Nmap XML scans for comprehensive security analysis</p>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Checking API...</span>
+            </div>
+            <div>
+                <span id="apiVersion"></span>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Upload Card -->
+            <div class="card">
+                <h2>📤 Upload Scan</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <h3>Drop XML file here or click to browse</h3>
+                    <p style="color: #666; margin-top: 10px;">Supported: Nmap XML scan files</p>
+                    <input type="file" id="fileInput" accept=".xml">
+                </div>
+
+                <div id="fileInfo" style="display: none; margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+                    <strong>Selected:</strong> <span id="fileName"></span><br>
+                    <strong>Size:</strong> <span id="fileSize"></span>
+                </div>
+
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" id="enrichNVD">
+                        <span>Enrich with NVD data (slower but more detailed)</span>
+                    </label>
+                </div>
+
+                <button class="button" id="scanButton" style="width: 100%; margin-top: 20px;" disabled>
+                    🚀 Start Analysis
+                </button>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card">
+                <h2>📊 Quick Actions</h2>
+                
+                <button class="button" onclick="testHealth()" style="width: 100%; margin-bottom: 15px;">
+                    ❤️ Test API Health
+                </button>
+
+                <button class="button" onclick="loadExample()" style="width: 100%; margin-bottom: 15px;">
+                    📂 Load Example Scan
+                </button>
+
+                <button class="button" onclick="viewDocs()" style="width: 100%;">
+                    📖 API Documentation
+                </button>
+
+                <div style="margin-top: 30px; padding: 20px; background: #f9fafb; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px;">ℹ️ Information</h3>
+                    <ul style="list-style: none; line-height: 2;">
+                        <li>✅ ML-powered analysis</li>
+                        <li>✅ STRIDE threat modeling</li>
+                        <li>✅ Attack surface scoring</li>
+                        <li>✅ Security recommendations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="card loading" id="loading">
+            <div class="spinner"></div>
+            <h3>Analyzing scan...</h3>
+            <p style="color: #666; margin-top: 10px;">This may take a few moments</p>
+        </div>
+
+        <!-- Results -->
+        <div class="card results" id="results" style="display: none;">
+            <h2>📋 Analysis Results</h2>
+
+            <!-- Summary Stats -->
+            <div class="result-summary" id="summaryStats"></div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('vulnerabilities')">Vulnerabilities</button>
+                <button class="tab" onclick="switchTab('threats')">Threats</button>
+                <button class="tab" onclick="switchTab('recommendations')">Recommendations</button>
+                <button class="tab" onclick="switchTab('raw')">Raw JSON</button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div id="tab-vulnerabilities" class="tab-content active">
+                <div class="vuln-list" id="vulnList"></div>
+            </div>
+
+            <div id="tab-threats" class="tab-content">
+                <div id="threatsList"></div>
+            </div>
+
+            <div id="tab-recommendations" class="tab-content">
+                <div id="recommendationsList"></div>
+            </div>
+
+            <div id="tab-raw" class="tab-content">
+                <pre id="rawJson"></pre>
+            </div>
+        </div>
+
+        <!-- Error -->
+        <div id="errorDiv" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+        let selectedFile = null;
+        let currentResult = null;
+
+        // Check API health on load
+        window.addEventListener('load', checkHealth);
+
+        // File upload handlers
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const scanButton = document.getElementById('scanButton');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        scanButton.addEventListener('click', performScan);
+
+        function handleFileSelect(file) {
+            if (!file.name.endsWith('.xml')) {
+                showError('Please select an XML file');
+                return;
+            }
+
+            selectedFile = file;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatBytes(file.size);
+            document.getElementById('fileInfo').style.display = 'block';
+            scanButton.disabled = false;
+        }
+
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                const data = await response.json();
+                
+                document.getElementById('statusDot').classList.add('online');
+                document.getElementById('statusText').textContent = 'API Online';
+                document.getElementById('apiVersion').textContent = 'v1.0.0';
+            } catch (error) {
+                document.getElementById('statusText').textContent = 'API Offline';
+                showError('Cannot connect to API. Make sure the server is running on port 5000.');
+            }
+        }
+
+        async function performScan() {
+            if (!selectedFile) return;
+
+            // Hide previous results
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('errorDiv').style.display = 'none';
+            
+            // Show loading
+            document.getElementById('loading').classList.add('active');
+            scanButton.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const enrichNVD = document.getElementById('enrichNVD').checked;
+                const url = `${API_URL}/api/scan${enrichNVD ? '?enrich_nvd=true' : ''}`;
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                currentResult = result;
+                displayResults(result);
+
+            } catch (error) {
+                showError(`Scan failed: ${error.message}`);
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+                scanButton.disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            // Show results card
+            document.getElementById('results').style.display = 'block';
+
+            // Summary stats
+            const summary = data.summary;
+            const statsHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${summary.total_vulnerabilities}</div>
+                    <div class="stat-label">Total Vulnerabilities</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${summary.attack_surface_score}</div>
+                    <div class="stat-label">Attack Surface</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${summary.total_threats}</div>
+                    <div class="stat-label">Threats</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${summary.recommendations}</div>
+                    <div class="stat-label">Recommendations</div>
+                </div>
+            `;
+            document.getElementById('summaryStats').innerHTML = statsHTML;
+
+            // Vulnerabilities
+            displayVulnerabilities(data.vulnerabilities);
+
+            // Threats
+            displayThreats(data.threat_model);
+
+            // Recommendations
+            displayRecommendations(data.recommendations);
+
+            // Raw JSON
+            document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayVulnerabilities(vulns) {
+            const html = vulns.map(v => `
+                <div class="vuln-item">
+                    <div class="vuln-header">
+                        <span class="vuln-cve">${v.cve_id || 'N/A'}</span>
+                        <span class="severity-badge severity-${v.severity?.toLowerCase()}">${v.severity}</span>
+                    </div>
+                    <div class="vuln-details">
+                        <div><strong>Host:</strong> ${v.ip_address || v.hostname}</div>
+                        <div><strong>Port:</strong> ${v.port}</div>
+                        <div><strong>Service:</strong> ${v.service}</div>
+                        <div><strong>Product:</strong> ${v.product || 'N/A'}</div>
+                        <div><strong>CVSS:</strong> ${v.cvss_score || 'N/A'}</div>
+                        <div><strong>Priority:</strong> ${v.priority || 'N/A'}</div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('vulnList').innerHTML = html;
+        }
+
+        function displayThreats(threats) {
+            const html = (threats.top_threats || []).map(t => `
+                <div class="threat-item">
+                    <strong>${t.type}</strong>: ${t.vulnerability || 'Unknown'}<br>
+                    <small>Host: ${t.host}:${t.port} | DREAD: ${t.dread_score}/50</small><br>
+                    <div style="margin-top: 10px;">
+                        <strong>Mitigation:</strong> ${t.mitigation || 'N/A'}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('threatsList').innerHTML = html || '<p>No threats identified</p>';
+        }
+
+        function displayRecommendations(recs) {
+            const html = (recs.recommendations || []).map(r => `
+                <div class="recommendation-item">
+                    <strong>${r.vulnerability}</strong><br>
+                    <small>${r.host}:${r.port} | ${r.severity} | ${r.urgency}</small><br>
+                    <div style="margin-top: 10px;">
+                        <strong>Action:</strong> ${r.immediate_action || 'Review'}<br>
+                        <strong>Timeline:</strong> ${r.timeline || 'N/A'}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('recommendationsList').innerHTML = html || '<p>No recommendations</p>';
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab contents
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                const data = await response.json();
+                alert(JSON.stringify(data, null, 2));
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function loadExample() {
+            alert('Please select scan_full.xml from your project directory');
+        }
+
+        function viewDocs() {
+            window.open(`${API_URL}/`, '_blank');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorDiv');
+            errorDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${message}</div>`;
+            errorDiv.style.display = 'block';
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

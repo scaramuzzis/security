@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard - 2025-10-31</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .critical { color: #d32f2f; }
+        .high { color: #f57c00; }
+        .medium { color: #fbc02d; }
+        .low { color: #388e3c; }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-card h2 {
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .chart-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        .vulnerability-list {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .vulnerability-item {
+            padding: 1rem;
+            border-left: 4px solid #ddd;
+            margin-bottom: 1rem;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .vulnerability-item.critical { border-left-color: #d32f2f; }
+        .vulnerability-item.high { border-left-color: #f57c00; }
+        .vulnerability-item.medium { border-left-color: #fbc02d; }
+        .vulnerability-item.low { border-left-color: #388e3c; }
+        
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vuln-cve {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .vuln-score {
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .recommendation {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #fff3cd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Security Vulnerability Dashboard</h1>
+            <p class="subtitle">Generated: 2025-10-31 12:54:26</p>
+        </header>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Vulnerabilities</div>
+                <div class="stat-value">2</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Critical Issues</div>
+                <div class="stat-value critical">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Urgent Actions</div>
+                <div class="stat-value high">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Average Risk Score</div>
+                <div class="stat-value medium">0.00</div>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2>📊 Severity Distribution</h2>
+                <img src="plots/severity_dist.png" alt="Severity Distribution">
+            </div>
+            
+            <div class="chart-card">
+                <h2>🎯 Priority Distribution</h2>
+                <img src="plots/priority_dist.png" alt="Priority Distribution">
+            </div>
+            
+            <div class="chart-card">
+                <h2>📈 Risk Score Distribution</h2>
+                <img src="plots/risk_dist.png" alt="Risk Distribution">
+            </div>
+            
+            <div class="chart-card">
+                <h2>🔝 Top Vulnerabilities</h2>
+                <img src="plots/top_vulns.png" alt="Top Vulnerabilities">
+            </div>
+        </div>
+        
+        <div class="vulnerability-list">
+            <h2>🚨 Top 10 Highest Risk Vulnerabilities</h2>
+
+                <div class="vulnerability-item low">
+                    <div class="vuln-header">
+                        <span class="vuln-cve">CVE-2024-47850</span>
+                        <span class="vuln-score">Risk: 0.00/10</span>
+                    </div>
+                    <div>
+                        <strong>CVSS:</strong> 0.0 | 
+                        <strong>Severity:</strong> LOW | 
+                        <strong>Priority:</strong> 4
+                    </div>
+                    <div class="recommendation">
+                        💡 🟢 Monitorare e documentare: rischio basso.
+                    </div>
+                </div>
+                
+                <div class="vulnerability-item low">
+                    <div class="vuln-header">
+                        <span class="vuln-cve">CVE-2024-47850</span>
+                        <span class="vuln-score">Risk: 0.00/10</span>
+                    </div>
+                    <div>
+                        <strong>CVSS:</strong> 0.0 | 
+                        <strong>Severity:</strong> LOW | 
+                        <strong>Priority:</strong> 4
+                    </div>
+                    <div class="recommendation">
+                        💡 🟢 Monitorare e documentare: rischio basso.
+                    </div>
+                </div>
+                
+        </div>
+        
+        <footer>
+            <p>Generated by AI Security Scanner 🤖</p>
+            <p>Machine Learning Enhanced | NVD Integrated</p>
+        </footer>
+    </div>
+</body>
+</html>
