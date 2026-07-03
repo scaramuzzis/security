@@ -18,6 +18,7 @@ import com.cybersentinel.phoneguard.MainActivity
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.AppNetworkUsage
 import com.cybersentinel.phoneguard.data.Prefs
+import com.cybersentinel.phoneguard.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -51,6 +52,7 @@ class MonitorService : Service() {
         fileScanner = FileScanner(this)
         threatScanner = ThreatScanner(this)
         createChannels()
+        AppLog.log(this, "Servizio di monitoraggio avviato")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -61,6 +63,7 @@ class MonitorService : Service() {
     }
 
     override fun onDestroy() {
+        AppLog.log(this, "Servizio di monitoraggio fermato")
         scope.cancel()
         super.onDestroy()
     }
@@ -271,6 +274,7 @@ class MonitorService : Service() {
     }
 
     private fun notifyAlert(id: Int, title: String, text: String) {
+        AppLog.log(this, "AVVISO: $title — $text")
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(id, baseNotification(title, text, CHANNEL_ALERTS))
     }

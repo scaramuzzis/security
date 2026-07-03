@@ -21,6 +21,13 @@
 
     <string name="global_scan">🔍 Analisi Globale</string>
     <string name="global_scan_running">Analisi in corso…</string>
+    <string name="phase_threats">Fase 1/4 — Scansione anti-spyware…</string>
+    <string name="phase_system">Fase 2/4 — Analisi di sistema…</string>
+    <string name="phase_files">Fase 3/4 — Scansione file (memoria interna + scheda SD)…</string>
+    <string name="phase_energy">Fase 4/4 — Analisi consumi…</string>
+    <string name="phase_done">✅ Analisi completata</string>
+    <string name="self_usage_loading">🖥️ Consumo di PhoneGuard: misurazione…</string>
+    <string name="self_usage">🖥️ Consumo di PhoneGuard in tempo reale\nCPU: %1$.1f%%   ·   RAM: %2$.0f MB</string>
     <string name="counter_placeholder">—</string>
     <string name="counter_threats">App sospette</string>
     <string name="counter_checks">Controlli falliti</string>
@@ -32,6 +39,12 @@
     <string name="toggle_battery_alerts">Avvisi batteria (surriscaldamento/scarica)</string>
     <string name="toggle_file_scan">Scansione automatica nuovi file</string>
     <string name="toggle_app_start_alerts">Avviso quando un\'app si avvia da sola</string>
+    <string name="toggle_logging">Registro attività (log)</string>
+    <string name="log_section_title">Registro attività</string>
+    <string name="log_refresh">Aggiorna</string>
+    <string name="log_clear">Svuota</string>
+    <string name="log_empty">Nessun evento registrato finora.</string>
+    <string name="log_disabled">Registro disattivato: attiva l\'interruttore per registrare avvisi, scansioni ed eventi del servizio.</string>
     <string name="battery_estimate">⏳ Autonomia stimata: %1$dh %2$dm</string>
 
     <!-- Energia -->
@@ -89,9 +102,10 @@
     <string name="reason_permissions">Permessi di sorveglianza concessi: %1$s</string>
 
     <string name="files_section_title">Controllo file sospetti</string>
-    <string name="files_idle">Premi \"Scansiona file\" per cercare file sospetti nella memoria del telefono (APK fuori store, doppie estensioni, eseguibili nascosti).</string>
+    <string name="files_idle">Premi \"Scansiona file\" per cercare file sospetti nella memoria interna e sulla scheda microSD (APK fuori store, doppie estensioni, eseguibili nascosti).</string>
     <string name="files_scanning">Scansione della memoria in corso…</string>
-    <string name="files_none">✅ Nessun file sospetto trovato nella memoria condivisa.</string>
+    <string name="files_scanning_roots">Scansione in corso su: %1$s</string>
+    <string name="files_none">✅ Nessun file sospetto trovato (memoria interna e scheda SD).</string>
     <string name="files_found">⚠️ Trovati %1$d file sospetti:</string>
     <string name="grant_storage_access">Concedi accesso ai file</string>
     <string name="scan_files">Scansiona file</string>

@@ -1,12 +1,17 @@
 package com.cybersentinel.phoneguard.ui
 
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Bundle
+import android.os.Process
+import android.os.SystemClock
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
+import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.data.RiskLevel
 import com.cybersentinel.phoneguard.monitor.BatteryMonitor
@@ -18,7 +23,11 @@ import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
@@ -33,14 +42,22 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private lateinit var statusTitle: TextView
     private lateinit var statusDetail: TextView
     private lateinit var batteryText: TextView
+    private lateinit var selfUsageText: TextView
     private lateinit var globalScanButton: MaterialButton
+    private lateinit var scanProgress: LinearProgressIndicator
+    private lateinit var scanProgressLabel: TextView
+
+    private var selfUsageJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         statusIcon = view.findViewById(R.id.statusIcon)
         statusTitle = view.findViewById(R.id.statusTitle)
         statusDetail = view.findViewById(R.id.statusDetail)
         batteryText = view.findViewById(R.id.batteryText)
+        selfUsageText = view.findViewById(R.id.selfUsageText)
         globalScanButton = view.findViewById(R.id.globalScanButton)
+        scanProgress = view.findViewById(R.id.scanProgress)
+        scanProgressLabel = view.findViewById(R.id.scanProgressLabel)
 
         setCounterLabel(R.id.counterThreats, R.string.counter_threats)
         setCounterLabel(R.id.counterChecks, R.string.counter_checks)
@@ -54,6 +71,45 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     override fun onResume() {
         super.onResume()
         refreshBattery()
+        startSelfUsageLoop()
+    }
+
+    override fun onPause() {
+        selfUsageJob?.cancel()
+        selfUsageJob = null
+        super.onPause()
+    }
+
+    /**
+     * Consumo in tempo reale di PhoneGuard stessa: CPU% (delta del tempo
+     * CPU del processo sul tempo reale trascorso) e RAM (PSS), aggiornati
+     * ogni 2 secondi finché la Dashboard è visibile.
+     */
+    private fun startSelfUsageLoop() {
+        val context = requireContext().applicationContext
+        selfUsageJob?.cancel()
+        selfUsageJob = viewLifecycleOwner.lifecycleScope.launch {
+            var lastCpu = Process.getElapsedCpuTime()
+            var lastClock = SystemClock.elapsedRealtime()
+            while (isActive) {
+                delay(2_000)
+                val cpu = Process.getElapsedCpuTime()
+                val clock = SystemClock.elapsedRealtime()
+                val cpuPercent =
+                    (cpu - lastCpu) * 100f / (clock - lastClock).coerceAtLeast(1)
+                lastCpu = cpu
+                lastClock = clock
+
+                val ramMb = withContext(Dispatchers.Default) {
+                    val am = context.getSystemService(Context.ACTIVITY_SERVICE)
+                            as ActivityManager
+                    val info = am.getProcessMemoryInfo(intArrayOf(Process.myPid()))
+                    (info.firstOrNull()?.totalPss ?: 0) / 1024f
+                }
+                selfUsageText.text =
+                    getString(R.string.self_usage, cpuPercent, ramMb)
+            }
+        }
     }
 
     private fun bindSwitches(view: View) {
@@ -90,18 +146,28 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         val context = requireContext()
         globalScanButton.isEnabled = false
         globalScanButton.setText(R.string.global_scan_running)
+        scanProgress.visibility = View.VISIBLE
+        scanProgressLabel.visibility = View.VISIBLE
+        scanProgress.setProgressCompat(0, false)
 
         viewLifecycleOwner.lifecycleScope.launch {
+            setScanPhase(0, R.string.phase_threats)
             val threats = withContext(Dispatchers.Default) {
                 ThreatScanner(context).scan()
             }
+
+            setScanPhase(1, R.string.phase_system)
             val failedChecks = withContext(Dispatchers.Default) {
                 SystemAnalyzer(context).analyze().count { !it.ok }
             }
+
+            setScanPhase(2, R.string.phase_files)
             val fileScanner = FileScanner(context)
             val suspiciousFiles = withContext(Dispatchers.IO) {
                 if (fileScanner.hasStorageAccess()) fileScanner.scan().size else null
             }
+
+            setScanPhase(3, R.string.phase_energy)
             val hasUsage = NetworkMonitor(context).hasUsageAccess()
             val energyHogs = withContext(Dispatchers.Default) {
                 if (hasUsage) {
@@ -109,6 +175,16 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                         .count { it.usedForegroundService }
                 } else null
             }
+
+            scanProgress.setProgressCompat(4, true)
+            scanProgressLabel.setText(R.string.phase_done)
+            AppLog.log(
+                context,
+                "Analisi Globale: ${threats.size} app sospette, " +
+                        "$failedChecks controlli falliti, " +
+                        "${suspiciousFiles ?: "n/d"} file sospetti, " +
+                        "${energyHogs ?: "n/d"} app con servizi in background"
+            )
 
             setCounterValue(R.id.counterThreats, threats.size.toString())
             setCounterValue(R.id.counterChecks, failedChecks.toString())
@@ -138,7 +214,15 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             refreshBattery()
             globalScanButton.isEnabled = true
             globalScanButton.setText(R.string.global_scan)
+            delay(1_200)
+            scanProgress.visibility = View.GONE
+            scanProgressLabel.visibility = View.GONE
         }
+    }
+
+    private fun setScanPhase(step: Int, labelRes: Int) {
+        scanProgress.setProgressCompat(step, true)
+        scanProgressLabel.setText(labelRes)
     }
 
     private fun refreshBattery() {

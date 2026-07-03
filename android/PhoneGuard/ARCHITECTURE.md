@@ -14,6 +14,8 @@ PhoneGuard
 ├── 📊 DASHBOARD                          [DashboardFragment]
 │   ├── Header di stato (semaforo)        🛡️ verde / ⚠️ ambra / 🚨 rosso
 │   ├── ▶ Analisi Globale                 (minacce + sistema + file + energia, un tap)
+│   │   └── Barra di avanzamento a 4 fasi con etichetta della fase corrente
+│   ├── Card consumo PhoneGuard           (CPU% e RAM dell'app stessa, refresh 2s)
 │   ├── Contatori: App sospette · Controlli falliti · File sospetti · Servizi attivi
 │   ├── Card batteria in tempo reale      (livello, W, temperatura, autonomia stimata)
 │   └── Controlli attivi (toggle)
@@ -40,10 +42,13 @@ PhoneGuard
 └── ⚙️ IMPOSTAZIONI                        [SettingsFragment]
     ├── Regole di automazione             (gli stessi 4 toggle della Dashboard)
     │   └── Nota soglie: 50 MB upload · 45 °C · 20%/h · ciclo 15 min
-    └── Autorizzazioni di sistema         (stato ✅/❌ + scorciatoia alla schermata giusta)
-        ├── Accesso ai dati di utilizzo
-        ├── Accesso a tutti i file
-        └── Notifiche
+    ├── Autorizzazioni di sistema         (stato ✅/❌ + scorciatoia alla schermata giusta)
+    │   ├── Accesso ai dati di utilizzo
+    │   ├── Accesso a tutti i file
+    │   └── Notifiche
+    └── Registro attività (log)           [ON/OFF] + visualizzazione, Aggiorna, Svuota
+        └── file locale con rotazione (max 500 righe); registra avvisi,
+            scansioni e ciclo di vita del servizio
 ```
 
 ---
@@ -145,7 +150,8 @@ PhoneGuard
 | VPN attiva | `ConnectivityManager.getNetworkCapabilities` + `TRANSPORT_VPN` |
 | Traffico per app | `NetworkStatsManager.querySummary` (Wi-Fi + mobile) |
 | Disinstallazione | `Intent.ACTION_DELETE` + `REQUEST_DELETE_PACKAGES` (conferma di sistema) |
-| Scansione file | `Environment.getExternalStorageDirectory` + `MANAGE_EXTERNAL_STORAGE` (Android 11+) |
+| Scansione file (interna + microSD) | `Environment.getExternalStorageDirectory` per la memoria interna; radici dei volumi rimovibili ricavate da `Context.getExternalFilesDirs` (segmento prima di `/Android/`); lettura con `MANAGE_EXTERNAL_STORAGE` (Android 11+) |
+| Consumo dell'app stessa | `Process.getElapsedCpuTime` (delta CPU/tempo reale) + `ActivityManager.getProcessMemoryInfo` (PSS) — consentiti senza permessi sul proprio processo |
 
 ### 3.4 Impostazioni
 | Funzione | API |

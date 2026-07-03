@@ -23,7 +23,9 @@ import com.cybersentinel.phoneguard.monitor.NetworkMonitor
 import com.cybersentinel.phoneguard.monitor.PermissionAuditor
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
+import com.cybersentinel.phoneguard.util.AppLog
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,6 +45,7 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
     private lateinit var permissionButton: MaterialButton
     private lateinit var storagePermissionButton: MaterialButton
     private lateinit var scanButton: MaterialButton
+    private lateinit var filesProgress: LinearProgressIndicator
 
     private val storagePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -57,6 +60,7 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
         permissionButton = view.findViewById(R.id.permissionButton)
         storagePermissionButton = view.findViewById(R.id.storagePermissionButton)
         scanButton = view.findViewById(R.id.scanButton)
+        filesProgress = view.findViewById(R.id.filesProgress)
 
         threatAdapter = ThreatAdapter(
             onUninstall = ::uninstallApp,
@@ -133,12 +137,22 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
             return
         }
         scanButton.isEnabled = false
-        filesText.setText(R.string.files_scanning)
+        filesProgress.visibility = View.VISIBLE
+        val roots = fileScanner.storageRoots()
+        filesText.text = getString(
+            R.string.files_scanning_roots,
+            roots.joinToString(", ") { it.absolutePath }
+        )
 
         viewLifecycleOwner.lifecycleScope.launch {
             val found = withContext(Dispatchers.IO) { fileScanner.scan() }
             filesText.text = formatFiles(found)
+            filesProgress.visibility = View.GONE
             scanButton.isEnabled = true
+            AppLog.log(
+                context,
+                "Scansione file (${roots.size} volumi): ${found.size} sospetti"
+            )
         }
     }
 

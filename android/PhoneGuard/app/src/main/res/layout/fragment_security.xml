@@ -101,6 +101,14 @@
                     android:text="@string/files_idle"
                     android:textAppearance="?attr/textAppearanceBodyMedium" />
 
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/filesProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:indeterminate="true"
+                    android:visibility="gone" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/storagePermissionButton"
                     android:layout_width="match_parent"

@@ -15,6 +15,7 @@ object Prefs {
     private const val KEY_BATTERY_ALERTS = "battery_alerts_enabled"
     private const val KEY_AUTO_FILE_SCAN = "auto_file_scan_enabled"
     private const val KEY_APP_START_ALERTS = "app_start_alerts_enabled"
+    private const val KEY_LOGGING = "logging_enabled"
 
     private fun sp(context: Context): SharedPreferences =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
@@ -46,4 +47,11 @@ object Prefs {
 
     fun setAppStartAlertsEnabled(context: Context, enabled: Boolean) =
         sp(context).edit().putBoolean(KEY_APP_START_ALERTS, enabled).apply()
+
+    /** Registro attività (log) su file locale. */
+    fun loggingEnabled(context: Context): Boolean =
+        sp(context).getBoolean(KEY_LOGGING, false)
+
+    fun setLoggingEnabled(context: Context, enabled: Boolean) =
+        sp(context).edit().putBoolean(KEY_LOGGING, enabled).apply()
 }

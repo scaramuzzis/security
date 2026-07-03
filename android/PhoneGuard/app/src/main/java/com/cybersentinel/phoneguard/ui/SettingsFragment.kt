@@ -8,9 +8,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.cybersentinel.phoneguard.R
+import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
@@ -26,6 +28,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         bindSwitches(view)
+        bindLog(view)
 
         view.findViewById<MaterialButton>(R.id.usageAccessButton).setOnClickListener {
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
@@ -51,6 +54,36 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     override fun onResume() {
         super.onResume()
         refreshPermissionStatus()
+        refreshLog()
+    }
+
+    private fun bindLog(view: View) {
+        val context = requireContext()
+
+        val logging = view.findViewById<MaterialSwitch>(R.id.switchLogging)
+        logging.isChecked = Prefs.loggingEnabled(context)
+        logging.setOnCheckedChangeListener { _, checked ->
+            Prefs.setLoggingEnabled(context, checked)
+            if (checked) AppLog.log(context, "Registro attività attivato")
+            refreshLog()
+        }
+
+        view.findViewById<View>(R.id.logRefreshButton).setOnClickListener {
+            refreshLog()
+        }
+        view.findViewById<View>(R.id.logClearButton).setOnClickListener {
+            AppLog.clear(context)
+            refreshLog()
+        }
+    }
+
+    private fun refreshLog() {
+        val context = requireContext()
+        val logText = view?.findViewById<TextView>(R.id.logText) ?: return
+        logText.text = when {
+            !Prefs.loggingEnabled(context) -> getString(R.string.log_disabled)
+            else -> AppLog.read(context).ifBlank { getString(R.string.log_empty) }
+        }
     }
 
     private fun bindSwitches(view: View) {

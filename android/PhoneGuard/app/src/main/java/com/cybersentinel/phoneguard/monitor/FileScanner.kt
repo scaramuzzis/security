@@ -34,25 +34,56 @@ class FileScanner(private val context: Context) {
         }
 
     /**
-     * Scansione ricorsiva della memoria condivisa (limitata in profondità e
-     * numero di file per non bloccare il dispositivo). Ritorna i file sospetti
-     * ordinati dal più recente.
+     * Scansione ricorsiva di TUTTI i volumi di archiviazione — memoria
+     * interna condivisa e schede microSD/USB — limitata in profondità e
+     * numero di file per non bloccare il dispositivo. Ritorna i file
+     * sospetti ordinati dal più recente.
      */
     fun scan(maxFiles: Int = MAX_FILES): List<SuspiciousFile> {
         if (!hasStorageAccess()) return emptyList()
 
-        val root = Environment.getExternalStorageDirectory() ?: return emptyList()
         val found = ArrayList<SuspiciousFile>()
+        var budget = maxFiles
+        for (root in storageRoots()) {
+            if (budget <= 0) break
+            budget -= scanRoot(root, found, budget)
+        }
+        return found.sortedByDescending { it.lastModified }
+    }
+
+    /**
+     * Radici da scansionare: la memoria interna condivisa più ogni volume
+     * rimovibile (microSD, USB OTG). I volumi esterni si ricavano dalle
+     * directory app-specific (/storage/XXXX-XXXX/Android/data/...):
+     * risalendo al segmento prima di /Android/ si ottiene la radice.
+     */
+    fun storageRoots(): List<File> {
+        val roots = LinkedHashSet<File>()
+        Environment.getExternalStorageDirectory()?.let(roots::add)
+        context.getExternalFilesDirs(null).filterNotNull().forEach { dir ->
+            val path = dir.absolutePath
+            val marker = path.indexOf("/Android/")
+            if (marker > 0) roots.add(File(path.take(marker)))
+        }
+        return roots.filter { it.exists() && it.canRead() }
+    }
+
+    /** Scansiona un singolo volume; ritorna quanti file ha visitato. */
+    private fun scanRoot(
+        root: File,
+        found: MutableList<SuspiciousFile>,
+        budget: Int
+    ): Int {
         val queue = ArrayDeque<Pair<File, Int>>()
         queue.add(root to 0)
         var visited = 0
 
-        while (queue.isNotEmpty() && visited < maxFiles) {
+        while (queue.isNotEmpty() && visited < budget) {
             val (dir, depth) = queue.poll() ?: break
             val children = dir.listFiles() ?: continue
             for (file in children) {
                 visited++
-                if (visited >= maxFiles) break
+                if (visited >= budget) break
                 if (file.isDirectory) {
                     // Android/data e Android/obb non sono comunque leggibili
                     val name = file.name.lowercase(Locale.ROOT)
@@ -64,8 +95,7 @@ class FileScanner(private val context: Context) {
                 }
             }
         }
-
-        return found.sortedByDescending { it.lastModified }
+        return visited
     }
 
     /** Analizza un singolo file e ritorna il motivo se è sospetto. */
