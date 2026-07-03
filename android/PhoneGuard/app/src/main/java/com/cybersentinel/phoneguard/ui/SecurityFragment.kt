@@ -14,13 +14,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cybersentinel.phoneguard.R
+import com.cybersentinel.phoneguard.data.AppStorageInfo
 import com.cybersentinel.phoneguard.data.AppThreat
 import com.cybersentinel.phoneguard.data.SecurityCheck
 import com.cybersentinel.phoneguard.data.SuspiciousFile
+import com.cybersentinel.phoneguard.monitor.AppInventory
 import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
 import com.cybersentinel.phoneguard.monitor.PermissionAuditor
+import com.cybersentinel.phoneguard.monitor.SecurityAnalyst
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
 import com.cybersentinel.phoneguard.util.AppLog
@@ -38,6 +41,8 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
 
     private lateinit var threatAdapter: ThreatAdapter
     private lateinit var usageAdapter: AppUsageAdapter
+    private lateinit var inventoryAdapter: AppStorageAdapter
+    private lateinit var inventoryHeader: TextView
     private lateinit var threatsEmpty: TextView
     private lateinit var auditText: TextView
     private lateinit var systemText: TextView
@@ -75,6 +80,13 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
         view.findViewById<RecyclerView>(R.id.appList).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = usageAdapter
+        }
+
+        inventoryHeader = view.findViewById(R.id.inventoryHeader)
+        inventoryAdapter = AppStorageAdapter(onManage = ::openAppDetailsByPackage)
+        view.findViewById<RecyclerView>(R.id.inventoryList).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = inventoryAdapter
         }
 
         permissionButton.setOnClickListener {
@@ -125,8 +137,28 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
                     networkMonitor.queryUsage(now - 24L * 60 * 60 * 1000, now)
                 }
                 usageAdapter.submit(usage, MonitorService.TX_ALERT_THRESHOLD_BYTES)
+
+                val inventory = AppInventory(context)
+                val apps = withContext(Dispatchers.IO) { inventory.list() }
+                inventoryAdapter.submitList(apps)
+                inventoryHeader.text = getString(
+                    R.string.inventory_header,
+                    apps.size,
+                    SecurityAnalyst.formatSize(inventory.totalCacheBytes(apps))
+                )
+            } else {
+                inventoryHeader.setText(R.string.inventory_no_access)
+                inventoryAdapter.submitList(emptyList())
             }
         }
+    }
+
+    private fun openAppDetailsByPackage(app: AppStorageInfo) {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:${app.packageName}")
+        )
+        runCatching { startActivity(intent) }
     }
 
     private fun scanFiles() {

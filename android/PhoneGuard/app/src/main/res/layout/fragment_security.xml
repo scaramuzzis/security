@@ -126,6 +126,30 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Inventario app e sistema -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/inventory_section_title"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <TextView
+            android:id="@+id/inventoryHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/inventory_loading"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="@color/cyber_on_surface_dim" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/inventoryList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false" />
+
         <!-- Rete -->
         <TextView
             android:layout_width="match_parent"

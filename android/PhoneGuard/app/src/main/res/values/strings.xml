@@ -24,8 +24,11 @@
     <string name="phase_threats">Fase 1/4 — Scansione anti-spyware…</string>
     <string name="phase_system">Fase 2/4 — Analisi di sistema…</string>
     <string name="phase_files">Fase 3/4 — Scansione file (memoria interna + scheda SD)…</string>
-    <string name="phase_energy">Fase 4/4 — Analisi consumi…</string>
+    <string name="phase_energy">Fase 4/5 — Analisi consumi e spazio…</string>
+    <string name="phase_analyst">Fase 5/5 — Referto dell\'analista…</string>
     <string name="phase_done">✅ Analisi completata</string>
+
+    <string name="analyst_disclaimer">Analisi eseguita interamente sul dispositivo (nessun dato inviato online).</string>
     <string name="self_usage_loading">🖥️ Consumo di PhoneGuard: misurazione…</string>
     <string name="self_usage">🖥️ Consumo di PhoneGuard in tempo reale\nCPU: %1$.1f%%   ·   RAM: %2$.0f MB</string>
     <string name="counter_placeholder">—</string>
@@ -52,7 +55,29 @@
     <string name="energy_header">Impatto stimato dal tempo di utilizzo. Il badge SERVIZIO IN BACKGROUND indica app che lavorano (e consumano) anche a schermo spento. \"Gestisci\" apre la scheda di sistema con Arresto forzato e restrizione batteria.</string>
     <string name="energy_details">%1$s in primo piano · %2$d%% del totale</string>
     <string name="fgs_badge">⚡ SERVIZIO IN BACKGROUND</string>
-    <string name="manage_app">Disattiva / Limita</string>
+    <string name="manage_app">Gestisci</string>
+
+    <!-- Pulizia spazio -->
+    <string name="clean_section_title">Pulizia spazio</string>
+    <string name="clean_idle">Cerca file e cartelle inutili (vuote, temporanee, cache miniature) nella memoria interna e sulla scheda SD.</string>
+    <string name="clean_scanning">Ricerca file inutili in corso…</string>
+    <string name="clean_none">✅ Nessun file inutile trovato.</string>
+    <string name="clean_found">Trovati %1$d elementi inutili · %2$s recuperabili</string>
+    <string name="clean_done">✅ Liberati %1$s</string>
+    <string name="scan_junk">Cerca file inutili</string>
+    <string name="clean_now">Pulisci</string>
+    <string name="clean_confirm_title">Confermi la pulizia?</string>
+    <string name="clean_confirm_message">Verranno eliminati %1$d elementi (%2$s). L\'operazione riguarda solo file inutili nella memoria condivisa e non è reversibile.</string>
+    <string name="clean_confirm_ok">Elimina</string>
+    <string name="cancel">Annulla</string>
+
+    <!-- Inventario app -->
+    <string name="inventory_section_title">Inventario app e sistema</string>
+    <string name="inventory_loading">Analisi dello spazio occupato dalle app…</string>
+    <string name="inventory_header">%1$d app installate · cache totale liberabile: %2$s. Tocca \"Gestisci\" per svuotare la cache o disinstallare.</string>
+    <string name="inventory_no_access">Concedi \"Accesso ai dati di utilizzo\" per vedere lo spazio occupato dalle app.</string>
+    <string name="storage_details">%1$s totali · %2$s cache</string>
+    <string name="system_tag">sistema</string>
 
     <!-- Permission Auditor -->
     <string name="audit_section_title">Audit permessi critici</string>

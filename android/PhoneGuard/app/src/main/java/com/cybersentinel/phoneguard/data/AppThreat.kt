@@ -15,7 +15,7 @@ data class ThreatSignals(
     val surveillancePermissions: List<String> = emptyList()
 )
 
-enum class RiskLevel { SOSPETTO, ALTO, CRITICO }
+enum class RiskLevel { SICURO, SOSPETTO, ALTO, CRITICO }
 
 /**
  * App segnalata dalla scansione anti-spyware, con punteggio di rischio

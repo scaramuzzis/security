@@ -14,11 +14,14 @@ import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.data.RiskLevel
+import com.cybersentinel.phoneguard.monitor.AppInventory
 import com.cybersentinel.phoneguard.monitor.BatteryMonitor
 import com.cybersentinel.phoneguard.monitor.EnergyMonitor
 import com.cybersentinel.phoneguard.monitor.FileScanner
+import com.cybersentinel.phoneguard.monitor.JunkScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
+import com.cybersentinel.phoneguard.monitor.SecurityAnalyst
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
 import com.google.android.material.button.MaterialButton
@@ -46,6 +49,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private lateinit var globalScanButton: MaterialButton
     private lateinit var scanProgress: LinearProgressIndicator
     private lateinit var scanProgressLabel: TextView
+    private lateinit var analystCard: View
+    private lateinit var analystHeadline: TextView
+    private lateinit var analystSummary: TextView
+    private lateinit var analystRecommendations: TextView
 
     private var selfUsageJob: Job? = null
 
@@ -58,6 +65,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         globalScanButton = view.findViewById(R.id.globalScanButton)
         scanProgress = view.findViewById(R.id.scanProgress)
         scanProgressLabel = view.findViewById(R.id.scanProgressLabel)
+        analystCard = view.findViewById(R.id.analystCard)
+        analystHeadline = view.findViewById(R.id.analystHeadline)
+        analystSummary = view.findViewById(R.id.analystSummary)
+        analystRecommendations = view.findViewById(R.id.analystRecommendations)
 
         setCounterLabel(R.id.counterThreats, R.string.counter_threats)
         setCounterLabel(R.id.counterChecks, R.string.counter_checks)
@@ -157,9 +168,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             }
 
             setScanPhase(1, R.string.phase_system)
-            val failedChecks = withContext(Dispatchers.Default) {
-                SystemAnalyzer(context).analyze().count { !it.ok }
+            val systemChecks = withContext(Dispatchers.Default) {
+                SystemAnalyzer(context).analyze()
             }
+            val failedChecks = systemChecks.count { !it.ok }
 
             setScanPhase(2, R.string.phase_files)
             val fileScanner = FileScanner(context)
@@ -175,15 +187,33 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                         .count { it.usedForegroundService }
                 } else null
             }
+            val reclaimable = withContext(Dispatchers.IO) {
+                var bytes = 0L
+                if (JunkScanner(context).hasStorageAccess()) {
+                    bytes += JunkScanner(context).scan().sumOf { it.sizeBytes }
+                }
+                if (hasUsage) {
+                    val inv = AppInventory(context)
+                    bytes += inv.totalCacheBytes(inv.list())
+                }
+                bytes
+            }
 
-            scanProgress.setProgressCompat(4, true)
+            setScanPhase(4, R.string.phase_analyst)
+            val report = withContext(Dispatchers.Default) {
+                SecurityAnalyst.analyze(
+                    threats, systemChecks, suspiciousFiles ?: 0, reclaimable
+                )
+            }
+
+            scanProgress.setProgressCompat(5, true)
             scanProgressLabel.setText(R.string.phase_done)
             AppLog.log(
                 context,
-                "Analisi Globale: ${threats.size} app sospette, " +
+                "Analisi Globale — verdetto ${report.verdict}: ${threats.size} app sospette, " +
                         "$failedChecks controlli falliti, " +
                         "${suspiciousFiles ?: "n/d"} file sospetti, " +
-                        "${energyHogs ?: "n/d"} app con servizi in background"
+                        "${SecurityAnalyst.formatSize(reclaimable)} recuperabili"
             )
 
             setCounterValue(R.id.counterThreats, threats.size.toString())
@@ -191,20 +221,19 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             setCounterValue(R.id.counterFiles, suspiciousFiles?.toString() ?: "—")
             setCounterValue(R.id.counterEnergy, energyHogs?.toString() ?: "—")
 
-            val critical = threats.any { it.riskLevel != RiskLevel.SOSPETTO }
-            val warnings = threats.size + failedChecks + (suspiciousFiles ?: 0)
-            when {
-                critical -> setStatus(
+            showAnalystReport(report)
+            when (report.verdict) {
+                RiskLevel.CRITICO -> setStatus(
                     "🚨", R.string.status_critical,
                     getString(R.string.status_detail, threats.size, failedChecks),
                     R.color.status_danger
                 )
-                warnings > 0 -> setStatus(
+                RiskLevel.ALTO, RiskLevel.SOSPETTO -> setStatus(
                     "⚠️", R.string.status_warnings,
                     getString(R.string.status_detail, threats.size, failedChecks),
                     R.color.status_warn
                 )
-                else -> setStatus(
+                RiskLevel.SICURO -> setStatus(
                     "🛡️", R.string.status_ok,
                     getString(R.string.status_ok_detail),
                     R.color.status_ok
@@ -223,6 +252,20 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private fun setScanPhase(step: Int, labelRes: Int) {
         scanProgress.setProgressCompat(step, true)
         scanProgressLabel.setText(labelRes)
+    }
+
+    private fun showAnalystReport(report: com.cybersentinel.phoneguard.data.AnalystReport) {
+        val colorRes = when (report.verdict) {
+            RiskLevel.CRITICO -> R.color.status_danger
+            RiskLevel.ALTO, RiskLevel.SOSPETTO -> R.color.status_warn
+            RiskLevel.SICURO -> R.color.status_ok
+        }
+        analystHeadline.text = "🤖 ${report.headline}"
+        analystHeadline.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
+        analystSummary.text = report.summary
+        analystRecommendations.text =
+            report.recommendations.joinToString("\n\n") { "• $it" }
+        analystCard.visibility = View.VISIBLE
     }
 
     private fun refreshBattery() {

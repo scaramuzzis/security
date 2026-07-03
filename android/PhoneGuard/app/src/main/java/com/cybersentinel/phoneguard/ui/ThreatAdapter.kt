@@ -56,7 +56,8 @@ class ThreatAdapter(
             risk.text = when (item.riskLevel) {
                 RiskLevel.CRITICO -> context.getString(R.string.risk_critical, item.score)
                 RiskLevel.ALTO -> context.getString(R.string.risk_high, item.score)
-                RiskLevel.SOSPETTO -> context.getString(R.string.risk_suspicious, item.score)
+                RiskLevel.SOSPETTO, RiskLevel.SICURO ->
+                    context.getString(R.string.risk_suspicious, item.score)
             }
             reasons.text = item.reasons.joinToString("\n") { "• $it" }
 

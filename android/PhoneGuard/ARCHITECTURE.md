@@ -29,15 +29,16 @@ PhoneGuard
 │   │   └── per ogni app: [Disinstalla] [Info app]
 │   ├── Audit permessi critici            (Accessibilità / Admin / Notifiche / Posizione background)
 │   ├── Analisi di sistema                (root, MDM, VPN, ADB, blocco schermo, ...)
-│   ├── Controllo file sospetti           [Scansiona file]
+│   ├── Controllo file sospetti           [Scansiona file: interna + microSD]
+│   ├── Inventario app e sistema          (tutte le app per spazio: app/dati/cache)
 │   └── Traffico di rete per app          (↑ inviati / ↓ ricevuti, 24h)
 │
 ├── ⚡ ENERGIA                             [EnergyFragment]
 │   ├── Lista app energivore              (ordinata per impatto %, ultime 24h)
 │   │   ├── badge ⚡ SERVIZIO IN BACKGROUND (Foreground Service rilevato)
-│   │   └── [Disattiva / Limita] → scheda di sistema (Arresto forzato,
-│   │       Disattiva per le app di sistema, restrizione batteria)
-│   └── Richiesta permesso "Dati di utilizzo" se mancante
+│   │   └── [Gestisci] → scheda di sistema (Arresto forzato, restrizione batteria)
+│   └── Pulizia spazio                    (file inutili interna+microSD, con [Pulisci])
+│       └── cartelle vuote, file vuoti/temporanei, cache miniature, log/backup
 │
 └── ⚙️ IMPOSTAZIONI                        [SettingsFragment]
     ├── Regole di automazione             (gli stessi 4 toggle della Dashboard)
@@ -125,7 +126,10 @@ PhoneGuard
 | Corrente istantanea (µA) e carica residua (µAh) | `BatteryManager.BATTERY_PROPERTY_CURRENT_NOW`, `BATTERY_PROPERTY_CHARGE_COUNTER` |
 | Potenza stimata (W) | corrente × tensione (calcolo in `BatterySnapshot.estimatedWatts`) |
 | Autonomia stimata | carica residua ÷ corrente di scarica |
-| Analisi Globale | orchestrazione coroutine dei 4 motori (`ThreatScanner`, `SystemAnalyzer`, `FileScanner`, `EnergyMonitor`) |
+| Analisi Globale | orchestrazione coroutine a 5 fasi (`ThreatScanner`, `SystemAnalyzer`, `FileScanner`, `EnergyMonitor`+`JunkScanner`, `SecurityAnalyst`) |
+| Referto AI on-device | `SecurityAnalyst` (motore di regole locale) aggrega tutti i risultati e produce verdetto + raccomandazioni. Nessuna chiamata di rete: l'app non ha `INTERNET` |
+| Inventario app + spazio | `StorageStatsManager.queryStatsForPackage` (appBytes/dataBytes/cacheBytes) — usa il permesso "Dati di utilizzo" già concesso |
+| Pulizia file inutili | scansione multi-volume + `File.delete` limitato ai volumi noti; ⚠️ la cache di *altre* app non è cancellabile via API (Android 8+): il canale è la scheda di sistema |
 
 ### 3.2 Energia & Consumi
 | Funzione | API | Note di piattaforma |
