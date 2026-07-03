@@ -53,6 +53,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 .putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
             runCatching { startActivity(intent) }
         }
+        view.findViewById<MaterialButton>(R.id.deviceInfoButton).setOnClickListener {
+            startActivity(Intent(requireContext(),
+                com.cybersentinel.phoneguard.ui.DeviceInfoActivity::class.java))
+        }
     }
 
     override fun onResume() {

@@ -52,6 +52,15 @@
     <string name="log_disabled">Registro disattivato: attiva l\'interruttore per registrare avvisi, scansioni ed eventi del servizio.</string>
     <string name="battery_estimate">⏳ Autonomia stimata: %1$dh %2$dm</string>
 
+    <!-- App in background -->
+    <string name="running_section_title">App attive in background</string>
+    <string name="running_loading">Controllo delle app attive…</string>
+    <string name="running_no_access">Concedi \"Accesso ai dati di utilizzo\" per vedere le app attive in background.</string>
+    <string name="running_none">✅ Nessuna app di terze parti attiva in background.</string>
+    <string name="running_found">%1$d app attive in background. Tocca \"Ferma\" per chiuderle; tocca la riga per l\'arresto forzato.</string>
+    <string name="stop_app">Ferma</string>
+    <string name="stop_requested">Richiesta di stop inviata a %1$s</string>
+
     <!-- Energia -->
     <string name="energy_section_title">App energivore (ultime 24 ore)</string>
     <string name="energy_header">Impatto stimato dal tempo di utilizzo. Il badge SERVIZIO IN BACKGROUND indica app che lavorano (e consumano) anche a schermo spento. \"Gestisci\" apre la scheda di sistema con Arresto forzato e restrizione batteria.</string>
@@ -109,6 +118,9 @@
     <string name="perm_notifications_unknown">Notifiche</string>
     <string name="perm_notifications_ok">✅ Notifiche — attive</string>
     <string name="perm_notifications_missing">❌ Notifiche — tocca per attivare</string>
+
+    <string name="device_info_open">📱 Informazioni dispositivo</string>
+    <string name="device_info_title">Informazioni dispositivo</string>
 
     <string name="battery_loading">Lettura stato batteria…</string>
     <string name="battery_summary">🔋 Batteria: %1$d%% (%2$s)\n🌡️ Temperatura: %3$.1f °C — Salute: %4$s\n⚡ Potenza stimata: %5$.2f W</string>

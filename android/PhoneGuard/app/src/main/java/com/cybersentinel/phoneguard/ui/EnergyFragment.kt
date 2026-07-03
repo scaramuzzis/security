@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.AppEnergyUsage
 import com.cybersentinel.phoneguard.data.JunkItem
+import com.cybersentinel.phoneguard.data.RunningApp
+import com.cybersentinel.phoneguard.monitor.BackgroundAppsMonitor
 import com.cybersentinel.phoneguard.monitor.EnergyMonitor
 import com.cybersentinel.phoneguard.monitor.JunkScanner
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
@@ -31,6 +33,8 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
 
     private lateinit var energyAdapter: EnergyAdapter
     private lateinit var usagePermissionButton: MaterialButton
+    private lateinit var runningAdapter: RunningAppAdapter
+    private lateinit var runningHeader: android.widget.TextView
 
     private lateinit var junkAdapter: JunkAdapter
     private lateinit var cleanSummary: android.widget.TextView
@@ -52,6 +56,16 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
         view.findViewById<RecyclerView>(R.id.energyList).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = energyAdapter
+        }
+
+        runningHeader = view.findViewById(R.id.runningHeader)
+        runningAdapter = RunningAppAdapter(
+            onStop = ::stopApp,
+            onDetails = { openAppDetailsByPackage(it.packageName) }
+        )
+        view.findViewById<RecyclerView>(R.id.runningList).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = runningAdapter
         }
 
         cleanSummary = view.findViewById(R.id.cleanSummary)
@@ -113,6 +127,45 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
             }
             energyAdapter.submitList(consumers)
         }
+        refreshRunning()
+    }
+
+    private fun refreshRunning() {
+        val context = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val running = withContext(Dispatchers.Default) {
+                BackgroundAppsMonitor(context).runningApps()
+            }
+            runningAdapter.submitList(running)
+            runningHeader.text = when {
+                !BackgroundAppsMonitor(context).hasUsageAccess() ->
+                    getString(R.string.running_no_access)
+                running.isEmpty() -> getString(R.string.running_none)
+                else -> getString(R.string.running_found, running.size)
+            }
+        }
+    }
+
+    private fun stopApp(app: RunningApp) {
+        val context = requireContext()
+        BackgroundAppsMonitor(context).stop(app.packageName)
+        com.cybersentinel.phoneguard.util.AppLog.log(
+            context, "SISTEMA", "Richiesta di stop app in background: ${app.appLabel}"
+        )
+        android.widget.Toast.makeText(
+            context, getString(R.string.stop_requested, app.appLabel),
+            android.widget.Toast.LENGTH_SHORT
+        ).show()
+        // Ricontrolla dopo un istante per riflettere lo stato aggiornato.
+        view?.postDelayed({ if (isAdded) refreshRunning() }, 800)
+    }
+
+    private fun openAppDetailsByPackage(packageName: String) {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:$packageName")
+        )
+        runCatching { startActivity(intent) }
     }
 
     private fun scanJunk() {

@@ -36,6 +36,8 @@ PhoneGuard
 │   └── Traffico di rete per app          (↑ inviati / ↓ ricevuti, 24h)
 │
 ├── ⚡ ENERGIA                             [EnergyFragment]
+│   ├── App attive in background          (servizi attivi + uso recente)
+│   │   └── [Ferma] → killBackgroundProcesses; riga → Arresto forzato
 │   ├── Lista app energivore              (ordinata per impatto %, ultime 24h)
 │   │   ├── badge ⚡ SERVIZIO IN BACKGROUND (Foreground Service rilevato)
 │   │   └── [Gestisci] → scheda di sistema (Arresto forzato, restrizione batteria)
@@ -57,6 +59,8 @@ PhoneGuard
     │   ├── Accesso ai dati di utilizzo
     │   ├── Accesso a tutti i file
     │   └── Notifiche
+    ├── 📱 Informazioni dispositivo        (Activity dedicata: Android, patch,
+    │   hardware, memoria, batteria, cifratura, root, conteggio app)
     └── Registro attività (log)           [ON/OFF] + visualizzazione, Aggiorna, Svuota
         └── database SQLite normalizzato (tabelle `category` + `event`),
             scritture su thread dedicato, letture con LIMIT (memoria
@@ -152,6 +156,8 @@ PhoneGuard
 | Rilevamento Foreground Service | `UsageStatsManager.queryEvents` + `UsageEvents.Event.FOREGROUND_SERVICE_START` | disponibile da Android 10 |
 | Avviso "app avviata da sola" | loop 60s su `queryEvents`: `FOREGROUND_SERVICE_START` senza `ACTIVITY_RESUMED` dell'utente nei 10 min precedenti → notifica heads-up (canale IMPORTANCE_HIGH) | de-duplica 1h per app; ⚠️ un vero popup overlay richiederebbe `SYSTEM_ALERT_WINDOW`, invasivo: l'heads-up è il pattern raccomandato |
 | **Disabilitare/abilitare app** | deep-link scheda app (`ACTION_APPLICATION_DETAILS_SETTINGS`) | ⚠️ `setApplicationEnabledSetting` su altre app richiede `CHANGE_COMPONENT_ENABLED_STATE` (signature\|system): il pulsante "Disattiva" della scheda è l'unico canale consentito |
+| **App in background + Ferma** | rilevamento via `UsageEvents` (FGS start/stop) + uso recente; stop con `ActivityManager.killBackgroundProcesses` (permesso `KILL_BACKGROUND_PROCESSES`) | ⚠️ best-effort: il sistema può riavviare i processi; per la chiusura definitiva resta l'Arresto forzato nella scheda app |
+| **Informazioni dispositivo** | `Build.*`, `Build.VERSION.SECURITY_PATCH`, `ActivityManager.MemoryInfo`, `StatFs`, `DevicePolicyManager.storageEncryptionStatus`, `DisplayMetrics` | tutto locale, nessun dato inviato |
 | **Forza Arresto** | `Settings.ACTION_APPLICATION_DETAILS_SETTINGS` (deep-link) | ⚠️ `FORCE_STOP_PACKAGES` è un permesso *signature\|system*: nessuna app di terze parti può arrestare un altro processo direttamente. Il pulsante di sistema è nella scheda app. |
 | **Restrizione background** | stesso deep-link | ⚠️ `setAppStandbyBucket`/restrizione batteria sono API di sistema; la scelta "Con restrizioni / Ottimizzata / Senza restrizioni" è riservata all'utente nella scheda app. |
 | Consumo reale in mAh per app | — | ⚠️ `BatteryStatsManager` richiede il permesso di sistema `BATTERY_STATS`: si usa il tempo di primo piano come proxy documentato. |

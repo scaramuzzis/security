@@ -31,6 +31,9 @@
     <!-- Avvio della disinstallazione (sempre confermata dall'utente) -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
+    <!-- Terminare i processi in background di un'app -->
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+
     <!-- Necessario per elencare tutte le app installate su Android 11+ -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -51,6 +54,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.DeviceInfoActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
 
         <service
             android:name=".monitor.MonitorService"
