@@ -15,9 +15,26 @@ android {
         versionName = "1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            // Chiave self-signed per distribuzione diretta (fuori Play Store).
+            // Percorso e password sovrascrivibili da gradle.properties/ambiente.
+            storeFile = file(
+                providers.gradleProperty("phoneguard.keystore")
+                    .getOrElse("../phoneguard.keystore")
+            )
+            storePassword = providers.gradleProperty("phoneguard.storePassword")
+                .getOrElse("phoneguard2026")
+            keyAlias = "phoneguard"
+            keyPassword = providers.gradleProperty("phoneguard.keyPassword")
+                .getOrElse("phoneguard2026")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
