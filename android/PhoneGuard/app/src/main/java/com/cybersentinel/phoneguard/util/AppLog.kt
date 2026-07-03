@@ -2,48 +2,54 @@ package com.cybersentinel.phoneguard.util
 
 import android.content.Context
 import com.cybersentinel.phoneguard.data.Prefs
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.Executors
 
 /**
  * Registro attività dell'app, attivabile dalle Impostazioni.
  *
- * Scrive su file privato (filesDir) con rotazione automatica: quando il
- * file supera la dimensione massima vengono conservate solo le ultime
- * [MAX_LINES] righe. Se il registro è disattivato, log() non fa nulla.
+ * Facciata su [LogStore] (SQLite). Le scritture sono affidate a un singolo
+ * thread di background per non bloccare mai chi chiama (servizio o UI); le
+ * letture usano query con LIMIT, quindi la memoria è indipendente dalla
+ * dimensione del registro.
+ *
+ * Categorie usate: SERVIZIO, AVVISO, SCANSIONE, PULIZIA, SISTEMA, GENERALE.
+ * Se il registro è disattivato, log() non fa nulla.
  */
 object AppLog {
 
-    private const val FILE_NAME = "phoneguard.log"
-    private const val MAX_BYTES = 256 * 1024L
-    private const val MAX_LINES = 500
-
+    private val writer = Executors.newSingleThreadExecutor { r ->
+        Thread(r, "phoneguard-log").apply { isDaemon = true }
+    }
     private val formatter = SimpleDateFormat("dd/MM HH:mm:ss", Locale.ITALY)
 
-    fun log(context: Context, message: String) {
+    fun log(context: Context, message: String) = log(context, "GENERALE", message)
+
+    fun log(context: Context, category: String, message: String) {
         if (!Prefs.loggingEnabled(context)) return
-        runCatching {
-            synchronized(this) {
-                val file = File(context.filesDir, FILE_NAME)
-                file.appendText("[${formatter.format(Date())}] $message\n")
-                if (file.length() > MAX_BYTES) {
-                    val lines = file.readLines().takeLast(MAX_LINES)
-                    file.writeText(lines.joinToString("\n") + "\n")
-                }
-            }
+        val appContext = context.applicationContext
+        val timestamp = System.currentTimeMillis()
+        writer.execute {
+            runCatching { LogStore.get(appContext).insert(category, message, timestamp) }
         }
     }
 
-    /** Ultime [maxLines] righe, dalla più recente alla più vecchia. */
-    fun read(context: Context, maxLines: Int = 200): String = runCatching {
-        val file = File(context.filesDir, FILE_NAME)
-        if (!file.exists()) return ""
-        file.readLines().takeLast(maxLines).reversed().joinToString("\n")
-    }.getOrDefault("")
+    /**
+     * Ultimi [maxLines] eventi formattati, dal più recente.
+     * Esegue una query bloccante: chiamare da un thread di background.
+     */
+    fun read(context: Context, maxLines: Int = 200): String {
+        val rows = runCatching { LogStore.get(context.applicationContext).recent(maxLines) }
+            .getOrDefault(emptyList())
+        return rows.joinToString("\n") { row ->
+            "[${formatter.format(Date(row.timestamp))}] ${row.category}: ${row.message}"
+        }
+    }
 
+    /** Svuota il registro. Bloccante: chiamare da un thread di background. */
     fun clear(context: Context) {
-        runCatching { File(context.filesDir, FILE_NAME).delete() }
+        runCatching { LogStore.get(context.applicationContext).clear() }
     }
 }

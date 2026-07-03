@@ -55,8 +55,10 @@ PhoneGuard
     │   ├── Accesso a tutti i file
     │   └── Notifiche
     └── Registro attività (log)           [ON/OFF] + visualizzazione, Aggiorna, Svuota
-        └── file locale con rotazione (max 500 righe); registra avvisi,
-            scansioni e ciclo di vita del servizio
+        └── database SQLite normalizzato (tabelle `category` + `event`),
+            scritture su thread dedicato, letture con LIMIT (memoria
+            costante), rotazione a 1000 righe; categorie: SERVIZIO,
+            AVVISO, SCANSIONE, PULIZIA, SISTEMA
 ```
 
 ---

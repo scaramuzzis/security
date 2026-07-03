@@ -209,7 +209,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             scanProgress.setProgressCompat(5, true)
             scanProgressLabel.setText(R.string.phase_done)
             AppLog.log(
-                context,
+                context, "SCANSIONE",
                 "Analisi Globale — verdetto ${report.verdict}: ${threats.size} app sospette, " +
                         "$failedChecks controlli falliti, " +
                         "${suspiciousFiles ?: "n/d"} file sospetti, " +

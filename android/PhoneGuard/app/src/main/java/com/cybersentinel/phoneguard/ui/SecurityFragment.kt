@@ -238,7 +238,7 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
             filesProgress.visibility = View.GONE
             scanButton.isEnabled = true
             AppLog.log(
-                context,
+                context, "SCANSIONE",
                 "Scansione file (${roots.size} volumi): ${found.size} sospetti"
             )
         }

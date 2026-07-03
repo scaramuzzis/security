@@ -117,7 +117,7 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
                 )
                 cleanButton.isEnabled = true
             }
-            AppLog.log(context, "Scansione file inutili: ${found.size} elementi, ${SecurityAnalyst.formatSize(total)}")
+            AppLog.log(context, "PULIZIA", "Scansione file inutili: ${found.size} elementi, ${SecurityAnalyst.formatSize(total)}")
         }
     }
 
@@ -153,7 +153,7 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
             cleanProgress.visibility = View.GONE
             scanJunkButton.isEnabled = true
             cleanSummary.text = getString(R.string.clean_done, SecurityAnalyst.formatSize(freed))
-            AppLog.log(context, "Pulizia completata: liberati ${SecurityAnalyst.formatSize(freed)}")
+            AppLog.log(context, "PULIZIA", "Pulizia completata: liberati ${SecurityAnalyst.formatSize(freed)}")
         }
     }
 

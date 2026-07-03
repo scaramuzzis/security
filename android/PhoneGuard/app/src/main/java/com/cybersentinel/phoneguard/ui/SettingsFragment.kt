@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.data.Prefs
@@ -19,6 +20,9 @@ import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Impostazioni: regole di automazione e stato delle autorizzazioni di
@@ -64,7 +68,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         logging.isChecked = Prefs.loggingEnabled(context)
         logging.setOnCheckedChangeListener { _, checked ->
             Prefs.setLoggingEnabled(context, checked)
-            if (checked) AppLog.log(context, "Registro attività attivato")
+            if (checked) AppLog.log(context, "SISTEMA", "Registro attività attivato")
             refreshLog()
         }
 
@@ -72,17 +76,23 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             refreshLog()
         }
         view.findViewById<View>(R.id.logClearButton).setOnClickListener {
-            AppLog.clear(context)
-            refreshLog()
+            viewLifecycleOwner.lifecycleScope.launch {
+                withContext(Dispatchers.IO) { AppLog.clear(context) }
+                refreshLog()
+            }
         }
     }
 
     private fun refreshLog() {
         val context = requireContext()
         val logText = view?.findViewById<TextView>(R.id.logText) ?: return
-        logText.text = when {
-            !Prefs.loggingEnabled(context) -> getString(R.string.log_disabled)
-            else -> AppLog.read(context).ifBlank { getString(R.string.log_empty) }
+        if (!Prefs.loggingEnabled(context)) {
+            logText.text = getString(R.string.log_disabled)
+            return
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val content = withContext(Dispatchers.IO) { AppLog.read(context) }
+            logText.text = content.ifBlank { getString(R.string.log_empty) }
         }
     }
 

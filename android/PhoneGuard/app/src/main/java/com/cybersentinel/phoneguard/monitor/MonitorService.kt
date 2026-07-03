@@ -52,7 +52,7 @@ class MonitorService : Service() {
         fileScanner = FileScanner(this)
         threatScanner = ThreatScanner(this)
         createChannels()
-        AppLog.log(this, "Servizio di monitoraggio avviato")
+        AppLog.log(this, "SERVIZIO", "Servizio di monitoraggio avviato")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -63,7 +63,7 @@ class MonitorService : Service() {
     }
 
     override fun onDestroy() {
-        AppLog.log(this, "Servizio di monitoraggio fermato")
+        AppLog.log(this, "SERVIZIO", "Servizio di monitoraggio fermato")
         scope.cancel()
         super.onDestroy()
     }
@@ -276,7 +276,7 @@ class MonitorService : Service() {
     }
 
     private fun notifyAlert(id: Int, title: String, text: String) {
-        AppLog.log(this, "AVVISO: $title — $text")
+        AppLog.log(this, "AVVISO", "$title — $text")
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(id, baseNotification(title, text, CHANNEL_ALERTS))
     }
