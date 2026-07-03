@@ -3,6 +3,63 @@
     <string name="app_name">PhoneGuard</string>
     <string name="dashboard_title">🛡️ PhoneGuard — Monitoraggio sicurezza</string>
 
+    <!-- Navigazione -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_security">Sicurezza</string>
+    <string name="nav_energy">Energia</string>
+    <string name="nav_settings">Impostazioni</string>
+
+    <!-- Dashboard: stato -->
+    <string name="status_icon_unknown">🛡️</string>
+    <string name="status_unknown">In attesa di analisi</string>
+    <string name="status_unknown_detail">Tocca \"Analisi Globale\" per il primo controllo completo</string>
+    <string name="status_ok">Protetto e ottimizzato</string>
+    <string name="status_ok_detail">Nessuna minaccia, nessuna anomalia rilevata</string>
+    <string name="status_warnings">Attenzione richiesta</string>
+    <string name="status_critical">Rischio critico rilevato</string>
+    <string name="status_detail">%1$d app sospette · %2$d controlli di sistema falliti</string>
+
+    <string name="global_scan">🔍 Analisi Globale</string>
+    <string name="global_scan_running">Analisi in corso…</string>
+    <string name="counter_placeholder">—</string>
+    <string name="counter_threats">App sospette</string>
+    <string name="counter_checks">Controlli falliti</string>
+    <string name="counter_files">File sospetti</string>
+    <string name="counter_energy">App con servizi attivi</string>
+
+    <string name="active_controls">Controlli attivi</string>
+    <string name="toggle_monitoring">Monitoraggio continuo in background</string>
+    <string name="toggle_battery_alerts">Avvisi batteria (surriscaldamento/scarica)</string>
+    <string name="toggle_file_scan">Scansione automatica nuovi file</string>
+    <string name="toggle_app_start_alerts">Avviso quando un\'app si avvia da sola</string>
+    <string name="battery_estimate">⏳ Autonomia stimata: %1$dh %2$dm</string>
+
+    <!-- Energia -->
+    <string name="energy_section_title">App energivore (ultime 24 ore)</string>
+    <string name="energy_header">Impatto stimato dal tempo di utilizzo. Il badge SERVIZIO IN BACKGROUND indica app che lavorano (e consumano) anche a schermo spento. \"Gestisci\" apre la scheda di sistema con Arresto forzato e restrizione batteria.</string>
+    <string name="energy_details">%1$s in primo piano · %2$d%% del totale</string>
+    <string name="fgs_badge">⚡ SERVIZIO IN BACKGROUND</string>
+    <string name="manage_app">Disattiva / Limita</string>
+
+    <!-- Permission Auditor -->
+    <string name="audit_section_title">Audit permessi critici</string>
+    <string name="audit_loading">Analisi permessi in corso…</string>
+    <string name="audit_none">Nessuna app</string>
+
+    <!-- Impostazioni -->
+    <string name="automation_section_title">Regole di automazione</string>
+    <string name="automation_rules_note">Soglie attive: upload sospetto oltre 50 MB per intervallo · batteria oltre 45 °C · scarica oltre 20%/ora · controlli ogni 15 minuti.</string>
+    <string name="permissions_section_title">Autorizzazioni di sistema</string>
+    <string name="perm_usage_unknown">Accesso ai dati di utilizzo</string>
+    <string name="perm_usage_ok">✅ Accesso ai dati di utilizzo — concesso</string>
+    <string name="perm_usage_missing">❌ Accesso ai dati di utilizzo — tocca per concedere</string>
+    <string name="perm_storage_unknown">Accesso a tutti i file</string>
+    <string name="perm_storage_ok">✅ Accesso a tutti i file — concesso</string>
+    <string name="perm_storage_missing">❌ Accesso a tutti i file — tocca per concedere</string>
+    <string name="perm_notifications_unknown">Notifiche</string>
+    <string name="perm_notifications_ok">✅ Notifiche — attive</string>
+    <string name="perm_notifications_missing">❌ Notifiche — tocca per attivare</string>
+
     <string name="battery_loading">Lettura stato batteria…</string>
     <string name="battery_summary">🔋 Batteria: %1$d%% (%2$s)\n🌡️ Temperatura: %3$.1f °C — Salute: %4$s\n⚡ Potenza stimata: %5$.2f W</string>
     <string name="charging">in carica</string>
@@ -56,6 +113,8 @@
     <string name="alert_drain">La batteria si sta scaricando a circa il %1$.0f%% all\'ora. Un\'app potrebbe consumare in modo anomalo.</string>
     <string name="alert_file_title">⚠️ Nuovo file sospetto</string>
     <string name="alert_file">%1$s\n%2$s</string>
+    <string name="alert_appstart_title">👁️ App avviata da sola</string>
+    <string name="alert_appstart">\"%1$s\" si è avviata in background senza che tu l\'abbia aperta. Se non te lo aspettavi, controllala nella sezione Sicurezza.</string>
     <string name="alert_threat_title">🚨 Possibile app spia rilevata</string>
     <string name="alert_threat">\"%1$s\" ha un punteggio di rischio %2$d/100: %3$s. Apri PhoneGuard per disinstallarla.</string>
 </resources>

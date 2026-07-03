@@ -1,5 +1,10 @@
 # 📱 PhoneGuard — Monitoraggio sicurezza del cellulare
 
+> **v3.0 — Cyber-Dashboard**: navigazione a 4 sezioni (Dashboard, Sicurezza,
+> Energia, Impostazioni), tema scuro professionale, Analisi Globale con un tap,
+> modulo Energia con gestione app energivore e avvisi popup per le app che si
+> avviano da sole. Architettura completa in [ARCHITECTURE.md](ARCHITECTURE.md).
+
 App Android (Kotlin) del team **Cyber Sentinel** per capire se il telefono è
 **sotto controllo dall'esterno**: rileva app spia nascoste (e permette di
 disinstallarle), traffico dati anomalo e consumo batteria sospetto.

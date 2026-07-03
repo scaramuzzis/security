@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.PhoneGuard" parent="Theme.Material3.DayNight.NoActionBar" />
+    <!-- Tema Cyber-Dashboard: scuro fisso, accenti verdi su antracite -->
+    <style name="Theme.PhoneGuard" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorSecondary">@color/status_warn</item>
+        <item name="colorError">@color/status_danger</item>
+        <item name="android:colorBackground">@color/cyber_background</item>
+        <item name="colorSurface">@color/cyber_surface</item>
+        <item name="colorSurfaceContainer">@color/cyber_surface</item>
+        <item name="colorSurfaceContainerLow">@color/cyber_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/cyber_surface_variant</item>
+        <item name="colorOnSurface">@color/cyber_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/cyber_on_surface_dim</item>
+        <item name="android:statusBarColor">@color/cyber_background</item>
+        <item name="android:navigationBarColor">@color/cyber_surface</item>
+    </style>
 </resources>

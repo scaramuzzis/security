@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#1B5E20</color>
-    <color name="warning">#E65100</color>
+    <!-- Palette Cyber-Dashboard: antracite + accenti semantici -->
+    <color name="cyber_background">#0E141A</color>
+    <color name="cyber_surface">#16202A</color>
+    <color name="cyber_surface_variant">#1E2A36</color>
+    <color name="cyber_on_surface">#E4EDF5</color>
+    <color name="cyber_on_surface_dim">#8FA1B3</color>
+
+    <!-- Semantica di stato -->
+    <color name="status_ok">#00E676</color>
+    <color name="status_warn">#FFB300</color>
+    <color name="status_danger">#FF5252</color>
+
+    <color name="primary">#00E676</color>
+    <color name="on_primary">#00210F</color>
+    <color name="warning">#FFB300</color>
 </resources>

@@ -5,8 +5,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.app.usage.UsageEvents
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
@@ -14,6 +17,7 @@ import androidx.core.app.NotificationCompat
 import com.cybersentinel.phoneguard.MainActivity
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.AppNetworkUsage
+import com.cybersentinel.phoneguard.data.Prefs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,6 +56,7 @@ class MonitorService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startInForeground()
         scope.launch { monitorLoop() }
+        scope.launch { appStartLoop() }
         return START_STICKY
     }
 
@@ -85,6 +90,7 @@ class MonitorService : Service() {
     }
 
     private fun checkBattery() {
+        if (!Prefs.batteryAlertsEnabled(this)) return
         val snap = batteryMonitor.snapshot()
         val now = System.currentTimeMillis()
 
@@ -120,6 +126,7 @@ class MonitorService : Service() {
      * nell'ultimo intervallo di controllo.
      */
     private fun checkFiles() {
+        if (!Prefs.autoFileScanEnabled(this)) return
         if (!fileScanner.hasStorageAccess()) return
 
         val cutoff = System.currentTimeMillis() - CHECK_INTERVAL_MS
@@ -134,6 +141,73 @@ class MonitorService : Service() {
                 getString(R.string.alert_file, file.path, file.reason)
             )
         }
+    }
+
+    /**
+     * Loop veloce (1 minuto): rileva le app che si avviano da sole.
+     *
+     * Euristica: un Foreground Service partito senza che l'utente abbia
+     * aperto quell'app negli ultimi 10 minuti = avvio autonomo in
+     * background. Notifica heads-up (popup) tramite il canale ad alta
+     * priorità, con de-duplica di 1 ora per app.
+     */
+    private suspend fun appStartLoop() {
+        while (scope.isActive) {
+            runCatching { checkAppStarts() }
+            delay(APP_START_INTERVAL_MS)
+        }
+    }
+
+    private val notifiedAppStarts = HashMap<String, Long>()
+
+    private fun checkAppStarts() {
+        if (!Prefs.appStartAlertsEnabled(this)) return
+        if (!networkMonitor.hasUsageAccess()) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+
+        val now = System.currentTimeMillis()
+        val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val events = usm.queryEvents(now - USER_LAUNCH_WINDOW_MS, now)
+
+        val userLaunched = HashSet<String>()
+        val backgroundStarts = HashSet<String>()
+        val event = UsageEvents.Event()
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event)
+            when (event.eventType) {
+                // L'utente ha portato l'app in primo piano: avvio legittimo
+                UsageEvents.Event.ACTIVITY_RESUMED ->
+                    userLaunched.add(event.packageName)
+                // Servizio partito: se recente e non preceduto da un avvio
+                // dell'utente, è un avvio autonomo
+                UsageEvents.Event.FOREGROUND_SERVICE_START ->
+                    if (event.timeStamp >= now - APP_START_INTERVAL_MS - 5_000) {
+                        backgroundStarts.add(event.packageName)
+                    }
+            }
+        }
+
+        backgroundStarts
+            .asSequence()
+            .filter { it != packageName && it !in userLaunched }
+            .filter { pkg ->
+                val last = notifiedAppStarts[pkg]
+                last == null || now - last > APP_START_DEDUPE_MS
+            }
+            .forEach { pkg ->
+                val info = runCatching {
+                    packageManager.getApplicationInfo(pkg, 0)
+                }.getOrNull() ?: return@forEach
+                if ((info.flags and ApplicationInfo.FLAG_SYSTEM) != 0) return@forEach
+
+                notifiedAppStarts[pkg] = now
+                val label = packageManager.getApplicationLabel(info).toString()
+                notifyAlert(
+                    NOTIF_ID_APPSTART_BASE + (pkg.hashCode() and 0xFF),
+                    getString(R.string.alert_appstart_title),
+                    getString(R.string.alert_appstart, label)
+                )
+            }
     }
 
     /**
@@ -236,6 +310,16 @@ class MonitorService : Service() {
     }
 
     companion object {
+
+        fun start(context: Context) {
+            val intent = Intent(context, MonitorService::class.java)
+            androidx.core.content.ContextCompat.startForegroundService(context, intent)
+        }
+
+        fun stop(context: Context) {
+            context.stopService(Intent(context, MonitorService::class.java))
+        }
+
         private const val CHANNEL_STATUS = "phoneguard_status"
         private const val CHANNEL_ALERTS = "phoneguard_alerts"
 
@@ -244,6 +328,16 @@ class MonitorService : Service() {
         private const val NOTIF_ID_NETWORK_BASE = 1000
         private const val NOTIF_ID_FILE_BASE = 5000
         private const val NOTIF_ID_THREAT_BASE = 8000
+        private const val NOTIF_ID_APPSTART_BASE = 12000
+
+        /** Controllo avvii in background: ogni minuto. */
+        private const val APP_START_INTERVAL_MS = 60_000L
+
+        /** Un avvio è "dell'utente" se ha aperto l'app negli ultimi 10 min. */
+        private const val USER_LAUNCH_WINDOW_MS = 10L * 60 * 1000
+
+        /** Non ri-notificare la stessa app per un'ora. */
+        private const val APP_START_DEDUPE_MS = 60L * 60 * 1000
 
         private const val PREFS_NAME = "phoneguard"
         private const val KEY_NOTIFIED_THREATS = "notified_threats"
