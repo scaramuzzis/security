@@ -34,6 +34,18 @@
                     android:text="@string/toggle_monitoring" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchThreatScan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/toggle_threat_scan" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchNetworkAlerts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/toggle_network_alerts" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switchBatteryAlerts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

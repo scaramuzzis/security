@@ -96,6 +96,18 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             if (checked) MonitorService.start(context) else MonitorService.stop(context)
         }
 
+        val threatScan = view.findViewById<MaterialSwitch>(R.id.switchThreatScan)
+        threatScan.isChecked = Prefs.threatScanEnabled(context)
+        threatScan.setOnCheckedChangeListener { _, checked ->
+            Prefs.setThreatScanEnabled(context, checked)
+        }
+
+        val networkAlerts = view.findViewById<MaterialSwitch>(R.id.switchNetworkAlerts)
+        networkAlerts.isChecked = Prefs.networkAlertsEnabled(context)
+        networkAlerts.setOnCheckedChangeListener { _, checked ->
+            Prefs.setNetworkAlertsEnabled(context, checked)
+        }
+
         val battery = view.findViewById<MaterialSwitch>(R.id.switchBatteryAlerts)
         battery.isChecked = Prefs.batteryAlertsEnabled(context)
         battery.setOnCheckedChangeListener { _, checked ->

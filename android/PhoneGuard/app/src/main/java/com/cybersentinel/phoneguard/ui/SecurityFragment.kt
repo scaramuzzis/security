@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,8 +25,11 @@ import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
 import com.cybersentinel.phoneguard.monitor.PermissionAuditor
 import com.cybersentinel.phoneguard.monitor.SecurityAnalyst
+import com.cybersentinel.phoneguard.data.RiskLevel
+import com.cybersentinel.phoneguard.data.WifiTrust
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
+import com.cybersentinel.phoneguard.monitor.WifiAnalyzer
 import com.cybersentinel.phoneguard.util.AppLog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -51,10 +55,18 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
     private lateinit var storagePermissionButton: MaterialButton
     private lateinit var scanButton: MaterialButton
     private lateinit var filesProgress: LinearProgressIndicator
+    private lateinit var wifiVerdict: TextView
+    private lateinit var wifiText: TextView
+    private lateinit var wifiLocationButton: MaterialButton
 
     private val storagePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             updateStorageButton()
+        }
+
+    private val locationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            refreshWifi()
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -66,6 +78,12 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
         storagePermissionButton = view.findViewById(R.id.storagePermissionButton)
         scanButton = view.findViewById(R.id.scanButton)
         filesProgress = view.findViewById(R.id.filesProgress)
+        wifiVerdict = view.findViewById(R.id.wifiVerdict)
+        wifiText = view.findViewById(R.id.wifiText)
+        wifiLocationButton = view.findViewById(R.id.wifiLocationButton)
+        wifiLocationButton.setOnClickListener {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
 
         threatAdapter = ThreatAdapter(
             onUninstall = ::uninstallApp,
@@ -99,6 +117,44 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
     override fun onResume() {
         super.onResume()
         refresh()
+        refreshWifi()
+    }
+
+    private fun refreshWifi() {
+        val context = requireContext()
+        val analyzer = WifiAnalyzer(context)
+        wifiLocationButton.visibility =
+            if (analyzer.hasLocationPermission()) View.GONE else View.VISIBLE
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val trust = withContext(Dispatchers.Default) { analyzer.analyze() }
+            renderWifi(trust)
+        }
+    }
+
+    private fun renderWifi(t: WifiTrust) {
+        if (!t.connected) {
+            wifiVerdict.text = getString(R.string.wifi_not_connected)
+            wifiVerdict.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.cyber_on_surface_dim)
+            )
+            wifiText.text = getString(R.string.wifi_not_connected_detail)
+            return
+        }
+        val (label, colorRes) = when (t.trust) {
+            RiskLevel.ALTO, RiskLevel.CRITICO ->
+                getString(R.string.wifi_untrusted) to R.color.status_danger
+            RiskLevel.SOSPETTO ->
+                getString(R.string.wifi_caution) to R.color.status_warn
+            RiskLevel.SICURO ->
+                getString(R.string.wifi_trusted) to R.color.status_ok
+        }
+        wifiVerdict.text = label
+        wifiVerdict.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
+        wifiText.text = getString(
+            R.string.wifi_detail,
+            t.ssid, t.securityLabel, t.signalPercent
+        ) + "\n\n" + t.reasons.joinToString("\n") { "• $it" }
     }
 
     private fun refresh() {

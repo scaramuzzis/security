@@ -29,6 +29,7 @@ PhoneGuard
 │   │   └── per ogni app: [Disinstalla] [Info app]
 │   ├── Audit permessi critici            (Accessibilità / Admin / Notifiche / Posizione background)
 │   ├── Analisi di sistema                (root, MDM, VPN, ADB, blocco schermo, ...)
+│   ├── Affidabilità Wi-Fi                (cifratura, proxy, captive portal, DNS, VPN)
 │   ├── Controllo file sospetti           [Scansiona file: interna + microSD]
 │   ├── Inventario app e sistema          (tutte le app per spazio: app/dati/cache)
 │   └── Traffico di rete per app          (↑ inviati / ↓ ricevuti, 24h)
@@ -41,7 +42,13 @@ PhoneGuard
 │       └── cartelle vuote, file vuoti/temporanei, cache miniature, log/backup
 │
 └── ⚙️ IMPOSTAZIONI                        [SettingsFragment]
-    ├── Regole di automazione             (gli stessi 4 toggle della Dashboard)
+    ├── Pannello di controllo completo    (ogni funzione attivabile singolarmente):
+    │   ├── Monitoraggio continuo (servizio)
+    │   ├── Scansione anti-spyware in background
+    │   ├── Avvisi traffico dati sospetto
+    │   ├── Avvisi batteria
+    │   ├── Scansione automatica file
+    │   └── Avviso app avviate da sole
     │   └── Nota soglie: 50 MB upload · 45 °C · 20%/h · ciclo 15 min
     ├── Autorizzazioni di sistema         (stato ✅/❌ + scorciatoia alla schermata giusta)
     │   ├── Accesso ai dati di utilizzo
@@ -152,6 +159,7 @@ PhoneGuard
 | Admin del dispositivo / MDM | `DevicePolicyManager.activeAdmins`, `isDeviceOwnerApp`, `isProfileOwnerApp` |
 | Servizi accessibilità / listener notifiche | `Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES`, `enabled_notification_listeners` |
 | VPN attiva | `ConnectivityManager.getNetworkCapabilities` + `TRANSPORT_VPN` |
+| Affidabilità Wi-Fi | `WifiInfo.getCurrentSecurityType` (API 31+), `NET_CAPABILITY_VALIDATED`/`CAPTIVE_PORTAL`, proxy da `Settings.Global.HTTP_PROXY`, DNS privato da `private_dns_mode`; SSID richiede `ACCESS_FINE_LOCATION` |
 | Traffico per app | `NetworkStatsManager.querySummary` (Wi-Fi + mobile) |
 | Disinstallazione | `Intent.ACTION_DELETE` + `REQUEST_DELETE_PACKAGES` (conferma di sistema) |
 | Scansione file (interna + microSD) | `Environment.getExternalStorageDirectory` per la memoria interna; radici dei volumi rimovibili ricavate da `Context.getExternalFilesDirs` (segmento prima di `/Android/`); lettura con `MANAGE_EXTERNAL_STORAGE` (Android 11+) |

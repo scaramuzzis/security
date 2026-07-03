@@ -11,6 +11,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <!-- Analisi affidabilità Wi-Fi (l'SSID richiede la posizione) -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <!-- Scansione file sospetti nella memoria condivisa -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"

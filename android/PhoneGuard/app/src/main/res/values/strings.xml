@@ -42,6 +42,8 @@
     <string name="toggle_battery_alerts">Avvisi batteria (surriscaldamento/scarica)</string>
     <string name="toggle_file_scan">Scansione automatica nuovi file</string>
     <string name="toggle_app_start_alerts">Avviso quando un\'app si avvia da sola</string>
+    <string name="toggle_threat_scan">Scansione anti-spyware in background</string>
+    <string name="toggle_network_alerts">Avvisi traffico dati sospetto</string>
     <string name="toggle_logging">Registro attività (log)</string>
     <string name="log_section_title">Registro attività</string>
     <string name="log_refresh">Aggiorna</string>
@@ -134,6 +136,16 @@
     <string name="files_found">⚠️ Trovati %1$d file sospetti:</string>
     <string name="grant_storage_access">Concedi accesso ai file</string>
     <string name="scan_files">Scansiona file</string>
+
+    <string name="wifi_section_title">Affidabilità Wi-Fi</string>
+    <string name="wifi_loading">Analisi della rete in corso…</string>
+    <string name="wifi_not_connected">📶 Non connesso al Wi-Fi</string>
+    <string name="wifi_not_connected_detail">Collegati a una rete Wi-Fi per analizzarne l\'affidabilità.</string>
+    <string name="wifi_trusted">✅ Rete affidabile</string>
+    <string name="wifi_caution">⚠️ Rete da usare con cautela</string>
+    <string name="wifi_untrusted">🚨 Rete non affidabile</string>
+    <string name="wifi_detail">Rete: %1$s\nSicurezza: %2$s · Segnale: %3$d%%</string>
+    <string name="wifi_grant_location">Concedi la posizione per vedere il nome della rete</string>
 
     <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore)</string>
     <string name="usage_details">↑ Inviati: %1$s   ↓ Ricevuti: %2$s</string>

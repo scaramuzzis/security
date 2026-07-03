@@ -16,6 +16,8 @@ object Prefs {
     private const val KEY_AUTO_FILE_SCAN = "auto_file_scan_enabled"
     private const val KEY_APP_START_ALERTS = "app_start_alerts_enabled"
     private const val KEY_LOGGING = "logging_enabled"
+    private const val KEY_THREAT_SCAN = "threat_scan_enabled"
+    private const val KEY_NETWORK_ALERTS = "network_alerts_enabled"
 
     private fun sp(context: Context): SharedPreferences =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
@@ -54,4 +56,18 @@ object Prefs {
 
     fun setLoggingEnabled(context: Context, enabled: Boolean) =
         sp(context).edit().putBoolean(KEY_LOGGING, enabled).apply()
+
+    /** Scansione anti-spyware periodica in background. */
+    fun threatScanEnabled(context: Context): Boolean =
+        sp(context).getBoolean(KEY_THREAT_SCAN, true)
+
+    fun setThreatScanEnabled(context: Context, enabled: Boolean) =
+        sp(context).edit().putBoolean(KEY_THREAT_SCAN, enabled).apply()
+
+    /** Avvisi per traffico dati in uscita sospetto. */
+    fun networkAlertsEnabled(context: Context): Boolean =
+        sp(context).getBoolean(KEY_NETWORK_ALERTS, true)
+
+    fun setNetworkAlertsEnabled(context: Context, enabled: Boolean) =
+        sp(context).edit().putBoolean(KEY_NETWORK_ALERTS, enabled).apply()
 }

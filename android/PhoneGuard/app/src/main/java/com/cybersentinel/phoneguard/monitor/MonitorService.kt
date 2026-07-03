@@ -81,6 +81,7 @@ class MonitorService : Service() {
     }
 
     private fun checkNetwork() {
+        if (!Prefs.networkAlertsEnabled(this)) return
         if (!networkMonitor.hasUsageAccess()) return
 
         val now = System.currentTimeMillis()
@@ -218,6 +219,7 @@ class MonitorService : Service() {
      * volta per pacchetto (l'elenco dei già segnalati è persistito).
      */
     private fun checkThreats() {
+        if (!Prefs.threatScanEnabled(this)) return
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val alreadyNotified =
             prefs.getStringSet(KEY_NOTIFIED_THREATS, emptySet()).orEmpty()
