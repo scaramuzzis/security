@@ -66,6 +66,14 @@
                     android:text="@string/clean_idle"
                     android:textAppearance="?attr/textAppearanceBodyMedium" />
 
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/selectAll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/select_all"
+                    android:visibility="gone" />
+
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/cleanProgress"
                     android:layout_width="match_parent"

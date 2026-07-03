@@ -19,6 +19,7 @@ import com.cybersentinel.phoneguard.data.AppStorageInfo
 import com.cybersentinel.phoneguard.data.AppThreat
 import com.cybersentinel.phoneguard.data.SecurityCheck
 import com.cybersentinel.phoneguard.data.SuspiciousFile
+import com.cybersentinel.phoneguard.data.AppUpdateInfo
 import com.cybersentinel.phoneguard.monitor.AppInventory
 import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
@@ -29,6 +30,7 @@ import com.cybersentinel.phoneguard.data.RiskLevel
 import com.cybersentinel.phoneguard.data.WifiTrust
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
+import com.cybersentinel.phoneguard.monitor.UpdateChecker
 import com.cybersentinel.phoneguard.monitor.WifiAnalyzer
 import com.cybersentinel.phoneguard.util.AppLog
 import com.google.android.material.button.MaterialButton
@@ -47,6 +49,8 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
     private lateinit var usageAdapter: AppUsageAdapter
     private lateinit var inventoryAdapter: AppStorageAdapter
     private lateinit var inventoryHeader: TextView
+    private lateinit var updateAdapter: UpdateAdapter
+    private lateinit var updatesHeader: TextView
     private lateinit var threatsEmpty: TextView
     private lateinit var auditText: TextView
     private lateinit var systemText: TextView
@@ -105,6 +109,13 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
         view.findViewById<RecyclerView>(R.id.inventoryList).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = inventoryAdapter
+        }
+
+        updatesHeader = view.findViewById(R.id.updatesHeader)
+        updateAdapter = UpdateAdapter(onUpdate = ::openPlayStore)
+        view.findViewById<RecyclerView>(R.id.updateList).apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = updateAdapter
         }
 
         permissionButton.setOnClickListener {
@@ -187,6 +198,17 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
             }
             systemText.text = formatChecks(checks)
 
+            val updates = withContext(Dispatchers.Default) {
+                UpdateChecker(context).list()
+            }
+            updateAdapter.submitList(updates)
+            val stale = updates.count { it.stale }
+            updatesHeader.text = when {
+                updates.isEmpty() -> getString(R.string.updates_none)
+                stale > 0 -> getString(R.string.updates_stale, stale)
+                else -> getString(R.string.updates_ok, updates.size)
+            }
+
             if (hasUsageAccess) {
                 val now = System.currentTimeMillis()
                 val usage = withContext(Dispatchers.IO) {
@@ -215,6 +237,23 @@ class SecurityFragment : Fragment(R.layout.fragment_security) {
             Uri.parse("package:${app.packageName}")
         )
         runCatching { startActivity(intent) }
+    }
+
+    /** Apre la scheda dell'app sul Play Store, dove parte l'aggiornamento. */
+    private fun openPlayStore(app: AppUpdateInfo) {
+        val market = Intent(
+            Intent.ACTION_VIEW, Uri.parse("market://details?id=${app.packageName}")
+        )
+        runCatching { startActivity(market) }.onFailure {
+            runCatching {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=${app.packageName}")
+                    )
+                )
+            }
+        }
     }
 
     private fun scanFiles() {

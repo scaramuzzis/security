@@ -28,16 +28,28 @@ class JunkScanner(private val context: Context) {
     fun hasStorageAccess(): Boolean = fileScanner.hasStorageAccess()
 
     fun scan(maxFiles: Int = MAX_FILES): List<JunkItem> {
-        if (!hasStorageAccess()) return emptyList()
-
         val found = ArrayList<JunkItem>()
-        var budget = maxFiles
-        for (root in fileScanner.storageRoots()) {
-            if (budget <= 0) break
-            budget -= scanRoot(root, found, budget)
+
+        // Cache della nostra app: sempre disponibile, non richiede permessi.
+        cacheDirs().forEach { dir ->
+            val size = dirSize(dir)
+            if (size > 0) found.add(JunkItem(dir.absolutePath, JunkCategory.APP_CACHE, size, true))
+        }
+
+        // File inutili nella memoria condivisa (interna + microSD).
+        if (hasStorageAccess()) {
+            var budget = maxFiles
+            for (root in fileScanner.storageRoots()) {
+                if (budget <= 0) break
+                budget -= scanRoot(root, found, budget)
+            }
         }
         return found.sortedByDescending { it.sizeBytes }
     }
+
+    /** Directory di cache proprie dell'app (interna + esterna). */
+    private fun cacheDirs(): List<File> =
+        listOfNotNull(context.cacheDir, context.externalCacheDir).filter { it.exists() }
 
     private fun scanRoot(root: File, found: MutableList<JunkItem>, budget: Int): Int {
         val queue = ArrayDeque<Pair<File, Int>>()
@@ -90,15 +102,27 @@ class JunkScanner(private val context: Context) {
      * Sicuro: opera solo su percorsi dentro i volumi di archiviazione noti.
      */
     fun clean(items: List<JunkItem>): Long {
-        val roots = fileScanner.storageRoots().map { it.absolutePath }
+        // Percorsi consentiti: volumi condivisi + cache proprie dell'app.
+        val allowed = fileScanner.storageRoots().map { it.absolutePath } +
+                cacheDirs().map { it.absolutePath }
         var freed = 0L
         for (item in items) {
-            if (roots.none { item.path.startsWith(it) }) continue
+            if (allowed.none { item.path.startsWith(it) }) continue
             val file = File(item.path)
             val size = if (item.isDirectory) dirSize(file) else file.length()
-            if (deleteRecursively(file)) freed += size
+            // Per la cache dell'app svuotiamo il contenuto, non la cartella stessa.
+            if (item.category == JunkCategory.APP_CACHE) {
+                clearContents(file)
+                freed += size
+            } else if (deleteRecursively(file)) {
+                freed += size
+            }
         }
         return freed
+    }
+
+    private fun clearContents(dir: File) {
+        dir.listFiles()?.forEach { deleteRecursively(it) }
     }
 
     private fun deleteRecursively(file: File): Boolean = runCatching {

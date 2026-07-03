@@ -68,12 +68,22 @@
     <string name="clean_done">✅ Liberati %1$s</string>
     <string name="scan_junk">Cerca file inutili</string>
     <string name="clean_now">Pulisci</string>
+    <string name="clean_selected">Pulisci %1$d selezionati · %2$s</string>
+    <string name="select_all">Seleziona tutto</string>
     <string name="clean_confirm_title">Confermi la pulizia?</string>
     <string name="clean_confirm_message">Verranno eliminati %1$d elementi (%2$s). L\'operazione riguarda solo file inutili nella memoria condivisa e non è reversibile.</string>
     <string name="clean_confirm_ok">Elimina</string>
     <string name="cancel">Annulla</string>
 
     <!-- Inventario app -->
+    <string name="updates_section_title">App da aggiornare</string>
+    <string name="updates_loading">Controllo delle app installate dal Play Store…</string>
+    <string name="updates_none">Nessuna app dal Play Store da mostrare.</string>
+    <string name="updates_ok">%1$d app dal Play Store, ordinate per anzianità. Android non rivela se esiste un aggiornamento: tocca \"Aggiorna\" per aprire lo store e verificarlo.</string>
+    <string name="updates_stale">⚠️ %1$d app ferme da oltre 4 mesi: potrebbero avere aggiornamenti (anche di sicurezza) in sospeso. Tocca \"Aggiorna\" per controllare sullo store.</string>
+    <string name="update_details">v%1$s · ultimo agg. %2$s</string>
+    <string name="update_now">Aggiorna</string>
+
     <string name="inventory_section_title">Inventario app e sistema</string>
     <string name="inventory_loading">Analisi dello spazio occupato dalle app…</string>
     <string name="inventory_header">%1$d app installate · cache totale liberabile: %2$s. Tocca \"Gestisci\" per svuotare la cache o disinstallare.</string>

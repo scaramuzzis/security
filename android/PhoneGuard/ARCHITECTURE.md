@@ -31,6 +31,7 @@ PhoneGuard
 │   ├── Analisi di sistema                (root, MDM, VPN, ADB, blocco schermo, ...)
 │   ├── Affidabilità Wi-Fi                (cifratura, proxy, captive portal, DNS, VPN)
 │   ├── Controllo file sospetti           [Scansiona file: interna + microSD]
+│   ├── App da aggiornare                 (ordinate per ultimo agg., [Aggiorna]→Play Store)
 │   ├── Inventario app e sistema          (tutte le app per spazio: app/dati/cache)
 │   └── Traffico di rete per app          (↑ inviati / ↓ ricevuti, 24h)
 │
@@ -38,8 +39,10 @@ PhoneGuard
 │   ├── Lista app energivore              (ordinata per impatto %, ultime 24h)
 │   │   ├── badge ⚡ SERVIZIO IN BACKGROUND (Foreground Service rilevato)
 │   │   └── [Gestisci] → scheda di sistema (Arresto forzato, restrizione batteria)
-│   └── Pulizia spazio                    (file inutili interna+microSD, con [Pulisci])
-│       └── cartelle vuote, file vuoti/temporanei, cache miniature, log/backup
+│   └── Pulizia spazio                    (selezione con checkbox di cosa eliminare)
+│       ├── cartelle vuote, file vuoti/temporanei, cache miniature, log/backup
+│       ├── cache dell'app PhoneGuard (eliminabile direttamente)
+│       └── [Seleziona tutto] + [Pulisci N selezionati · dimensione]
 │
 └── ⚙️ IMPOSTAZIONI                        [SettingsFragment]
     ├── Pannello di controllo completo    (ogni funzione attivabile singolarmente):
@@ -138,6 +141,8 @@ PhoneGuard
 | Analisi Globale | orchestrazione coroutine a 5 fasi (`ThreatScanner`, `SystemAnalyzer`, `FileScanner`, `EnergyMonitor`+`JunkScanner`, `SecurityAnalyst`) |
 | Referto AI on-device | `SecurityAnalyst` (motore di regole locale) aggrega tutti i risultati e produce verdetto + raccomandazioni. Nessuna chiamata di rete: l'app non ha `INTERNET` |
 | Inventario app + spazio | `StorageStatsManager.queryStatsForPackage` (appBytes/dataBytes/cacheBytes) — usa il permesso "Dati di utilizzo" già concesso |
+| App da aggiornare | `PackageInfo.lastUpdateTime` + origine `getInstallSourceInfo`; ⚠️ Android non espone la disponibilità di aggiornamenti alle app di terze parti, quindi si ordina per anzianità e si apre `market://details?id=` per l'update reale |
+| Pulizia cache app propria | `context.cacheDir`/`externalCacheDir` svuotabili direttamente; ⚠️ la cache di *altre* app non è cancellabile via API (Android 8+): resta il deep-link alla scheda di sistema |
 | Pulizia file inutili | scansione multi-volume + `File.delete` limitato ai volumi noti; ⚠️ la cache di *altre* app non è cancellabile via API (Android 8+): il canale è la scheda di sistema |
 
 ### 3.2 Energia & Consumi

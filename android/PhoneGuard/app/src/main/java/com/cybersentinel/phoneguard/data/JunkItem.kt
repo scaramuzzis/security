@@ -15,5 +15,6 @@ enum class JunkCategory(val label: String) {
     EMPTY_FILE("File vuoto (0 byte)"),
     TEMP_FILE("File temporaneo/residuo"),
     THUMBNAIL_CACHE("Cache miniature"),
-    LOG_FILE("File di log/backup")
+    LOG_FILE("File di log/backup"),
+    APP_CACHE("Cache di PhoneGuard")
 }

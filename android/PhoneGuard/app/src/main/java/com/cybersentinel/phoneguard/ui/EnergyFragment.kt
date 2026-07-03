@@ -37,8 +37,10 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
     private lateinit var cleanProgress: LinearProgressIndicator
     private lateinit var scanJunkButton: MaterialButton
     private lateinit var cleanButton: MaterialButton
+    private lateinit var selectAll: com.google.android.material.checkbox.MaterialCheckBox
 
     private var junkFound: List<JunkItem> = emptyList()
+    private val selectedJunk = LinkedHashSet<String>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         usagePermissionButton = view.findViewById(R.id.usagePermissionButton)
@@ -56,15 +58,40 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
         cleanProgress = view.findViewById(R.id.cleanProgress)
         scanJunkButton = view.findViewById(R.id.scanJunkButton)
         cleanButton = view.findViewById(R.id.cleanButton)
+        selectAll = view.findViewById(R.id.selectAll)
 
-        junkAdapter = JunkAdapter()
+        junkAdapter = JunkAdapter(
+            isSelected = { it.path in selectedJunk },
+            onToggle = { item, checked -> toggleJunk(item, checked) }
+        )
         view.findViewById<RecyclerView>(R.id.junkList).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = junkAdapter
         }
 
+        selectAll.setOnClickListener {
+            val all = selectAll.isChecked
+            selectedJunk.clear()
+            if (all) selectedJunk.addAll(junkFound.map { it.path })
+            junkAdapter.notifyDataSetChanged()
+            updateCleanButton()
+        }
+
         scanJunkButton.setOnClickListener { scanJunk() }
         cleanButton.setOnClickListener { confirmClean() }
+    }
+
+    private fun toggleJunk(item: JunkItem, checked: Boolean) {
+        if (checked) selectedJunk.add(item.path) else selectedJunk.remove(item.path)
+        updateCleanButton()
+    }
+
+    private fun updateCleanButton() {
+        val selected = junkFound.filter { it.path in selectedJunk }
+        val total = selected.sumOf { it.sizeBytes }
+        cleanButton.isEnabled = selected.isNotEmpty()
+        cleanButton.text = if (selected.isEmpty()) getString(R.string.clean_now)
+        else getString(R.string.clean_selected, selected.size, SecurityAnalyst.formatSize(total))
     }
 
     override fun onResume() {
@@ -103,6 +130,9 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
         viewLifecycleOwner.lifecycleScope.launch {
             val found = withContext(Dispatchers.IO) { scanner.scan() }
             junkFound = found
+            // Preselezione: tutto selezionato, l'utente deseleziona cosa tenere.
+            selectedJunk.clear()
+            selectedJunk.addAll(found.map { it.path })
             junkAdapter.submitList(found)
             cleanProgress.visibility = View.GONE
             scanJunkButton.isEnabled = true
@@ -110,36 +140,38 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
             val total = found.sumOf { it.sizeBytes }
             if (found.isEmpty()) {
                 cleanSummary.setText(R.string.clean_none)
-                cleanButton.isEnabled = false
+                selectAll.visibility = View.GONE
             } else {
                 cleanSummary.text = getString(
                     R.string.clean_found, found.size, SecurityAnalyst.formatSize(total)
                 )
-                cleanButton.isEnabled = true
+                selectAll.visibility = View.VISIBLE
+                selectAll.isChecked = true
             }
+            updateCleanButton()
             AppLog.log(context, "PULIZIA", "Scansione file inutili: ${found.size} elementi, ${SecurityAnalyst.formatSize(total)}")
         }
     }
 
     private fun confirmClean() {
-        if (junkFound.isEmpty()) return
-        val total = junkFound.sumOf { it.sizeBytes }
+        val selected = junkFound.filter { it.path in selectedJunk }
+        if (selected.isEmpty()) return
+        val total = selected.sumOf { it.sizeBytes }
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.clean_confirm_title)
             .setMessage(
                 getString(
                     R.string.clean_confirm_message,
-                    junkFound.size, SecurityAnalyst.formatSize(total)
+                    selected.size, SecurityAnalyst.formatSize(total)
                 )
             )
             .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.clean_confirm_ok) { _, _ -> doClean() }
+            .setPositiveButton(R.string.clean_confirm_ok) { _, _ -> doClean(selected) }
             .show()
     }
 
-    private fun doClean() {
+    private fun doClean(toClean: List<JunkItem>) {
         val context = requireContext()
-        val toClean = junkFound
         cleanButton.isEnabled = false
         scanJunkButton.isEnabled = false
         cleanProgress.visibility = View.VISIBLE
@@ -148,10 +180,14 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
             val freed = withContext(Dispatchers.IO) {
                 JunkScanner(context).clean(toClean)
             }
-            junkFound = emptyList()
-            junkAdapter.submitList(emptyList())
+            val cleanedPaths = toClean.map { it.path }.toSet()
+            junkFound = junkFound.filterNot { it.path in cleanedPaths }
+            selectedJunk.removeAll(cleanedPaths)
+            junkAdapter.submitList(junkFound)
+            selectAll.visibility = if (junkFound.isEmpty()) View.GONE else View.VISIBLE
             cleanProgress.visibility = View.GONE
             scanJunkButton.isEnabled = true
+            updateCleanButton()
             cleanSummary.text = getString(R.string.clean_done, SecurityAnalyst.formatSize(freed))
             AppLog.log(context, "PULIZIA", "Pulizia completata: liberati ${SecurityAnalyst.formatSize(freed)}")
         }
