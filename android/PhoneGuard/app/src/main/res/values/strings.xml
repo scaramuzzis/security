@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PhoneGuard</string>
+    <string name="dashboard_title">🛡️ PhoneGuard — Monitoraggio sicurezza</string>
+
+    <string name="battery_loading">Lettura stato batteria…</string>
+    <string name="battery_summary">🔋 Batteria: %1$d%% (%2$s)\n🌡️ Temperatura: %3$.1f °C — Salute: %4$s\n⚡ Potenza stimata: %5$.2f W</string>
+    <string name="charging">in carica</string>
+    <string name="discharging">in scarica</string>
+
+    <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore)</string>
+    <string name="usage_details">↑ Inviati: %1$s   ↓ Ricevuti: %2$s</string>
+    <string name="suspicious_app">App con upload sospetto</string>
+    <string name="grant_usage_access">Concedi accesso ai dati di utilizzo</string>
+
+    <string name="service_running_title">PhoneGuard attivo</string>
+    <string name="service_running_text">Monitoraggio di rete e batteria in corso</string>
+    <string name="channel_status">Stato del monitoraggio</string>
+    <string name="channel_alerts">Avvisi di sicurezza</string>
+
+    <string name="alert_network_title">⚠️ Traffico dati sospetto</string>
+    <string name="alert_upload">L\'app \"%1$s\" ha inviato %2$.1f MB nell\'ultimo intervallo di controllo. Verifica che sia un comportamento previsto.</string>
+    <string name="alert_battery_title">⚠️ Anomalia batteria</string>
+    <string name="alert_overheat">La batteria ha raggiunto %1$.1f °C. Chiudi le app in uso e lascia raffreddare il telefono.</string>
+    <string name="alert_drain">La batteria si sta scaricando a circa il %1$.0f%% all\'ora. Un\'app potrebbe consumare in modo anomalo.</string>
+</resources>

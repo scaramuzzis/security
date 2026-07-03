@@ -312,6 +312,18 @@ dashboard
 ![Immagine 2025-11-05 080257](https://github.com/user-attachments/assets/d44d5c94-ad69-4801-bcf4-b7fb593b748f)
 
 
+# 📱 PhoneGuard — App Android di monitoraggio del cellulare
+
+Nella cartella [`android/PhoneGuard`](android/PhoneGuard/) è disponibile un'app Android
+che controlla il telefono per rilevare comportamenti sospetti:
+
+- quali app **inviano dati** verso l'esterno (traffico per-app Wi-Fi + mobile),
+  con notifiche in caso di upload anomali;
+- come viene **consumata la batteria** (livello, temperatura, salute, potenza),
+  con avvisi per surriscaldamento o scarica anomala.
+
+Vedi il [README dedicato](android/PhoneGuard/README.md) per compilazione, permessi e dettagli.
+
 # 🤝 Contribuire
 
 Le pull request sono benvenute!
