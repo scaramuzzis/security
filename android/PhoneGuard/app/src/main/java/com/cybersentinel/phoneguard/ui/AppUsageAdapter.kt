@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.AppNetworkUsage
@@ -14,15 +16,13 @@ import java.util.Locale
  * Lista delle app con i relativi dati inviati/ricevuti.
  * Le app sospette (upload elevato) sono evidenziate con un'icona di avviso.
  */
-class AppUsageAdapter : RecyclerView.Adapter<AppUsageAdapter.Holder>() {
+class AppUsageAdapter : ListAdapter<AppNetworkUsage, AppUsageAdapter.Holder>(DIFF) {
 
-    private var items: List<AppNetworkUsage> = emptyList()
     private var txThreshold: Long = Long.MAX_VALUE
 
     fun submit(newItems: List<AppNetworkUsage>, threshold: Long) {
-        items = newItems
         txThreshold = threshold
-        notifyDataSetChanged()
+        submitList(newItems)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -31,10 +31,8 @@ class AppUsageAdapter : RecyclerView.Adapter<AppUsageAdapter.Holder>() {
         return Holder(view)
     }
 
-    override fun getItemCount(): Int = items.size
-
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(items[position], txThreshold)
+        holder.bind(getItem(position), txThreshold)
     }
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
@@ -53,11 +51,9 @@ class AppUsageAdapter : RecyclerView.Adapter<AppUsageAdapter.Holder>() {
             warning.visibility =
                 if (item.isSuspicious(threshold)) View.VISIBLE else View.GONE
 
-            val drawable = try {
+            val drawable = runCatching {
                 itemView.context.packageManager.getApplicationIcon(item.packageName)
-            } catch (e: Exception) {
-                null
-            }
+            }.getOrNull()
             if (drawable != null) icon.setImageDrawable(drawable)
             else icon.setImageResource(R.drawable.ic_shield)
         }
@@ -70,6 +66,16 @@ class AppUsageAdapter : RecyclerView.Adapter<AppUsageAdapter.Holder>() {
                 bytes >= kb -> String.format(Locale.getDefault(), "%.0f KB", bytes / kb)
                 else -> "$bytes B"
             }
+        }
+    }
+
+    companion object {
+        private val DIFF = object : DiffUtil.ItemCallback<AppNetworkUsage>() {
+            override fun areItemsTheSame(oldItem: AppNetworkUsage, newItem: AppNetworkUsage) =
+                oldItem.uid == newItem.uid && oldItem.packageName == newItem.packageName
+
+            override fun areContentsTheSame(oldItem: AppNetworkUsage, newItem: AppNetworkUsage) =
+                oldItem == newItem
         }
     }
 }

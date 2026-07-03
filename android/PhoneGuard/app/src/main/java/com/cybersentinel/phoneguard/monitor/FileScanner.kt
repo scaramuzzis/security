@@ -70,31 +70,7 @@ class FileScanner(private val context: Context) {
 
     /** Analizza un singolo file e ritorna il motivo se è sospetto. */
     fun inspect(file: File): SuspiciousFile? {
-        val name = file.name.lowercase(Locale.ROOT)
-        val parts = name.split('.')
-        val ext = parts.lastOrNull() ?: return null
-
-        val reason = when {
-            // doppia estensione: si finge documento/foto ma è eseguibile
-            ext in RISKY_EXTENSIONS && parts.size >= 3 &&
-                    parts[parts.size - 2] in DISGUISE_EXTENSIONS ->
-                "Doppia estensione: si finge .${parts[parts.size - 2]} ma è .$ext"
-
-            // eseguibile nascosto
-            ext in RISKY_EXTENSIONS && name.startsWith(".") ->
-                "File eseguibile nascosto"
-
-            // APK: installabile arrivato fuori dallo store
-            ext == "apk" ->
-                "Pacchetto installabile (APK) in memoria: verifica la provenienza"
-
-            // altri eseguibili/script
-            ext in RISKY_EXTENSIONS ->
-                "File eseguibile o script (.$ext)"
-
-            else -> return null
-        }
-
+        val reason = classifyName(file.name) ?: return null
         return SuspiciousFile(
             path = file.absolutePath,
             reason = reason,
@@ -106,6 +82,37 @@ class FileScanner(private val context: Context) {
     companion object {
         private const val MAX_DEPTH = 6
         private const val MAX_FILES = 30_000
+
+        /**
+         * Classificazione pura (testabile) del nome di un file:
+         * ritorna il motivo della segnalazione, o null se non è sospetto.
+         */
+        fun classifyName(fileName: String): String? {
+            val name = fileName.lowercase(Locale.ROOT)
+            val parts = name.split('.')
+            val ext = parts.lastOrNull() ?: return null
+
+            return when {
+                // doppia estensione: si finge documento/foto ma è eseguibile
+                ext in RISKY_EXTENSIONS && parts.size >= 3 &&
+                        parts[parts.size - 2] in DISGUISE_EXTENSIONS ->
+                    "Doppia estensione: si finge .${parts[parts.size - 2]} ma è .$ext"
+
+                // eseguibile nascosto
+                ext in RISKY_EXTENSIONS && name.startsWith(".") ->
+                    "File eseguibile nascosto"
+
+                // APK: installabile arrivato fuori dallo store
+                ext == "apk" ->
+                    "Pacchetto installabile (APK) in memoria: verifica la provenienza"
+
+                // altri eseguibili/script
+                ext in RISKY_EXTENSIONS ->
+                    "File eseguibile o script (.$ext)"
+
+                else -> null
+            }
+        }
 
         /** Estensioni eseguibili/installabili considerate a rischio. */
         val RISKY_EXTENSIONS = setOf(

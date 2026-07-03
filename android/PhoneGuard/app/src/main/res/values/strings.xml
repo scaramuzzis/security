@@ -11,6 +11,26 @@
     <string name="system_section_title">Analisi di sistema</string>
     <string name="system_loading">Analisi in corso…</string>
 
+    <string name="threats_section_title">App sospette e nascoste</string>
+    <string name="threats_loading">Scansione anti-spyware in corso…</string>
+    <string name="threats_none">✅ Nessuna app sospetta o nascosta rilevata.</string>
+    <string name="threats_found">⚠️ %1$d app da controllare, ordinate per rischio. Disinstalla quelle che non riconosci.</string>
+    <string name="threat_name">%1$s (%2$s)</string>
+    <string name="risk_critical">RISCHIO CRITICO — punteggio %1$d/100</string>
+    <string name="risk_high">Rischio alto — punteggio %1$d/100</string>
+    <string name="risk_suspicious">Da verificare — punteggio %1$d/100</string>
+    <string name="uninstall">Disinstalla</string>
+    <string name="app_info">Info app</string>
+
+    <string name="reason_stalkerware">Pacchetto riconducibile a stalkerware noto</string>
+    <string name="reason_hidden">Invisibile nel launcher: non ha un\'icona con cui aprirla</string>
+    <string name="reason_accessibility">Servizio di accessibilità attivo: può leggere schermo e digitazione</string>
+    <string name="reason_device_admin">Amministratore del dispositivo: può impedire la disinstallazione (revoca il privilegio da \"Info app\")</string>
+    <string name="reason_notification_listener">Legge tutte le notifiche (messaggi, chat, codici OTP)</string>
+    <string name="reason_sideloaded">Installata fuori dagli store ufficiali</string>
+    <string name="reason_suspicious_name">Nome del pacchetto con parole chiave sospette</string>
+    <string name="reason_permissions">Permessi di sorveglianza concessi: %1$s</string>
+
     <string name="files_section_title">Controllo file sospetti</string>
     <string name="files_idle">Premi \"Scansiona file\" per cercare file sospetti nella memoria del telefono (APK fuori store, doppie estensioni, eseguibili nascosti).</string>
     <string name="files_scanning">Scansione della memoria in corso…</string>
@@ -36,4 +56,6 @@
     <string name="alert_drain">La batteria si sta scaricando a circa il %1$.0f%% all\'ora. Un\'app potrebbe consumare in modo anomalo.</string>
     <string name="alert_file_title">⚠️ Nuovo file sospetto</string>
     <string name="alert_file">%1$s\n%2$s</string>
+    <string name="alert_threat_title">🚨 Possibile app spia rilevata</string>
+    <string name="alert_threat">\"%1$s\" ha un punteggio di rischio %2$d/100: %3$s. Apri PhoneGuard per disinstallarla.</string>
 </resources>

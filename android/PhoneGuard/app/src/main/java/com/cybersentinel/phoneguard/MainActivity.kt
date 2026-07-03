@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.cybersentinel.phoneguard.data.AppThreat
 import com.cybersentinel.phoneguard.data.SecurityCheck
 import com.cybersentinel.phoneguard.data.SuspiciousFile
 import com.cybersentinel.phoneguard.monitor.BatteryMonitor
@@ -23,7 +24,9 @@ import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
+import com.cybersentinel.phoneguard.monitor.ThreatScanner
 import com.cybersentinel.phoneguard.ui.AppUsageAdapter
+import com.cybersentinel.phoneguard.ui.ThreatAdapter
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,11 +38,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var batteryMonitor: BatteryMonitor
     private lateinit var systemAnalyzer: SystemAnalyzer
     private lateinit var fileScanner: FileScanner
+    private lateinit var threatScanner: ThreatScanner
     private lateinit var adapter: AppUsageAdapter
+    private lateinit var threatAdapter: ThreatAdapter
 
     private lateinit var batteryText: TextView
     private lateinit var systemText: TextView
     private lateinit var filesText: TextView
+    private lateinit var threatsEmpty: TextView
     private lateinit var permissionButton: MaterialButton
     private lateinit var storagePermissionButton: MaterialButton
     private lateinit var scanButton: MaterialButton
@@ -61,11 +67,17 @@ class MainActivity : AppCompatActivity() {
         batteryMonitor = BatteryMonitor(this)
         systemAnalyzer = SystemAnalyzer(this)
         fileScanner = FileScanner(this)
+        threatScanner = ThreatScanner(this)
         adapter = AppUsageAdapter()
+        threatAdapter = ThreatAdapter(
+            onUninstall = ::uninstallApp,
+            onAppInfo = ::openAppDetails
+        )
 
         batteryText = findViewById(R.id.batteryText)
         systemText = findViewById(R.id.systemText)
         filesText = findViewById(R.id.filesText)
+        threatsEmpty = findViewById(R.id.threatsEmpty)
         permissionButton = findViewById(R.id.permissionButton)
         storagePermissionButton = findViewById(R.id.storagePermissionButton)
         scanButton = findViewById(R.id.scanButton)
@@ -74,6 +86,10 @@ class MainActivity : AppCompatActivity() {
         val list = findViewById<RecyclerView>(R.id.appList)
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
+
+        val threats = findViewById<RecyclerView>(R.id.threatList)
+        threats.layoutManager = LinearLayoutManager(this)
+        threats.adapter = threatAdapter
 
         permissionButton.setOnClickListener {
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
@@ -112,6 +128,13 @@ class MainActivity : AppCompatActivity() {
             // Analisi di sistema
             val checks = withContext(Dispatchers.Default) { systemAnalyzer.analyze() }
             systemText.text = formatChecks(checks)
+
+            // Scansione anti-spyware: app nascoste e sospette
+            val foundThreats = withContext(Dispatchers.Default) { threatScanner.scan() }
+            threatAdapter.submitList(foundThreats)
+            threatsEmpty.text =
+                if (foundThreats.isEmpty()) getString(R.string.threats_none)
+                else getString(R.string.threats_found, foundThreats.size)
 
             // Traffico di rete (ultime 24 ore)
             if (hasUsageAccess) {
@@ -154,6 +177,29 @@ class MainActivity : AppCompatActivity() {
         }
         val more = if (found.size > 20) "\n\n…" else ""
         return "$header\n\n$body$more"
+    }
+
+    /**
+     * Avvia la disinstallazione tramite il dialogo di sistema (l'utente
+     * conferma sempre). Se l'app è amministratore del dispositivo Android
+     * bloccherà la rimozione: prima va revocato il privilegio dalla sua
+     * scheda, raggiungibile con il pulsante "Info app".
+     */
+    private fun uninstallApp(threat: AppThreat) {
+        val intent = Intent(
+            Intent.ACTION_DELETE,
+            Uri.parse("package:${threat.packageName}")
+        )
+        runCatching { startActivity(intent) }
+    }
+
+    /** Apre la scheda di sistema dell'app (permessi, admin, arresto forzato). */
+    private fun openAppDetails(threat: AppThreat) {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:${threat.packageName}")
+        )
+        runCatching { startActivity(intent) }
     }
 
     private fun updateStorageButton() {

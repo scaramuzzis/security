@@ -1,8 +1,18 @@
 # 📱 PhoneGuard — Monitoraggio sicurezza del cellulare
 
-App Android (Kotlin) del team **Cyber Sentinel** che controlla il telefono per rilevare
-comportamenti sospetti:
+App Android (Kotlin) del team **Cyber Sentinel** per capire se il telefono è
+**sotto controllo dall'esterno**: rileva app spia nascoste (e permette di
+disinstallarle), traffico dati anomalo e consumo batteria sospetto.
 
+- **🕵️ Rilevamento app spia/nascoste** — motore anti-spyware a punteggio che combina
+  più segnali indipendenti: app senza icona nel launcher, servizi di accessibilità
+  attivi (leggono schermo e tasti), privilegi di amministratore, lettura notifiche,
+  installazione fuori store, permessi di sorveglianza concessi e IOC di stalkerware
+  documentato. Ogni app segnalata ha i pulsanti **Disinstalla** e **Info app**.
+- **🎛️ Controllo remoto** — l'analisi di sistema rileva gestione MDM/device owner,
+  amministratori del dispositivo, servizi di accessibilità, app che leggono le
+  notifiche e VPN attive: i canali tipici con cui un telefono viene controllato
+  dall'esterno.
 - **📡 Traffico dati per app** — quali app inviano e ricevono dati (Wi-Fi + rete mobile),
   con evidenza delle app che *inviano* troppi dati verso l'esterno (possibile esfiltrazione).
 - **🔋 Consumo batteria** — livello, temperatura, salute, corrente e potenza stimata,
@@ -19,10 +29,11 @@ comportamenti sospetti:
 
 | Componente | Ruolo |
 |---|---|
+| `ThreatScanner` | Motore anti-spyware: assegna a ogni app un punteggio 0–100 combinando i segnali di rischio; soglia di segnalazione 40, notifica automatica da 60. Scoring puro e coperto da unit test |
 | `NetworkMonitor` | Legge le statistiche di rete per-app tramite `NetworkStatsManager` (byte inviati ↑ e ricevuti ↓ per ogni UID/app) |
 | `BatteryMonitor` | Legge lo stato della batteria tramite `BatteryManager` e il broadcast `ACTION_BATTERY_CHANGED` |
 | `FileScanner` | Scansiona la memoria condivisa (profondità e numero di file limitati) segnalando APK, doppie estensioni ed eseguibili nascosti |
-| `SystemAnalyzer` | Controlla root, debug USB, opzioni sviluppatore, blocco schermo e app sideload |
+| `SystemAnalyzer` | Controlla root, MDM/device owner, admin del dispositivo, accessibilità, lettura notifiche, VPN, debug USB, opzioni sviluppatore, blocco schermo e app sideload |
 | `MonitorService` | Servizio in foreground che ogni **15 minuti** ricontrolla rete, batteria e nuovi file sospetti e invia una **notifica di avviso** quando rileva un'anomalia |
 | `MainActivity` | Dashboard: stato batteria, analisi di sistema, scansione file e classifica delle app per dati inviati nelle ultime 24 ore |
 

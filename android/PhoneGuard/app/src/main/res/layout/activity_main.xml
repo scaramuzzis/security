@@ -59,6 +59,29 @@
                     android:textAppearance="?attr/textAppearanceBodyMedium" />
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- App sospette e nascoste -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/threats_section_title"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+            <TextView
+                android:id="@+id/threatsEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/threats_loading"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/threatList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false" />
+
             <!-- Scansione file sospetti -->
             <TextView
                 android:layout_width="match_parent"

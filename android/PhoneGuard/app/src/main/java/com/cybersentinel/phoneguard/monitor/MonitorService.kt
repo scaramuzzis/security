@@ -35,6 +35,7 @@ class MonitorService : Service() {
     private lateinit var networkMonitor: NetworkMonitor
     private lateinit var batteryMonitor: BatteryMonitor
     private lateinit var fileScanner: FileScanner
+    private lateinit var threatScanner: ThreatScanner
 
     private var lastBatteryLevel = -1
     private var lastBatteryCheckTime = 0L
@@ -44,6 +45,7 @@ class MonitorService : Service() {
         networkMonitor = NetworkMonitor(this)
         batteryMonitor = BatteryMonitor(this)
         fileScanner = FileScanner(this)
+        threatScanner = ThreatScanner(this)
         createChannels()
     }
 
@@ -65,6 +67,7 @@ class MonitorService : Service() {
             runCatching { checkNetwork() }
             runCatching { checkBattery() }
             runCatching { checkFiles() }
+            runCatching { checkThreats() }
             delay(CHECK_INTERVAL_MS)
         }
     }
@@ -131,6 +134,40 @@ class MonitorService : Service() {
                 getString(R.string.alert_file, file.path, file.reason)
             )
         }
+    }
+
+    /**
+     * Scansione anti-spyware: notifica le app ad alto rischio una sola
+     * volta per pacchetto (l'elenco dei già segnalati è persistito).
+     */
+    private fun checkThreats() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val alreadyNotified =
+            prefs.getStringSet(KEY_NOTIFIED_THREATS, emptySet()).orEmpty()
+
+        val highRisk = threatScanner.scan()
+            .filter { it.score >= ThreatScanner.ALERT_THRESHOLD }
+
+        val newThreats = highRisk.filter { it.packageName !in alreadyNotified }
+        newThreats.forEachIndexed { index, threat ->
+            notifyAlert(
+                NOTIF_ID_THREAT_BASE + index,
+                getString(R.string.alert_threat_title),
+                getString(
+                    R.string.alert_threat, threat.label, threat.score,
+                    threat.reasons.joinToString("; ")
+                )
+            )
+        }
+
+        // Persiste solo i pacchetti ancora installati: se un'app segnalata
+        // viene rimossa e reinstallata, torna a generare l'avviso.
+        prefs.edit()
+            .putStringSet(
+                KEY_NOTIFIED_THREATS,
+                highRisk.map { it.packageName }.toSet()
+            )
+            .apply()
     }
 
     private fun notifySuspiciousApp(app: AppNetworkUsage) {
@@ -206,6 +243,10 @@ class MonitorService : Service() {
         private const val NOTIF_ID_BATTERY = 2
         private const val NOTIF_ID_NETWORK_BASE = 1000
         private const val NOTIF_ID_FILE_BASE = 5000
+        private const val NOTIF_ID_THREAT_BASE = 8000
+
+        private const val PREFS_NAME = "phoneguard"
+        private const val KEY_NOTIFIED_THREATS = "notified_threats"
 
         /** Ogni quanto eseguire i controlli (15 minuti). */
         const val CHECK_INTERVAL_MS = 15L * 60 * 1000

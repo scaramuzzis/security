@@ -24,6 +24,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Avvio della disinstallazione (sempre confermata dall'utente) -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
     <!-- Necessario per elencare tutte le app installate su Android 11+ -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
