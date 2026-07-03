@@ -8,6 +8,12 @@ comportamenti sospetti:
 - **🔋 Consumo batteria** — livello, temperatura, salute, corrente e potenza stimata,
   con avvisi in caso di surriscaldamento o scarica anomala (possibile app malevola attiva
   in background).
+- **🗂️ Controllo file sospetti** — scansione della memoria condivisa alla ricerca di
+  APK fuori store, file con doppia estensione (es. `fattura.pdf.apk`), eseguibili e
+  script nascosti; il servizio in background segnala i nuovi file sospetti appena compaiono.
+- **🔎 Analisi di sistema** — rilevamento di segni di root (binari `su`, Magisk,
+  build test-keys), debug USB attivo, opzioni sviluppatore, assenza di blocco schermo
+  e app installate fuori dagli store ufficiali (sideload).
 
 ## Come funziona
 
@@ -15,8 +21,10 @@ comportamenti sospetti:
 |---|---|
 | `NetworkMonitor` | Legge le statistiche di rete per-app tramite `NetworkStatsManager` (byte inviati ↑ e ricevuti ↓ per ogni UID/app) |
 | `BatteryMonitor` | Legge lo stato della batteria tramite `BatteryManager` e il broadcast `ACTION_BATTERY_CHANGED` |
-| `MonitorService` | Servizio in foreground che ogni **15 minuti** ricontrolla rete e batteria e invia una **notifica di avviso** quando rileva un'anomalia |
-| `MainActivity` | Dashboard: stato batteria + classifica delle app per dati inviati nelle ultime 24 ore |
+| `FileScanner` | Scansiona la memoria condivisa (profondità e numero di file limitati) segnalando APK, doppie estensioni ed eseguibili nascosti |
+| `SystemAnalyzer` | Controlla root, debug USB, opzioni sviluppatore, blocco schermo e app sideload |
+| `MonitorService` | Servizio in foreground che ogni **15 minuti** ricontrolla rete, batteria e nuovi file sospetti e invia una **notifica di avviso** quando rileva un'anomalia |
+| `MainActivity` | Dashboard: stato batteria, analisi di sistema, scansione file e classifica delle app per dati inviati nelle ultime 24 ore |
 
 ### Regole di allerta (personalizzabili in `MonitorService.kt`)
 
@@ -52,9 +60,12 @@ gradle assembleDebug
 2. **Accesso ai dati di utilizzo** — necessario per leggere il traffico per-app:
    tocca il pulsante *"Concedi accesso ai dati di utilizzo"* nell'app, poi attiva
    **PhoneGuard** nell'elenco (Impostazioni → App con accesso ai dati di utilizzo).
+3. **Accesso a tutti i file** — necessario per la scansione dei file sospetti
+   (Android 11+): tocca *"Concedi accesso ai file"* nella sezione dedicata e
+   attiva l'interruttore per PhoneGuard.
 
-Senza il secondo permesso l'app mostra comunque lo stato della batteria, ma non
-può leggere il traffico di rete delle altre app.
+Senza questi permessi l'app mostra comunque batteria e analisi di sistema, ma non
+può leggere il traffico di rete delle altre app né scansionare la memoria.
 
 ## Privacy
 

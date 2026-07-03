@@ -8,6 +8,17 @@
     <string name="charging">in carica</string>
     <string name="discharging">in scarica</string>
 
+    <string name="system_section_title">Analisi di sistema</string>
+    <string name="system_loading">Analisi in corso…</string>
+
+    <string name="files_section_title">Controllo file sospetti</string>
+    <string name="files_idle">Premi \"Scansiona file\" per cercare file sospetti nella memoria del telefono (APK fuori store, doppie estensioni, eseguibili nascosti).</string>
+    <string name="files_scanning">Scansione della memoria in corso…</string>
+    <string name="files_none">✅ Nessun file sospetto trovato nella memoria condivisa.</string>
+    <string name="files_found">⚠️ Trovati %1$d file sospetti:</string>
+    <string name="grant_storage_access">Concedi accesso ai file</string>
+    <string name="scan_files">Scansiona file</string>
+
     <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore)</string>
     <string name="usage_details">↑ Inviati: %1$s   ↓ Ricevuti: %2$s</string>
     <string name="suspicious_app">App con upload sospetto</string>
@@ -23,4 +34,6 @@
     <string name="alert_battery_title">⚠️ Anomalia batteria</string>
     <string name="alert_overheat">La batteria ha raggiunto %1$.1f °C. Chiudi le app in uso e lascia raffreddare il telefono.</string>
     <string name="alert_drain">La batteria si sta scaricando a circa il %1$.0f%% all\'ora. Un\'app potrebbe consumare in modo anomalo.</string>
+    <string name="alert_file_title">⚠️ Nuovo file sospetto</string>
+    <string name="alert_file">%1$s\n%2$s</string>
 </resources>

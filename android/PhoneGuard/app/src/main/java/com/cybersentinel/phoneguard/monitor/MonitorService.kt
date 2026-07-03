@@ -34,6 +34,7 @@ class MonitorService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private lateinit var networkMonitor: NetworkMonitor
     private lateinit var batteryMonitor: BatteryMonitor
+    private lateinit var fileScanner: FileScanner
 
     private var lastBatteryLevel = -1
     private var lastBatteryCheckTime = 0L
@@ -42,6 +43,7 @@ class MonitorService : Service() {
         super.onCreate()
         networkMonitor = NetworkMonitor(this)
         batteryMonitor = BatteryMonitor(this)
+        fileScanner = FileScanner(this)
         createChannels()
     }
 
@@ -62,6 +64,7 @@ class MonitorService : Service() {
         while (scope.isActive) {
             runCatching { checkNetwork() }
             runCatching { checkBattery() }
+            runCatching { checkFiles() }
             delay(CHECK_INTERVAL_MS)
         }
     }
@@ -107,6 +110,27 @@ class MonitorService : Service() {
 
         lastBatteryLevel = snap.levelPercent
         lastBatteryCheckTime = now
+    }
+
+    /**
+     * Segnala i file sospetti comparsi (creati o modificati)
+     * nell'ultimo intervallo di controllo.
+     */
+    private fun checkFiles() {
+        if (!fileScanner.hasStorageAccess()) return
+
+        val cutoff = System.currentTimeMillis() - CHECK_INTERVAL_MS
+        val recent = fileScanner.scan()
+            .filter { it.lastModified >= cutoff }
+            .take(3) // al massimo 3 notifiche per intervallo
+
+        recent.forEachIndexed { index, file ->
+            notifyAlert(
+                NOTIF_ID_FILE_BASE + index,
+                getString(R.string.alert_file_title),
+                getString(R.string.alert_file, file.path, file.reason)
+            )
+        }
     }
 
     private fun notifySuspiciousApp(app: AppNetworkUsage) {
@@ -181,6 +205,7 @@ class MonitorService : Service() {
         private const val NOTIF_ID_FOREGROUND = 1
         private const val NOTIF_ID_BATTERY = 2
         private const val NOTIF_ID_NETWORK_BASE = 1000
+        private const val NOTIF_ID_FILE_BASE = 5000
 
         /** Ogni quanto eseguire i controlli (15 minuti). */
         const val CHECK_INTERVAL_MS = 15L * 60 * 1000
