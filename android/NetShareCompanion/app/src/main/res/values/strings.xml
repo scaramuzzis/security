@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NetShare Companion</string>
+    <string name="subtitle">Accesso alle cartelle condivise in rete (SMB/Samba) — companion di PhoneGuard</string>
+
+    <string name="hint_host">Indirizzo server (IP o nome, es. 192.168.1.10)</string>
+    <string name="hint_share">Nome condivisione (es. Documenti)</string>
+    <string name="hint_username">Nome utente</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_domain">Dominio/gruppo di lavoro (facoltativo)</string>
+    <string name="guest_access">Accesso come ospite (senza credenziali)</string>
+    <string name="connect">Connetti</string>
+    <string name="disconnect">Disconnetti</string>
+    <string name="up">⬆ Su</string>
+
+    <string name="connecting">Connessione in corso…</string>
+    <string name="path">Percorso: %1$s</string>
+    <string name="folder">Cartella</string>
+    <string name="entries_count">%1$d elementi</string>
+    <string name="downloading">Scaricamento di %1$s…</string>
+    <string name="downloaded">Salvato in: %1$s</string>
+    <string name="download_ok">Download completato</string>
+
+    <string name="error_missing_host">Inserisci indirizzo server e nome condivisione.</string>
+    <string name="error_connect">Connessione non riuscita: %1$s</string>
+    <string name="error_list">Impossibile leggere la cartella: %1$s</string>
+    <string name="error_download">Download non riuscito: %1$s</string>
+</resources>

@@ -324,6 +324,11 @@ che controlla il telefono per rilevare comportamenti sospetti:
 
 Vedi il [README dedicato](android/PhoneGuard/README.md) per compilazione, permessi e dettagli.
 
+Accanto a PhoneGuard c'è **[NetShare Companion](android/NetShareCompanion/)**, un'app
+separata per accedere alle **cartelle condivise in rete** (SMB/Samba, PC e NAS).
+È distinta di proposito: richiede il permesso INTERNET, che PhoneGuard non ha per
+garantire di non poter inviare dati all'esterno.
+
 # 🤝 Contribuire
 
 Le pull request sono benvenute!
