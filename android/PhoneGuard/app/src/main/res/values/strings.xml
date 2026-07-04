@@ -178,6 +178,9 @@
     <string name="perm_notifications_unknown">Notifiche</string>
     <string name="perm_notifications_ok">✅ Notifiche — attive</string>
     <string name="perm_notifications_missing">❌ Notifiche — tocca per attivare</string>
+    <string name="perm_battery_unknown">Esenzione ottimizzazione batteria</string>
+    <string name="perm_battery_ok">✅ Monitoraggio protetto dal risparmio energetico</string>
+    <string name="perm_battery_missing">❌ Il sistema potrebbe fermare il monitoraggio — tocca per proteggerlo</string>
 
     <string name="device_info_open">📱 Informazioni dispositivo</string>
     <string name="device_info_title">Informazioni dispositivo</string>

@@ -37,6 +37,9 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         view.findViewById<MaterialButton>(R.id.notificationsButton).setOnClickListener {
             SystemIntents.openNotificationSettings(requireContext())
         }
+        view.findViewById<MaterialButton>(R.id.batteryOptimizationButton).setOnClickListener {
+            SystemIntents.requestIgnoreBatteryOptimizations(requireContext())
+        }
     }
 
     override fun onResume() {
@@ -113,6 +116,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         view.findViewById<MaterialButton>(R.id.notificationsButton).text = getString(
             if (notificationsOk) R.string.perm_notifications_ok
             else R.string.perm_notifications_missing
+        )
+
+        val batteryOk = SystemIntents.isIgnoringBatteryOptimizations(context)
+        view.findViewById<MaterialButton>(R.id.batteryOptimizationButton).text = getString(
+            if (batteryOk) R.string.perm_battery_ok else R.string.perm_battery_missing
         )
     }
 }

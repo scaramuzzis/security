@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 
 /**
@@ -43,6 +44,27 @@ object SystemIntents {
                         Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).addNewTaskFlagIfNeeded(context)
                     )
                 }
+            }
+        }
+    }
+
+    /** Vero se il sistema NON ucciderà il servizio di monitoraggio per risparmiare batteria. */
+    fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+    }
+
+    /** Chiede l'esenzione dalle ottimizzazioni batteria per il monitoraggio in background. */
+    fun requestIgnoreBatteryOptimizations(context: Context) {
+        val intent = Intent(
+            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:${context.packageName}")
+        )
+        runCatching { context.startActivity(intent.addNewTaskFlagIfNeeded(context)) }.onFailure {
+            runCatching {
+                context.startActivity(
+                    Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).addNewTaskFlagIfNeeded(context)
+                )
             }
         }
     }

@@ -1,6 +1,8 @@
+import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -11,6 +13,14 @@ plugins {
 // compilazione: niente stringa da ricordarsi di aggiornare a mano.
 val buildDate: String = SimpleDateFormat("MMMM yyyy", Locale.ITALIAN).format(Date())
 
+// Password di firma lette da keystore.properties (file locale, MAI versionato:
+// vedi keystore.properties.example per il formato). Nessuna password in chiaro
+// nel build script, che invece finisce su git.
+val keystoreProps = Properties().apply {
+    val propsFile = rootProject.file("keystore.properties")
+    if (propsFile.exists()) load(FileInputStream(propsFile))
+}
+
 android {
     namespace = "com.cybersentinel.phoneguard"
     compileSdk = 34
@@ -19,8 +29,8 @@ android {
         applicationId = "com.cybersentinel.phoneguard"
         minSdk = 26
         targetSdk = 34
-        versionCode = 14
-        versionName = "6.4"
+        versionCode = 15
+        versionName = "6.5"
 
         buildConfigField("String", "BUILD_DATE", "\"$buildDate\"")
     }
@@ -32,16 +42,18 @@ android {
     signingConfigs {
         create("release") {
             // Chiave self-signed per distribuzione diretta (fuori Play Store).
-            // Percorso e password sovrascrivibili da gradle.properties/ambiente.
+            // Percorso/alias non sono segreti: hanno un default. Le password
+            // NON hanno default: arrivano solo da keystore.properties (locale,
+            // non versionato) o da proprietà Gradle/ambiente equivalenti.
             storeFile = file(
-                providers.gradleProperty("phoneguard.keystore")
-                    .getOrElse("../phoneguard.keystore")
+                keystoreProps.getProperty("storeFile")
+                    ?: providers.gradleProperty("phoneguard.keystore").getOrElse("../phoneguard.keystore")
             )
-            storePassword = providers.gradleProperty("phoneguard.storePassword")
-                .getOrElse("phoneguard2026")
-            keyAlias = "phoneguard"
-            keyPassword = providers.gradleProperty("phoneguard.keyPassword")
-                .getOrElse("phoneguard2026")
+            storePassword = keystoreProps.getProperty("storePassword")
+                ?: providers.gradleProperty("phoneguard.storePassword").orNull
+            keyAlias = keystoreProps.getProperty("keyAlias") ?: "phoneguard"
+            keyPassword = keystoreProps.getProperty("keyPassword")
+                ?: providers.gradleProperty("phoneguard.keyPassword").orNull
         }
     }
 

@@ -19,6 +19,7 @@ object LogCategory {
     const val PULIZIA = "PULIZIA"
     const val SISTEMA = "SISTEMA"
     const val RETE = "RETE"
+    const val CRASH = "CRASH"
 }
 
 /**
@@ -75,5 +76,18 @@ object AppLog {
     /** Svuota il registro. Bloccante: chiamare da un thread di background. */
     fun clear(context: Context) {
         runCatching { LogStore.get(context.applicationContext).clear() }
+    }
+
+    /**
+     * Come [log], ma scrive subito sul thread chiamante invece di accodare
+     * al thread di background. Serve solo al gestore dei crash: il processo
+     * sta per terminare, quindi una scrittura asincrona rischierebbe di non
+     * essere mai completata.
+     */
+    fun logSync(context: Context, category: String, message: String) {
+        if (!Prefs.loggingEnabled(context)) return
+        runCatching {
+            LogStore.get(context.applicationContext).insert(category, message, System.currentTimeMillis())
+        }
     }
 }

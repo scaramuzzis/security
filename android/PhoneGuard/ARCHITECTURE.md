@@ -105,6 +105,40 @@ build è un `buildConfigField` calcolato da Gradle al momento della
 compilazione (`SimpleDateFormat` in `build.gradle.kts`), non una data
 scritta a mano che rischia di restare disallineata.
 
+### Hardening di sicurezza (v6.5)
+
+**Firma di rilascio**: `phoneguard.keystore` era tracciato in git e
+`build.gradle.kts` conteneva le password del keystore in chiaro
+(`"phoneguard2026"`) come valore di default — chiunque legga il repository
+poteva firmare un APK spacciandolo per un aggiornamento legittimo di
+PhoneGuard, minando l'unica garanzia di autenticità che l'utente ha per
+un'app distribuita fuori dal Play Store. Il keystore è stato rimosso dal
+tracking (`git rm --cached`, resta solo sul disco locale e in
+`.gitignore`); le password ora si leggono da **`keystore.properties`**,
+file locale mai versionato (vedi `keystore.properties.example` per il
+formato), senza alcun default in chiaro nello script di build.
+Nota: il keystore era presente in commit precedenti della cronologia; la
+cronologia non è stata riscritta, quindi chi clona il repo lo trova ancora
+nei commit passati.
+
+**Gestione dei crash**: aggiunto `PhoneGuardApplication` (Application
+custom) che installa `util/CrashHandler` in `onCreate()`. Cattura le
+eccezioni non gestite, le scrive nel registro locale con categoria
+`LogCategory.CRASH` (scrittura sincrona con `AppLog.logSync`, per non
+perdere l'evento se il processo termina prima che una scrittura asincrona
+sia completata) e poi passa la mano al gestore di sistema predefinito, così
+il comportamento standard del crash (dialogo, riavvio) resta invariato.
+Nessun dato lascia il dispositivo: la diagnosi resta consultabile solo
+nella pagina Registro attività.
+
+**Esenzione dalle ottimizzazioni batteria**: su molti produttori (Xiaomi,
+Huawei, Samsung...) il sistema può terminare il servizio di monitoraggio
+anche se è in foreground, se l'app non è nella lista delle eccezioni.
+Aggiunto un pulsante di stato in Impostazioni (stesso pattern degli altri
+permessi: ✅/❌ con azione per risolvere), che richiama
+`SystemIntents.requestIgnoreBatteryOptimizations` — richiesta sempre con
+conferma esplicita dell'utente, mai automatica.
+
 ---
 
 ## 2. Mockup di layout
