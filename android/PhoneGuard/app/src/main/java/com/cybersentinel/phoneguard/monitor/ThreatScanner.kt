@@ -2,7 +2,6 @@ package com.cybersentinel.phoneguard.monitor
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
@@ -107,22 +106,10 @@ class ThreatScanner(private val context: Context) {
     }
 
     /** Permessi di sorveglianza effettivamente concessi all'app. */
-    private fun grantedSurveillancePermissions(packageName: String): List<String> {
-        val info: PackageInfo = runCatching {
-            pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
-        }.getOrNull() ?: return emptyList()
-
-        val requested = info.requestedPermissions ?: return emptyList()
-        val flags = info.requestedPermissionsFlags ?: return emptyList()
-
-        return requested.indices
-            .asSequence()
-            .filter { (flags[it] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0 }
-            .map { requested[it] }
+    private fun grantedSurveillancePermissions(packageName: String): List<String> =
+        SystemServices.grantedPermissions(context, packageName)
             .filter { it in SURVEILLANCE_PERMISSIONS }
             .map { it.substringAfterLast('.') }
-            .toList()
-    }
 
     private fun describe(s: ThreatSignals): List<String> {
         val reasons = ArrayList<String>()

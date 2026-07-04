@@ -17,6 +17,7 @@
     <string name="nav_interception">Verifica intercettazione</string>
     <string name="nav_threats">App sospette e nascoste</string>
     <string name="nav_audit">Audit permessi</string>
+    <string name="nav_app_permissions">Autorizzazioni app</string>
     <string name="nav_system">Analisi di sistema</string>
     <string name="nav_files">File sospetti</string>
     <string name="nav_wifi">Affidabilità Wi-Fi</string>
@@ -341,4 +342,9 @@
     <string name="alert_appstart">\"%1$s\" si è avviata in background senza che tu l\'abbia aperta. Se non te lo aspettavi, controllala nella sezione Sicurezza.</string>
     <string name="alert_threat_title">🚨 Possibile app spia rilevata</string>
     <string name="alert_threat">\"%1$s\" ha un punteggio di rischio %2$d/100: %3$s. Apri PhoneGuard per disinstallarla.</string>
+
+    <!-- Autorizzazioni app -->
+    <string name="app_permissions_intro">Le app raggruppate per autorizzazione effettivamente concessa (non solo richiesta): fotocamera, microfono, posizione, contatti, SMS, telefono, archiviazione, calendario, sensori corporei. Tocca un\'app per aprire la sua scheda e revocare il permesso.</string>
+    <string name="app_permissions_none">✅ Nessuna app (oltre alle app di sistema) ha queste autorizzazioni concesse.</string>
+    <string name="permission_category_header">%1$s %2$s (%3$d)</string>
 </resources>

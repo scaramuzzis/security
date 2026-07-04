@@ -2,8 +2,6 @@ package com.cybersentinel.phoneguard.monitor
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.provider.Settings
 
 /**
@@ -67,23 +65,11 @@ class PermissionAuditor(private val context: Context) {
     }
 
     /** App utente con il permesso indicato effettivamente concesso. */
-    private fun appsWithGrantedPermission(permission: String): List<String> {
-        val pm = context.packageManager
-        return pm.getInstalledApplications(0)
+    private fun appsWithGrantedPermission(permission: String): List<String> =
+        context.packageManager.getInstalledApplications(0)
             .asSequence()
             .filter { (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 }
-            .filter { app ->
-                val info: PackageInfo = runCatching {
-                    pm.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
-                }.getOrNull() ?: return@filter false
-                val requested = info.requestedPermissions ?: return@filter false
-                val flags = info.requestedPermissionsFlags ?: return@filter false
-                requested.indices.any {
-                    requested[it] == permission &&
-                            (flags[it] and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
-                }
-            }
+            .filter { permission in SystemServices.grantedPermissions(context, it.packageName) }
             .map { it.packageName }
             .toList()
-    }
 }

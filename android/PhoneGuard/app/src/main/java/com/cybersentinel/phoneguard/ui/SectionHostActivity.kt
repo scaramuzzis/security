@@ -19,6 +19,7 @@ class SectionHostActivity : AppCompatActivity() {
         INTERCEPTION(R.string.nav_interception, ::InterceptionFragment),
         THREATS(R.string.nav_threats, ::ThreatsFragment),
         AUDIT(R.string.nav_audit, ::PermissionAuditFragment),
+        APP_PERMISSIONS(R.string.nav_app_permissions, ::AppPermissionsFragment),
         SYSTEM(R.string.nav_system, ::SystemAnalysisFragment),
         FILES(R.string.nav_files, ::SuspiciousFilesFragment),
         WIFI(R.string.nav_wifi, ::WifiFragment),
@@ -67,6 +68,7 @@ class SectionHostActivity : AppCompatActivity() {
             R.id.nav_interception -> Section.INTERCEPTION
             R.id.nav_threats -> Section.THREATS
             R.id.nav_audit -> Section.AUDIT
+            R.id.nav_app_permissions -> Section.APP_PERMISSIONS
             R.id.nav_system -> Section.SYSTEM
             R.id.nav_files -> Section.FILES
             R.id.nav_wifi -> Section.WIFI

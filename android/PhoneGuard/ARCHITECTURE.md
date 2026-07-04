@@ -347,6 +347,27 @@ Foreground Service protetto dal sistema, come già documentato in
 pulsante "Ferma" resta visibile solo per le app ancora attive: non c'è
 nulla da fermare in una riga già "non attiva ora".
 
+### Nuova pagina "Autorizzazioni app" (v6.16)
+
+Richiesta una vista di quali app hanno fotocamera, microfono, posizione,
+contatti, SMS, ecc. — permessi "classici" che "Audit permessi" non copriva
+(quella pagina si limita alle capacità di sorveglianza più insolite:
+accessibilità, amministratore dispositivo, lettura notifiche, posizione
+sempre attiva). Aggiunta `AppPermissionsFragment` (menu > Sicurezza, subito
+sotto "Audit permessi"): 9 categorie (fotocamera, microfono, posizione,
+contatti, SMS, telefono, archiviazione, calendario, sensori corporei),
+ciascuna con le app che l'hanno effettivamente concessa (non solo
+richiesta) e il conteggio; il tocco su un'app apre la sua scheda di sistema
+per revocare il permesso da lì.
+
+**Pulizia doppioni (revisione senior)**: la lettura "permessi effettivamente
+concessi a un pacchetto" era duplicata quasi identica in `ThreatScanner`
+(filtrata sui permessi di sorveglianza) e in `PermissionAuditor` (per
+singolo permesso, su tutte le app) — estratta in
+`SystemServices.grantedPermissions()`, condivisa ora da tre classi
+(compreso il nuovo `AppPermissionScanner`) invece di tre implementazioni
+quasi identiche di parsing di `PackageInfo.requestedPermissions`/`Flags`.
+
 ---
 
 ## 2. Mockup di layout
