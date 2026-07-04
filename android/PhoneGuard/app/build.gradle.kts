@@ -29,8 +29,8 @@ android {
         applicationId = "com.cybersentinel.phoneguard"
         minSdk = 26
         targetSdk = 34
-        versionCode = 19
-        versionName = "6.9"
+        versionCode = 20
+        versionName = "6.10"
 
         buildConfigField("String", "BUILD_DATE", "\"$buildDate\"")
     }

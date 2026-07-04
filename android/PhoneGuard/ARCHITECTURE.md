@@ -219,6 +219,18 @@ non si vedeva subito il problema. Ora `formatChecks` ordina i falliti per
 primi e aggiunge un'intestazione con il conteggio ("⚠️ N controlli falliti
 su M"), così il tocco sul contatore porta dritti al problema.
 
+### Chiarimento sulla classifica App energivore (v6.10)
+
+Segnalato: un'app arrestata forzatamente da "Gestisci" restava comunque in
+elenco dopo un refresh. Non è un bug: la pagina mostra una **classifica
+delle ultime 24 ore** per tempo trascorso in primo piano, non le app
+attualmente in esecuzione — un arresto forzato non cancella il tempo già
+accumulato oggi, quindi l'app resta in lista finché il conteggio non si
+aggiorna. Solo il badge SERVIZIO IN BACKGROUND riflette lo stato attuale.
+`energy_header` (testo statico in pagina) non lo spiegava — corretto, e
+rimossa `energy_section_title`, una stringa duplicata con la stessa
+informazione ma mai referenziata da nessun layout o Fragment.
+
 ---
 
 ## 2. Mockup di layout

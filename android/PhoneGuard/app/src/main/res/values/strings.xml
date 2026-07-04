@@ -126,8 +126,7 @@
     <string name="stop_still_active">⚠️ %1$s ha ancora un servizio attivo: Android lo protegge dall\'arresto in background. Usa \"Arresta forzatamente\" nella scheda dell\'app per chiuderla davvero.</string>
 
     <!-- Energia -->
-    <string name="energy_section_title">App energivore (ultime 24 ore)</string>
-    <string name="energy_header">Impatto stimato dal tempo di utilizzo. Il badge SERVIZIO IN BACKGROUND indica app che lavorano (e consumano) anche a schermo spento. \"Gestisci\" apre la scheda di sistema con Arresto forzato e restrizione batteria.</string>
+    <string name="energy_header">Classifica delle ultime 24 ore, per impatto stimato dal tempo di utilizzo: un\'app appena arrestata resta in elenco finché il conteggio di oggi non si aggiorna, perché il tempo già trascorso in primo piano non si cancella. Il badge SERVIZIO IN BACKGROUND indica invece lo stato attuale: se non c\'è più, l\'app non sta più lavorando in background. \"Gestisci\" apre la scheda di sistema con Arresto forzato e restrizione batteria.</string>
     <string name="energy_details">%1$s in primo piano · %2$d%% del totale</string>
     <string name="fgs_badge">⚡ SERVIZIO IN BACKGROUND</string>
     <string name="manage_app">Gestisci</string>
