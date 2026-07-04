@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Diagnostica IA</string>
+    <string name="app_title">🩺 Diagnostica IA</string>
+    <string name="app_intro">App companion di PhoneGuard: incrocia nel tempo batteria, traffico dati e permessi privilegiati, e ne chiede una sintesi in linguaggio semplice a un modello IA (facoltativo).</string>
+    <string name="honesty_disclaimer">Limite onesto: nessun controllo qui può rilevare un impianto a livello di sistema che falsifichi questi stessi dati prima che vengano letti — vale per qualunque analisi fatta senza privilegi di root, IA compresa. Questi sono indizi da valutare con giudizio, non un verdetto definitivo.</string>
+
+    <string name="toggle_monitoring">Attiva monitoraggio in background</string>
+    <string name="monitoring_note">Campiona batteria/schermo e traffico dati ogni 15 minuti, per costruire lo storico su cui si basa il controllo. Più a lungo resta attivo, più affidabile diventa l\'analisi.</string>
+    <string name="grant_usage_access">Concedi accesso ai dati di utilizzo</string>
+
+    <string name="ai_config_title">Configurazione IA (facoltativa)</string>
+    <string name="ai_config_note">Senza una API key, il controllo mostra comunque il report grezzo — solo la sintesi in linguaggio naturale richiede una chiamata al modello.</string>
+    <string name="api_key_hint">API key (es. Anthropic)</string>
+    <string name="model_hint">Modello (default: claude-sonnet-5)</string>
+    <string name="save_key">Salva</string>
+    <string name="key_saved">Configurazione salvata</string>
+
+    <string name="run_check">Esegui controllo iniziale</string>
+    <string name="ai_error">Chiamata IA non riuscita: %1$s. Il report grezzo qui sotto resta comunque disponibile.</string>
+
+    <string name="ai_summary_title">🤖 Sintesi IA</string>
+    <string name="raw_report_title">📋 Report dettagliato</string>
+
+    <string name="sampling_notification_title">Diagnostica IA — raccolta dati attiva</string>
+    <string name="sampling_notification_text">Campionamento di batteria, rete e permessi in corso.</string>
+    <string name="channel_name">Stato monitoraggio</string>
+</resources>
