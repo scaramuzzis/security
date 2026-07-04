@@ -120,6 +120,8 @@
     <string name="running_found">%1$d app attive in background. Tocca \"Ferma\" per chiuderle; tocca la riga per l\'arresto forzato.</string>
     <string name="stop_app">Ferma</string>
     <string name="stop_requested">Richiesta di stop inviata a %1$s</string>
+    <string name="stop_confirmed">✅ %1$s si è fermata correttamente</string>
+    <string name="stop_still_active">⚠️ %1$s ha ancora un servizio attivo: Android lo protegge dall\'arresto in background. Usa \"Arresta forzatamente\" nella scheda dell\'app per chiuderla davvero.</string>
 
     <!-- Energia -->
     <string name="energy_section_title">App energivore (ultime 24 ore)</string>

@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.SimInfo
 import com.cybersentinel.phoneguard.monitor.SimMonitor
@@ -34,6 +35,7 @@ class SimInfoActivity : AppCompatActivity() {
     private lateinit var adapter: SimAdapter
     private lateinit var header: TextView
     private lateinit var permissionButton: MaterialButton
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -46,6 +48,8 @@ class SimInfoActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = getString(R.string.sim_title_page)
 
+        swipeRefresh = findViewById(R.id.swipeRefresh)
+        swipeRefresh.setOnRefreshListener { refresh() }
         header = findViewById(R.id.simHeader)
         permissionButton = findViewById(R.id.simPermissionButton)
         permissionButton.setOnClickListener {
@@ -78,6 +82,7 @@ class SimInfoActivity : AppCompatActivity() {
     }
 
     private fun refresh() {
+        swipeRefresh.isRefreshing = true
         val monitor = SimMonitor(this)
         val hasPermission = monitor.hasPermission()
         permissionButton.visibility = if (hasPermission) View.GONE else View.VISIBLE
@@ -85,6 +90,7 @@ class SimInfoActivity : AppCompatActivity() {
         if (!hasPermission) {
             header.setText(R.string.sim_permission_needed)
             adapter.submitList(emptyList())
+            swipeRefresh.isRefreshing = false
             return
         }
 
@@ -93,6 +99,7 @@ class SimInfoActivity : AppCompatActivity() {
             adapter.submitList(sims)
             header.text = if (sims.isEmpty()) getString(R.string.sim_none)
             else getString(R.string.sim_count, sims.size)
+            swipeRefresh.isRefreshing = false
         }
     }
 

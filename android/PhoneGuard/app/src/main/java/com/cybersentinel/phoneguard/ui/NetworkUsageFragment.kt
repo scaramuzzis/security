@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,11 +14,13 @@ import com.cybersentinel.phoneguard.monitor.AppVisibility
 import com.cybersentinel.phoneguard.monitor.BackgroundAppsMonitor
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
+import com.cybersentinel.phoneguard.ui.base.RefreshableFragment
 import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.util.SystemIntents
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -30,13 +31,14 @@ import kotlinx.coroutines.withContext
  * di cosa ogni app ha inviato/ricevuto e i limiti di ciò che l'app può
  * realmente vedere (nessuna ispezione dei contenuti).
  */
-class NetworkUsageFragment : Fragment(R.layout.fragment_network) {
+class NetworkUsageFragment : RefreshableFragment(R.layout.fragment_network) {
 
     private lateinit var usageAdapter: AppUsageAdapter
     private lateinit var permissionButton: MaterialButton
     private lateinit var networkLogText: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         permissionButton = view.findViewById(R.id.permissionButton)
         permissionButton.setOnClickListener { SystemIntents.openUsageAccessSettings(requireContext()) }
         networkLogText = view.findViewById(R.id.networkLogText)
@@ -44,6 +46,10 @@ class NetworkUsageFragment : Fragment(R.layout.fragment_network) {
         view.findViewById<RecyclerView>(R.id.appList).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = usageAdapter
+        }
+        swipeRefresh.setOnRefreshListener {
+            refreshUsage()
+            refreshNetworkLog()
         }
     }
 
@@ -54,12 +60,14 @@ class NetworkUsageFragment : Fragment(R.layout.fragment_network) {
     }
 
     private fun refreshUsage() {
+        swipeRefresh.isRefreshing = true
         val context = requireContext()
         val networkMonitor = NetworkMonitor(context)
         val hasAccess = networkMonitor.hasUsageAccess()
         permissionButton.visibility = if (hasAccess) View.GONE else View.VISIBLE
         if (!hasAccess) {
             usageAdapter.submit(emptyList(), MonitorService.TX_ALERT_THRESHOLD_BYTES)
+            endRefresh()
             return
         }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -74,15 +82,36 @@ class NetworkUsageFragment : Fragment(R.layout.fragment_network) {
                 u to h
             }
             usageAdapter.submit(usage, MonitorService.TX_ALERT_THRESHOLD_BYTES, hidden)
+            endRefresh()
         }
     }
 
+    /**
+     * Ferma l'app e verifica l'esito: `killBackgroundProcesses` non tocca i
+     * processi con un Foreground Service attivo (protetti dal sistema).
+     * Molte delle app elencate qui hanno esattamente questo tipo di
+     * servizio, quindi lo stop può risultare senza alcun effetto reale:
+     * lo verifichiamo invece di limitarci a dire "fatto".
+     */
     private fun stopApp(app: AppNetworkUsage) {
         val context = requireContext()
-        BackgroundAppsMonitor(context).stop(app.packageName)
-        AppLog.log(context, LogCategory.RETE, "Richiesta di stop per traffico dati: ${app.appLabel}")
+        val monitor = BackgroundAppsMonitor(context)
+        monitor.stop(app.packageName)
         Toast.makeText(context, getString(R.string.stop_requested, app.appLabel), Toast.LENGTH_SHORT).show()
-        view?.postDelayed({ if (isAdded) refreshUsage() }, 800)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(STOP_VERIFY_DELAY_MS)
+            val stillActive = withContext(Dispatchers.Default) {
+                monitor.isForegroundServiceActive(app.packageName)
+            }
+            val message = if (stillActive) getString(R.string.stop_still_active, app.appLabel)
+            else getString(R.string.stop_confirmed, app.appLabel)
+            AppLog.log(context, LogCategory.RETE, message)
+            if (isAdded) {
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                refreshUsage()
+            }
+        }
     }
 
     private fun refreshNetworkLog() {
@@ -95,5 +124,9 @@ class NetworkUsageFragment : Fragment(R.layout.fragment_network) {
             val content = withContext(Dispatchers.IO) { AppLog.readCategory(context, LogCategory.RETE) }
             networkLogText.text = content.ifBlank { getString(R.string.network_log_empty) }
         }
+    }
+
+    companion object {
+        private const val STOP_VERIFY_DELAY_MS = 1500L
     }
 }

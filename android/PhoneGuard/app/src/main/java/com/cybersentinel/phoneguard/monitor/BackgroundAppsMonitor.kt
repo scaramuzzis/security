@@ -94,6 +94,18 @@ class BackgroundAppsMonitor(private val context: Context) {
         runCatching { activityManager.killBackgroundProcesses(packageName) }
     }
 
+    /**
+     * Vero se [packageName] ha ancora un Foreground Service attivo, per
+     * verificare l'esito reale di [stop]. `killBackgroundProcesses` non
+     * termina i processi con un Foreground Service in corso — è protetto
+     * dal sistema — quindi lo stop può risultare senza alcun effetto su
+     * queste app: questo controllo lo rileva invece di darlo per scontato.
+     */
+    fun isForegroundServiceActive(packageName: String): Boolean {
+        val now = System.currentTimeMillis()
+        return packageName in activeForegroundServices(now - FGS_WINDOW_MS, now)
+    }
+
     companion object {
         private const val FGS_WINDOW_MS = 6L * 60 * 60 * 1000   // 6 ore
     }

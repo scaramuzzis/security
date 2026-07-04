@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.RiskLevel
@@ -12,6 +11,7 @@ import com.cybersentinel.phoneguard.monitor.CellNetworkMonitor
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
 import com.cybersentinel.phoneguard.monitor.WifiAnalyzer
+import com.cybersentinel.phoneguard.ui.base.RefreshableFragment
 import com.cybersentinel.phoneguard.util.SystemIntents
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
@@ -31,12 +31,14 @@ import kotlinx.coroutines.withContext
  * (IMSI-catcher, intercettazione dell'operatore o di un'autorità). Questi
  * sono indizi euristici concreti, non una prova definitiva.
  */
-class InterceptionFragment : Fragment(R.layout.fragment_interception) {
+class InterceptionFragment : RefreshableFragment(R.layout.fragment_interception) {
 
     private lateinit var verdict: TextView
     private lateinit var checksText: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        swipeRefresh.setOnRefreshListener { refresh() }
         verdict = view.findViewById(R.id.interceptionVerdict)
         checksText = view.findViewById(R.id.interceptionChecks)
 
@@ -59,6 +61,11 @@ class InterceptionFragment : Fragment(R.layout.fragment_interception) {
 
     override fun onResume() {
         super.onResume()
+        refresh()
+    }
+
+    private fun refresh() {
+        swipeRefresh.isRefreshing = true
         val context = requireContext()
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -105,6 +112,7 @@ class InterceptionFragment : Fragment(R.layout.fragment_interception) {
             }
             verdict.text = "$icon ${getString(textRes)}"
             verdict.setTextColor(ContextCompat.getColor(context, colorRes))
+            endRefresh()
         }
     }
 }

@@ -6,11 +6,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.SuspiciousFile
 import com.cybersentinel.phoneguard.monitor.FileScanner
+import com.cybersentinel.phoneguard.ui.base.RefreshableFragment
 import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.util.SystemIntents
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Pagina Controllo file sospetti: scansione memoria interna + microSD. */
-class SuspiciousFilesFragment : Fragment(R.layout.fragment_files) {
+class SuspiciousFilesFragment : RefreshableFragment(R.layout.fragment_files) {
 
     private lateinit var filesText: TextView
     private lateinit var storagePermissionButton: MaterialButton
@@ -34,6 +34,10 @@ class SuspiciousFilesFragment : Fragment(R.layout.fragment_files) {
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        swipeRefresh.setOnRefreshListener {
+            if (FileScanner(requireContext()).hasStorageAccess()) scanFiles() else endRefresh()
+        }
         filesText = view.findViewById(R.id.filesText)
         storagePermissionButton = view.findViewById(R.id.storagePermissionButton)
         scanButton = view.findViewById(R.id.scanButton)
@@ -68,6 +72,7 @@ class SuspiciousFilesFragment : Fragment(R.layout.fragment_files) {
             filesProgress.visibility = View.GONE
             scanButton.isEnabled = true
             AppLog.log(context, LogCategory.SCANSIONE, "Scansione file (${roots.size} volumi): ${found.size} sospetti")
+            endRefresh()
         }
     }
 

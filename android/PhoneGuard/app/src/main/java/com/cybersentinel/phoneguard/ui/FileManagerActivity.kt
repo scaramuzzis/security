@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.FileEntry
 import com.cybersentinel.phoneguard.data.ViewMode
@@ -46,6 +47,7 @@ class FileManagerActivity : AppCompatActivity() {
     private lateinit var pasteButton: ImageButton
     private lateinit var actionBar: View
     private lateinit var fileProgress: LinearProgressIndicator
+    private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var emptyText: TextView
     private lateinit var permissionButton: MaterialButton
 
@@ -76,6 +78,8 @@ class FileManagerActivity : AppCompatActivity() {
         emptyText = findViewById(R.id.emptyText)
         permissionButton = findViewById(R.id.permissionButton)
         fileList = findViewById(R.id.fileList)
+        swipeRefresh = findViewById(R.id.swipeRefresh)
+        swipeRefresh.setOnRefreshListener { refresh() }
 
         adapter = FileEntryAdapter(
             isSelected = { it.file.absolutePath in selected },
@@ -166,6 +170,7 @@ class FileManagerActivity : AppCompatActivity() {
         dir.absolutePath.startsWith(currentRoot.absolutePath)
 
     private fun refresh() {
+        swipeRefresh.isRefreshing = true
         upButton.isEnabled = currentDir != currentRoot
         pathLabel.text = currentDir.absolutePath
 
@@ -173,6 +178,7 @@ class FileManagerActivity : AppCompatActivity() {
             val entries = withContext(Dispatchers.IO) { repository.list(currentDir) }
             adapter.submitList(entries)
             emptyText.visibility = if (entries.isEmpty()) View.VISIBLE else View.GONE
+            swipeRefresh.isRefreshing = false
         }
         updateActionBar()
         updatePasteButton()

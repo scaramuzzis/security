@@ -10,9 +10,9 @@ import android.os.SystemClock
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
+import com.cybersentinel.phoneguard.ui.base.RefreshableFragment
 import com.cybersentinel.phoneguard.ui.chart.DonutChartView
 import com.cybersentinel.phoneguard.ui.chart.RingGaugeView
 import com.cybersentinel.phoneguard.util.AppLog
@@ -45,7 +45,7 @@ import kotlin.math.abs
  * Home: stato complessivo del telefono, Analisi Globale con un tap,
  * contatori, batteria in tempo reale e interruttori delle automazioni.
  */
-class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
+class DashboardFragment : RefreshableFragment(R.layout.fragment_dashboard) {
 
     private lateinit var statusIcon: TextView
     private lateinit var statusTitle: TextView
@@ -73,6 +73,11 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private var selfUsageJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        swipeRefresh.setOnRefreshListener {
+            refreshBattery()
+            refreshRings()
+        }
         statusIcon = view.findViewById(R.id.statusIcon)
         statusTitle = view.findViewById(R.id.statusTitle)
         statusDetail = view.findViewById(R.id.statusDetail)
@@ -171,6 +176,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             }
             ringRam.setValue(ramPercent, ringColorFor(ramPercent))
             ringStorage.setValue(storagePercent, ringColorFor(storagePercent))
+            endRefresh()
         }
     }
 

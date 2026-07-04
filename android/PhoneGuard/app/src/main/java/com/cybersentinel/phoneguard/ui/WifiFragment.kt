@@ -6,19 +6,19 @@ import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.RiskLevel
 import com.cybersentinel.phoneguard.data.WifiTrust
 import com.cybersentinel.phoneguard.monitor.WifiAnalyzer
+import com.cybersentinel.phoneguard.ui.base.RefreshableFragment
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** Pagina Affidabilità Wi-Fi: cifratura, proxy, captive portal, DNS, VPN. */
-class WifiFragment : Fragment(R.layout.fragment_wifi) {
+class WifiFragment : RefreshableFragment(R.layout.fragment_wifi) {
 
     private lateinit var wifiVerdict: TextView
     private lateinit var wifiText: TextView
@@ -28,12 +28,14 @@ class WifiFragment : Fragment(R.layout.fragment_wifi) {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { refresh() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         wifiVerdict = view.findViewById(R.id.wifiVerdict)
         wifiText = view.findViewById(R.id.wifiText)
         wifiLocationButton = view.findViewById(R.id.wifiLocationButton)
         wifiLocationButton.setOnClickListener {
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
+        swipeRefresh.setOnRefreshListener { refresh() }
     }
 
     override fun onResume() {
@@ -42,6 +44,7 @@ class WifiFragment : Fragment(R.layout.fragment_wifi) {
     }
 
     private fun refresh() {
+        swipeRefresh.isRefreshing = true
         val context = requireContext()
         val analyzer = WifiAnalyzer(context)
         wifiLocationButton.visibility = if (analyzer.hasLocationPermission()) View.GONE else View.VISIBLE
@@ -49,6 +52,7 @@ class WifiFragment : Fragment(R.layout.fragment_wifi) {
         viewLifecycleOwner.lifecycleScope.launch {
             val trust = withContext(Dispatchers.Default) { analyzer.analyze() }
             renderWifi(trust)
+            endRefresh()
         }
     }
 

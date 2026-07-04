@@ -139,6 +139,36 @@ permessi: ✅/❌ con azione per risolvere), che richiama
 `SystemIntents.requestIgnoreBatteryOptimizations` — richiesta sempre con
 conferma esplicita dell'utente, mai automatica.
 
+### Pull-to-refresh e verifica esito stop (v6.6)
+
+**Rotella di caricamento ovunque**: prima solo Dashboard, Pulizia spazio e
+Controllo file mostravano un indicatore mentre recuperavano dati; le altre
+14 pagine caricavano informazioni (query di sistema, scansioni) senza
+alcun feedback visivo. Introdotta **`ui/base/RefreshableFragment`**, una
+classe base che lega ogni pagina a una `SwipeRefreshLayout`: la stessa
+rotella Material compare sia al primo caricamento sia trascinando la
+pagina verso il basso col dito, con una singola implementazione condivisa
+invece di ripetere la logica in 14 file. Le pagine con una scansione già
+dotata di barra di avanzamento propria (Dashboard, Pulizia, Controllo
+file) usano lo swipe solo come gesto per rilanciare la scansione, senza
+sovrapporre una seconda rotella. Le 3 Activity (`DeviceInfoActivity`,
+`SimInfoActivity`, `FileManagerActivity`) non possono ereditare da un
+Fragment, quindi collegano la `SwipeRefreshLayout` manualmente con lo
+stesso pattern.
+
+**Verifica reale dell'esito di "Ferma"** (Traffico di rete e App in
+background): `ActivityManager.killBackgroundProcesses` — l'unico modo non
+di sistema per fermare un'altra app — **non tocca i processi con un
+Foreground Service attivo**, perché il sistema li protegge. Le app elencate
+in queste due pagine sono individuate proprio tramite un Foreground Service
+attivo, quindi il pulsante "Ferma" poteva risultare senza alcun effetto
+reale pur mostrando un messaggio di conferma generico. Aggiunto
+`BackgroundAppsMonitor.isForegroundServiceActive()`: dopo lo stop si
+attende 1,5s e si ricontrolla se il servizio è ancora attivo, mostrando un
+messaggio onesto — "fermata correttamente" oppure "protetta dal sistema,
+serve l'arresto forzato dalla scheda dell'app" — invece di dare per
+scontato il successo.
+
 ---
 
 ## 2. Mockup di layout
