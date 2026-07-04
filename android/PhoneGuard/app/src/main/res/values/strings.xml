@@ -8,6 +8,7 @@
     <string name="category_most_used">⭐ Più usati</string>
     <string name="nav_settings">Impostazioni</string>
     <string name="nav_log">Registro attività</string>
+    <string name="nav_about">Informazioni app</string>
     <string name="nav_device_info">Informazioni dispositivo</string>
     <string name="nav_sim_info">Schede SIM</string>
     <string name="nav_file_manager">Gestione file</string>
@@ -180,6 +181,15 @@
 
     <string name="device_info_open">📱 Informazioni dispositivo</string>
     <string name="device_info_title">Informazioni dispositivo</string>
+
+    <!-- Informazioni app -->
+    <string name="about_icon">🛡️</string>
+    <string name="about_version">Versione %1$s (build %2$d) · rilasciata a %3$s</string>
+    <string name="about_description">PhoneGuard è l\'app anti-spyware del team Cyber Sentinel: ti aiuta a capire se il telefono è sotto controllo da parte di qualcuno — app spia nascoste, accesso remoto, intercettazione delle chiamate — e a tenerlo pulito e veloce.</string>
+    <string name="about_features_title">Cosa fa</string>
+    <string name="about_features_body">🕵️ Rileva app spia e nascoste, con disinstallazione guidata\n📶 Verifica se il telefono è sotto intercettazione (rete cellulare, Wi-Fi, deviazione chiamate)\n🌐 Mostra quali app inviano dati in rete, comprese quelle nascoste, e le può fermare\n🔋 Controlla batteria, app energivore e app attive in background\n🗂️ Cerca file sospetti e pulisce lo spazio inutile su memoria interna e microSD\n📂 Gestione file con copia/taglia/incolla tra cartelle\n📱 Informazioni su dispositivo e schede SIM installate</string>
+    <string name="about_privacy">🔒 Privacy: PhoneGuard non ha il permesso di accedere a Internet. Non può inviare nulla a nessuno: tutte le analisi restano sul telefono.</string>
+    <string name="about_team">Sviluppata dal team Cyber Sentinel</string>
 
     <string name="sim_info_open">📶 Schede SIM</string>
     <string name="sim_title_page">Schede SIM</string>

@@ -16,6 +16,7 @@ import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.ui.chart.DonutChartView
 import com.cybersentinel.phoneguard.ui.chart.RingGaugeView
 import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.data.RiskLevel
 import com.cybersentinel.phoneguard.monitor.AppInventory
@@ -129,7 +130,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             optimizeResult.text = if (running.isEmpty()) getString(R.string.optimize_none)
             else getString(R.string.optimize_done, running.size)
             AppLog.log(
-                context, "SISTEMA",
+                context, LogCategory.SISTEMA,
                 "Ottimizzazione: fermate ${running.size} app in background (${running.joinToString { it.appLabel }})"
             )
             refreshRings()
@@ -307,7 +308,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             scanProgress.setProgressCompat(5, true)
             scanProgressLabel.setText(R.string.phase_done)
             AppLog.log(
-                context, "SCANSIONE",
+                context, LogCategory.SCANSIONE,
                 "Analisi Globale — verdetto ${report.verdict}: ${threats.size} app sospette, " +
                         "$failedChecks controlli falliti, " +
                         "${suspiciousFiles ?: "n/d"} file sospetti, " +

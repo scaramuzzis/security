@@ -12,6 +12,7 @@ import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.SuspiciousFile
 import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.util.SystemIntents
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -66,7 +67,7 @@ class SuspiciousFilesFragment : Fragment(R.layout.fragment_files) {
             filesText.text = formatFiles(found)
             filesProgress.visibility = View.GONE
             scanButton.isEnabled = true
-            AppLog.log(context, "SCANSIONE", "Scansione file (${roots.size} volumi): ${found.size} sospetti")
+            AppLog.log(context, LogCategory.SCANSIONE, "Scansione file (${roots.size} volumi): ${found.size} sospetti")
         }
     }
 

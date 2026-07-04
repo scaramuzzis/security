@@ -13,6 +13,7 @@ import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
 import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.util.SystemIntents
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -87,7 +88,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         logging.isChecked = Prefs.loggingEnabled(context)
         logging.setOnCheckedChangeListener { _, checked ->
             Prefs.setLoggingEnabled(context, checked)
-            if (checked) AppLog.log(context, "SISTEMA", "Registro attività attivato")
+            if (checked) AppLog.log(context, LogCategory.SISTEMA, "Registro attività attivato")
         }
     }
 

@@ -13,6 +13,7 @@ import com.cybersentinel.phoneguard.data.JunkItem
 import com.cybersentinel.phoneguard.monitor.JunkScanner
 import com.cybersentinel.phoneguard.monitor.SecurityAnalyst
 import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.util.SystemIntents
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -107,7 +108,7 @@ class CleanSpaceFragment : Fragment(R.layout.fragment_clean) {
                 selectAll.isChecked = selectedJunk.size == found.size
             }
             updateCleanButton()
-            AppLog.log(context, "PULIZIA", "Scansione file inutili: ${found.size} elementi, ${SecurityAnalyst.formatSize(total)}")
+            AppLog.log(context, LogCategory.PULIZIA, "Scansione file inutili: ${found.size} elementi, ${SecurityAnalyst.formatSize(total)}")
         }
     }
 
@@ -140,7 +141,7 @@ class CleanSpaceFragment : Fragment(R.layout.fragment_clean) {
             scanJunkButton.isEnabled = true
             updateCleanButton()
             cleanSummary.text = getString(R.string.clean_done, SecurityAnalyst.formatSize(freed))
-            AppLog.log(context, "PULIZIA", "Pulizia completata: liberati ${SecurityAnalyst.formatSize(freed)}")
+            AppLog.log(context, LogCategory.PULIZIA, "Pulizia completata: liberati ${SecurityAnalyst.formatSize(freed)}")
         }
     }
 

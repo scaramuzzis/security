@@ -16,6 +16,7 @@ import com.cybersentinel.phoneguard.monitor.BackgroundAppsMonitor
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
 import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.util.SystemIntents
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +80,7 @@ class NetworkUsageFragment : Fragment(R.layout.fragment_network) {
     private fun stopApp(app: AppNetworkUsage) {
         val context = requireContext()
         BackgroundAppsMonitor(context).stop(app.packageName)
-        AppLog.log(context, "RETE", "Richiesta di stop per traffico dati: ${app.appLabel}")
+        AppLog.log(context, LogCategory.RETE, "Richiesta di stop per traffico dati: ${app.appLabel}")
         Toast.makeText(context, getString(R.string.stop_requested, app.appLabel), Toast.LENGTH_SHORT).show()
         view?.postDelayed({ if (isAdded) refreshUsage() }, 800)
     }
@@ -91,7 +92,7 @@ class NetworkUsageFragment : Fragment(R.layout.fragment_network) {
             return
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            val content = withContext(Dispatchers.IO) { AppLog.readCategory(context, "RETE") }
+            val content = withContext(Dispatchers.IO) { AppLog.readCategory(context, LogCategory.RETE) }
             networkLogText.text = content.ifBlank { getString(R.string.network_log_empty) }
         }
     }

@@ -1,7 +1,15 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+// Mese/anno di build reali, calcolati da Gradle al momento della
+// compilazione: niente stringa da ricordarsi di aggiornare a mano.
+val buildDate: String = SimpleDateFormat("MMMM yyyy", Locale.ITALIAN).format(Date())
 
 android {
     namespace = "com.cybersentinel.phoneguard"
@@ -11,8 +19,14 @@ android {
         applicationId = "com.cybersentinel.phoneguard"
         minSdk = 26
         targetSdk = 34
-        versionCode = 13
-        versionName = "6.3"
+        versionCode = 14
+        versionName = "6.4"
+
+        buildConfigField("String", "BUILD_DATE", "\"$buildDate\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     signingConfigs {

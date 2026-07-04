@@ -29,7 +29,8 @@ class SectionHostActivity : AppCompatActivity() {
         CLEAN(R.string.nav_clean, ::CleanSpaceFragment),
         INVENTORY(R.string.nav_inventory, ::AppInventoryFragment),
         SETTINGS(R.string.nav_settings, ::SettingsFragment),
-        LOG(R.string.nav_log, ::LogFragment)
+        LOG(R.string.nav_log, ::LogFragment),
+        ABOUT(R.string.nav_about, ::AboutFragment)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +77,7 @@ class SectionHostActivity : AppCompatActivity() {
             R.id.nav_inventory -> Section.INVENTORY
             R.id.nav_settings -> Section.SETTINGS
             R.id.nav_log -> Section.LOG
+            R.id.nav_about -> Section.ABOUT
             else -> null
         }
 

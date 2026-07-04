@@ -19,6 +19,7 @@ import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.AppNetworkUsage
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.LogCategory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,7 +53,7 @@ class MonitorService : Service() {
         fileScanner = FileScanner(this)
         threatScanner = ThreatScanner(this)
         createChannels()
-        AppLog.log(this, "SERVIZIO", "Servizio di monitoraggio avviato")
+        AppLog.log(this, LogCategory.SERVIZIO, "Servizio di monitoraggio avviato")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -63,7 +64,7 @@ class MonitorService : Service() {
     }
 
     override fun onDestroy() {
-        AppLog.log(this, "SERVIZIO", "Servizio di monitoraggio fermato")
+        AppLog.log(this, LogCategory.SERVIZIO, "Servizio di monitoraggio fermato")
         scope.cancel()
         super.onDestroy()
     }
@@ -115,7 +116,7 @@ class MonitorService : Service() {
                     "↓${SecurityAnalyst.formatSize(app.rxBytes)} ricevuti"
         }
         AppLog.log(
-            this, "RETE",
+            this, LogCategory.RETE,
             "Negli ultimi 15 minuti le app che hanno inviato più dati sono: $lines."
         )
     }
@@ -125,7 +126,7 @@ class MonitorService : Service() {
         if (Prefs.networkLogExplained(this)) return
         Prefs.setNetworkLogExplained(this, true)
         AppLog.log(
-            this, "RETE",
+            this, LogCategory.RETE,
             "Cosa mostra questo registro: PhoneGuard vede quanti byte ogni app invia e riceve " +
                     "in totale (upload/download), ma NON può vedere il contenuto dei dati, " +
                     "verso quale sito o server vengono inviati, né in che formato — Android non lo " +
@@ -318,7 +319,7 @@ class MonitorService : Service() {
     }
 
     private fun notifyAlert(id: Int, title: String, text: String) {
-        AppLog.log(this, "AVVISO", "$title — $text")
+        AppLog.log(this, LogCategory.AVVISO, "$title — $text")
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(id, baseNotification(title, text, CHANNEL_ALERTS))
     }

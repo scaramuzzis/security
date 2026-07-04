@@ -12,6 +12,7 @@ import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.RunningApp
 import com.cybersentinel.phoneguard.monitor.BackgroundAppsMonitor
 import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.LogCategory
 import com.cybersentinel.phoneguard.util.SystemIntents
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,7 +57,7 @@ class RunningAppsFragment : Fragment(R.layout.fragment_running) {
     private fun stopApp(app: RunningApp) {
         val context = requireContext()
         BackgroundAppsMonitor(context).stop(app.packageName)
-        AppLog.log(context, "SISTEMA", "Richiesta di stop app in background: ${app.appLabel}")
+        AppLog.log(context, LogCategory.SISTEMA, "Richiesta di stop app in background: ${app.appLabel}")
         Toast.makeText(context, getString(R.string.stop_requested, app.appLabel), Toast.LENGTH_SHORT).show()
         view?.postDelayed({ if (isAdded) refresh() }, 800)
     }

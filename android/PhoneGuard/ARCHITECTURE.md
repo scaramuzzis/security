@@ -64,7 +64,9 @@ PhoneGuard (menu ad hamburger, ordinato per frequenza d'uso)
 │
 └── ⚙️ App
     ├── Impostazioni                       [SettingsFragment] — ogni funzione attivabile singolarmente
-    └── Registro attività                  [LogFragment] — SQLite, Aggiorna/Svuota
+    ├── Registro attività                  [LogFragment] — SQLite, Aggiorna/Svuota
+    └── Informazioni app                   [AboutFragment] — versione, mese/anno
+           di rilascio (calcolati da Gradle a ogni build) e cosa fa l'app
 ```
 
 ### Eliminazione della duplicazione di codice (revisione senior)
@@ -90,6 +92,18 @@ Rimossi anche: un parametro morto in `SecurityAnalyst.buildSummary`
 nel messaggio — ora il messaggio lo riporta), un parametro `ConnectivityManager`
 inutilizzato in `WifiAnalyzer`, e l'`onBackPressed()` deprecato in
 `MainActivity`/`FileManagerActivity` sostituito con `OnBackPressedCallback`.
+
+Le categorie del registro attività erano stringhe libere ("RETE", "SISTEMA"...)
+ripetute in 7 file: un refuso in una sarebbe passato silenzioso, rompendo
+i filtri per categoria senza errore. Consolidate in `LogCategory`
+(costanti in `util/AppLog.kt`).
+
+**Versione e data di rilascio**: `AboutFragment` legge `versionName`/
+`versionCode` a runtime da `PackageInfo` (unica fonte di verità:
+`build.gradle.kts`) invece di una stringa duplicata. Il mese/anno di
+build è un `buildConfigField` calcolato da Gradle al momento della
+compilazione (`SimpleDateFormat` in `build.gradle.kts`), non una data
+scritta a mano che rischia di restare disallineata.
 
 ---
 

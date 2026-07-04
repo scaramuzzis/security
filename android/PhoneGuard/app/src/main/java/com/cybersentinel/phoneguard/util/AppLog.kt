@@ -8,6 +8,20 @@ import java.util.Locale
 import java.util.concurrent.Executors
 
 /**
+ * Categorie del registro attività: costanti invece di stringhe libere,
+ * per evitare refusi silenziosi che spezzerebbero i filtri per categoria
+ * (es. [AppLog.readCategory]) senza dare errore.
+ */
+object LogCategory {
+    const val SERVIZIO = "SERVIZIO"
+    const val AVVISO = "AVVISO"
+    const val SCANSIONE = "SCANSIONE"
+    const val PULIZIA = "PULIZIA"
+    const val SISTEMA = "SISTEMA"
+    const val RETE = "RETE"
+}
+
+/**
  * Registro attività dell'app, attivabile dalle Impostazioni.
  *
  * Facciata su [LogStore] (SQLite). Le scritture sono affidate a un singolo
