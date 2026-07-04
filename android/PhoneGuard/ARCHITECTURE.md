@@ -202,6 +202,23 @@ il pulsante che lo spiega, correggendo anche il testo introduttivo della
 pagina che erroneamente descriveva questo codice come "interrogazione
 della rete" insieme agli altri.
 
+### Contatori Dashboard cliccabili (v6.9)
+
+Le 4 card contatore della Dashboard ("App sospette", "Controlli falliti",
+"File sospetti", "App con servizi attivi") erano di sola lettura: per
+vedere il dettaglio bisognava aprire la pagina giusta dal menu. Ora sono
+toccabili (`view_counter.xml` ha `clickable`/`foreground` per il ripple) e
+aprono direttamente la pagina pertinente tramite
+`SectionHostActivity.intentFor`, riusando le sezioni già esistenti (Threats,
+System, Files, Energy) invece di crearne di nuove.
+
+In `SystemAnalysisFragment` ("Controlli falliti") i controlli erano
+mostrati tutti insieme nell'ordine restituito da `SystemAnalyzer`, con
+quelli falliti sparsi in mezzo a quelli superati — toccando il contatore
+non si vedeva subito il problema. Ora `formatChecks` ordina i falliti per
+primi e aggiunge un'intestazione con il conteggio ("⚠️ N controlli falliti
+su M"), così il tocco sul contatore porta dritti al problema.
+
 ---
 
 ## 2. Mockup di layout

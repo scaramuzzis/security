@@ -96,6 +96,8 @@
     <string name="counter_checks">Controlli falliti</string>
     <string name="counter_files">File sospetti</string>
     <string name="counter_energy">App con servizi attivi</string>
+    <string name="system_checks_failed_header">⚠️ %1$d controlli falliti su %2$d (mostrati per primi)</string>
+    <string name="system_checks_all_ok_header">✅ Tutti i %1$d controlli superati</string>
 
     <string name="active_controls">Controlli attivi</string>
     <string name="toggle_monitoring">Monitoraggio continuo in background</string>

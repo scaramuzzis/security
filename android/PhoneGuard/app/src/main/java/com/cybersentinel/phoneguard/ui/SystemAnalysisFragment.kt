@@ -38,9 +38,16 @@ class SystemAnalysisFragment : RefreshableFragment(R.layout.fragment_system) {
         }
     }
 
-    private fun formatChecks(checks: List<SecurityCheck>): CharSequence =
-        checks.joinToString("\n\n") { check ->
+    /** Controlli falliti in cima, così sono la prima cosa che si vede aprendo la pagina. */
+    private fun formatChecks(checks: List<SecurityCheck>): CharSequence {
+        val failed = checks.count { !it.ok }
+        val header = if (failed > 0) getString(R.string.system_checks_failed_header, failed, checks.size)
+        else getString(R.string.system_checks_all_ok_header, checks.size)
+
+        val body = checks.sortedBy { it.ok }.joinToString("\n\n") { check ->
             val icon = if (check.ok) "✅" else "⚠️"
             "$icon ${check.title}: ${check.detail}"
         }
+        return "$header\n\n$body"
+    }
 }

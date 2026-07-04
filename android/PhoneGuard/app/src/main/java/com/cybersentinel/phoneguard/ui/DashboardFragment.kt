@@ -106,6 +106,11 @@ class DashboardFragment : RefreshableFragment(R.layout.fragment_dashboard) {
         setCounterLabel(R.id.counterFiles, R.string.counter_files)
         setCounterLabel(R.id.counterEnergy, R.string.counter_energy)
 
+        setCounterClick(R.id.counterThreats, SectionHostActivity.Section.THREATS)
+        setCounterClick(R.id.counterChecks, SectionHostActivity.Section.SYSTEM)
+        setCounterClick(R.id.counterFiles, SectionHostActivity.Section.FILES)
+        setCounterClick(R.id.counterEnergy, SectionHostActivity.Section.ENERGY_USAGE)
+
         globalScanButton.setOnClickListener { runGlobalScan() }
         optimizeButton.setOnClickListener { optimizePhone() }
         bindSwitches(view)
@@ -452,6 +457,13 @@ class DashboardFragment : RefreshableFragment(R.layout.fragment_dashboard) {
     private fun setCounterLabel(counterId: Int, labelRes: Int) {
         view?.findViewById<View>(counterId)
             ?.findViewById<TextView>(R.id.counterLabel)?.setText(labelRes)
+    }
+
+    /** Tocca un contatore per aprire la pagina con il dettaglio di ciò che conta. */
+    private fun setCounterClick(counterId: Int, section: SectionHostActivity.Section) {
+        view?.findViewById<View>(counterId)?.setOnClickListener {
+            startActivity(SectionHostActivity.intentFor(requireContext(), section))
+        }
     }
 
     private fun setCounterValue(counterId: Int, value: String) {
