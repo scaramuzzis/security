@@ -280,6 +280,8 @@
 
     <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore) — tutte le app, comprese quelle nascoste, ordinate per dati inviati</string>
     <string name="hidden_app_badge">🫥 App nascosta: nessuna icona nel launcher</string>
+    <string name="network_section_active">⚡ Servizi attivi ora (%1$d)</string>
+    <string name="network_section_inactive">Non attivi al momento (%1$d)</string>
     <string name="network_log_title">Registro rete in linguaggio semplice</string>
     <string name="network_log_intro">Ogni 15 minuti PhoneGuard annota qui, in parole semplici, quali app hanno inviato più dati. Nota onesta: Android non permette a nessuna app di vedere il contenuto dei dati o il sito di destinazione — solo quanti byte vengono scambiati.</string>
     <string name="network_log_disabled">Attiva il \"Registro attività\" nelle Impostazioni per vedere qui il registro di rete.</string>

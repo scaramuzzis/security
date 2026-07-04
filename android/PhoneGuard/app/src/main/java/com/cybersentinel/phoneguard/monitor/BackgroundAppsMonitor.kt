@@ -101,9 +101,19 @@ class BackgroundAppsMonitor(private val context: Context) {
      * dal sistema — quindi lo stop può risultare senza alcun effetto su
      * queste app: questo controllo lo rileva invece di darlo per scontato.
      */
-    fun isForegroundServiceActive(packageName: String): Boolean {
+    fun isForegroundServiceActive(packageName: String): Boolean =
+        packageName in activePackages()
+
+    /**
+     * Pacchetti con un Foreground Service attivo in questo momento, da usare
+     * per mostrare un badge "servizio attivo" per-app (es. Traffico di rete):
+     * un badge persistente in lista, invece di un semplice Toast che sparisce,
+     * resta visibile dopo un aggiornamento per confermare se lo stop ha
+     * davvero funzionato.
+     */
+    fun activePackages(): Set<String> {
         val now = System.currentTimeMillis()
-        return packageName in activeForegroundServices(now - FGS_WINDOW_MS, now)
+        return activeForegroundServices(now - FGS_WINDOW_MS, now)
     }
 
     companion object {

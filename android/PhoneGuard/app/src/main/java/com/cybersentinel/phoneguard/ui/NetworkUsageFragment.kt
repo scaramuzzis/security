@@ -72,16 +72,22 @@ class NetworkUsageFragment : RefreshableFragment(R.layout.fragment_network) {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             val now = System.currentTimeMillis()
-            val (usage, hidden) = withContext(Dispatchers.IO) {
+            val (usage, hidden, active) = withContext(Dispatchers.IO) {
                 val u = networkMonitor.queryUsage(now - 24L * 60 * 60 * 1000, now)
                 val launcherPackages = AppVisibility.launcherPackages(context)
                 val h = u.filterNot { it.isSystemApp }
                     .map { it.packageName }
                     .filterNot { it in launcherPackages }
                     .toSet()
-                u to h
+                val a = BackgroundAppsMonitor(context).activePackages()
+                Triple(u, h, a)
             }
-            usageAdapter.submit(usage, MonitorService.TX_ALERT_THRESHOLD_BYTES, hidden)
+            val activeCount = usage.count { it.packageName in active }
+            usageAdapter.submit(
+                usage, MonitorService.TX_ALERT_THRESHOLD_BYTES, hidden, active,
+                activeSectionTitle = getString(R.string.network_section_active, activeCount),
+                inactiveSectionTitle = getString(R.string.network_section_inactive, usage.size - activeCount)
+            )
             endRefresh()
         }
     }

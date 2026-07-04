@@ -231,6 +231,27 @@ aggiorna. Solo il badge SERVIZIO IN BACKGROUND riflette lo stato attuale.
 rimossa `energy_section_title`, una stringa duplicata con la stessa
 informazione ma mai referenziata da nessun layout o Fragment.
 
+### Traffico di rete diviso in "Servizi attivi" / "Non attivi" (v6.11)
+
+Segnalato: dopo aver toccato "Ferma" e visto il Toast di conferma (v6.6),
+non restava alcuna traccia visibile in lista dello stato — il Toast sparisce
+in pochi secondi e i byte inviati/ricevuti sono un totale storico delle
+ultime 24 ore che non cambia fermando l'app ora. La lista di
+`NetworkUsageFragment` è stata riorganizzata in due sezioni — "⚡ Servizi
+attivi ora (N)" e "Non attivi al momento (N)" — invece di un badge per riga:
+la struttura stessa della lista mostra lo stato, così fermare un'app e
+aggiornare la pagina (swipe o automaticamente) la sposta visibilmente da
+una sezione all'altra, conferma persistente invece di un Toast fugace.
+
+`AppUsageAdapter` è stato riscritto da `ListAdapter<AppNetworkUsage, Holder>`
+a `ListAdapter<UsageRow, ViewHolder>` con una sealed class
+(`SectionHeader`/`AppRow`) e due tipi di vista, riusando `item_info_header.xml`
+già esistente per l'intestazione di sezione (lo stesso pattern di
+`DeviceInfoAdapter`, nessun layout duplicato). Lo stato attivo/inattivo
+viene da `BackgroundAppsMonitor.activePackages()` (nuovo metodo pubblico,
+riusato anche da `isForegroundServiceActive` per la verifica dopo lo stop),
+calcolato in un'unica query invece che una per app.
+
 ---
 
 ## 2. Mockup di layout
