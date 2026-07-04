@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cybersentinel.phoneguard.R
 import com.cybersentinel.phoneguard.data.SimInfo
 import com.cybersentinel.phoneguard.monitor.SimMonitor
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,6 +42,7 @@ class SimInfoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sim_info)
+        setSupportActionBar(findViewById<MaterialToolbar>(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = getString(R.string.sim_title_page)
 

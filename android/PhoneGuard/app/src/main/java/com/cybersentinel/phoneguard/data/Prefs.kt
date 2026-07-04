@@ -18,6 +18,7 @@ object Prefs {
     private const val KEY_LOGGING = "logging_enabled"
     private const val KEY_THREAT_SCAN = "threat_scan_enabled"
     private const val KEY_NETWORK_ALERTS = "network_alerts_enabled"
+    private const val KEY_NETWORK_LOG_EXPLAINED = "network_log_explained"
 
     private fun sp(context: Context): SharedPreferences =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
@@ -70,4 +71,11 @@ object Prefs {
 
     fun setNetworkAlertsEnabled(context: Context, enabled: Boolean) =
         sp(context).edit().putBoolean(KEY_NETWORK_ALERTS, enabled).apply()
+
+    /** Se la spiegazione dei limiti del log di rete è già stata registrata una volta. */
+    fun networkLogExplained(context: Context): Boolean =
+        sp(context).getBoolean(KEY_NETWORK_LOG_EXPLAINED, false)
+
+    fun setNetworkLogExplained(context: Context, value: Boolean) =
+        sp(context).edit().putBoolean(KEY_NETWORK_LOG_EXPLAINED, value).apply()
 }

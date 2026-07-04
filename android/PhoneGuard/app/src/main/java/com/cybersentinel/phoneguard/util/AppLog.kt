@@ -48,6 +48,16 @@ object AppLog {
         }
     }
 
+    /** Come [read], ma filtrato su una sola categoria (es. "RETE"). */
+    fun readCategory(context: Context, category: String, maxLines: Int = 100): String {
+        val rows = runCatching {
+            LogStore.get(context.applicationContext).recentByCategory(category, maxLines)
+        }.getOrDefault(emptyList())
+        return rows.joinToString("\n\n") { row ->
+            "[${formatter.format(Date(row.timestamp))}] ${row.message}"
+        }
+    }
+
     /** Svuota il registro. Bloccante: chiamare da un thread di background. */
     fun clear(context: Context) {
         runCatching { LogStore.get(context.applicationContext).clear() }

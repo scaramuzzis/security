@@ -103,6 +103,22 @@ class LogStore private constructor(context: Context) : SQLiteOpenHelper(
         return rows
     }
 
+    /** Ultimi [limit] eventi di una sola categoria (es. "RETE"), dal più recente. */
+    fun recentByCategory(category: String, limit: Int): List<LogRow> {
+        val rows = ArrayList<LogRow>(limit)
+        readableDatabase.rawQuery(
+            "SELECT e.ts, c.name, e.message FROM event e " +
+                    "JOIN category c ON e.category_id = c.id " +
+                    "WHERE c.name = ? ORDER BY e.id DESC LIMIT ?",
+            arrayOf(category, limit.toString())
+        ).use { c ->
+            while (c.moveToNext()) {
+                rows.add(LogRow(c.getLong(0), c.getString(1), c.getString(2)))
+            }
+        }
+        return rows
+    }
+
     fun count(): Int {
         readableDatabase.rawQuery("SELECT COUNT(*) FROM event", null).use { c ->
             return if (c.moveToFirst()) c.getInt(0) else 0

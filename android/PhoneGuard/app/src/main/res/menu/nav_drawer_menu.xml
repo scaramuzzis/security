@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_dashboard"
+        android:title="@string/nav_dashboard" />
+
+    <!-- Ordine per frequenza d'uso: prima ciò che si controlla spesso
+         (minacce, Wi-Fi ogni volta che ci si connette, traffico dati),
+         poi le verifiche più occasionali. -->
+    <item android:title="@string/category_security">
+        <menu>
+            <item android:id="@+id/nav_interception" android:icon="@drawable/ic_radar" android:title="@string/nav_interception" />
+            <item android:id="@+id/nav_threats" android:icon="@drawable/ic_shield" android:title="@string/nav_threats" />
+            <item android:id="@+id/nav_wifi" android:icon="@drawable/ic_wifi" android:title="@string/nav_wifi" />
+            <item android:id="@+id/nav_network" android:icon="@drawable/ic_network" android:title="@string/nav_network" />
+            <item android:id="@+id/nav_audit" android:icon="@drawable/ic_audit" android:title="@string/nav_audit" />
+            <item android:id="@+id/nav_system" android:icon="@drawable/ic_settings" android:title="@string/nav_system" />
+            <item android:id="@+id/nav_files" android:icon="@drawable/ic_file" android:title="@string/nav_files" />
+            <item android:id="@+id/nav_updates" android:icon="@drawable/ic_update" android:title="@string/nav_updates" />
+        </menu>
+    </item>
+
+    <item android:title="@string/category_energy">
+        <menu>
+            <item android:id="@+id/nav_running" android:icon="@drawable/ic_energy" android:title="@string/nav_running" />
+            <item android:id="@+id/nav_energy_usage" android:icon="@drawable/ic_battery" android:title="@string/nav_energy_usage" />
+            <item android:id="@+id/nav_clean" android:icon="@drawable/ic_clean" android:title="@string/nav_clean" />
+            <item android:id="@+id/nav_inventory" android:icon="@drawable/ic_storage" android:title="@string/nav_inventory" />
+        </menu>
+    </item>
+
+    <item android:title="@string/category_files">
+        <menu>
+            <item android:id="@+id/nav_file_manager" android:icon="@drawable/ic_folder" android:title="@string/nav_file_manager" />
+        </menu>
+    </item>
+
+    <item android:title="@string/category_device">
+        <menu>
+            <item android:id="@+id/nav_device_info" android:icon="@drawable/ic_memory" android:title="@string/nav_device_info" />
+            <item android:id="@+id/nav_sim_info" android:icon="@drawable/ic_sim" android:title="@string/nav_sim_info" />
+        </menu>
+    </item>
+
+    <item android:title="@string/category_app">
+        <menu>
+            <item android:id="@+id/nav_settings" android:icon="@drawable/ic_settings" android:title="@string/nav_settings" />
+            <item android:id="@+id/nav_log" android:icon="@drawable/ic_log" android:title="@string/nav_log" />
+        </menu>
+    </item>
+
+</menu>

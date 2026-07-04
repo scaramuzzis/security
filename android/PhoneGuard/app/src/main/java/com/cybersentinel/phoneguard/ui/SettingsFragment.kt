@@ -1,107 +1,46 @@
 package com.cybersentinel.phoneguard.ui
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
-import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
+import com.cybersentinel.phoneguard.util.AppLog
+import com.cybersentinel.phoneguard.util.SystemIntents
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
- * Impostazioni: regole di automazione e stato delle autorizzazioni di
- * sistema, con scorciatoie alle schermate dove concederle.
+ * Impostazioni: ogni funzione dell'app è attivabile/disattivabile
+ * singolarmente, più lo stato delle autorizzazioni di sistema con
+ * scorciatoie alle schermate dove concederle.
  */
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         bindSwitches(view)
-        bindLog(view)
 
         view.findViewById<MaterialButton>(R.id.usageAccessButton).setOnClickListener {
-            startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            SystemIntents.openUsageAccessSettings(requireContext())
         }
         view.findViewById<MaterialButton>(R.id.storageAccessButton).setOnClickListener {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val intent = Intent(
-                    Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-                    Uri.parse("package:${requireContext().packageName}")
-                )
-                runCatching { startActivity(intent) }.onFailure {
-                    startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
-                }
-            }
+            SystemIntents.requestAllFilesAccess(requireContext())
         }
         view.findViewById<MaterialButton>(R.id.notificationsButton).setOnClickListener {
-            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                .putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
-            runCatching { startActivity(intent) }
-        }
-        view.findViewById<MaterialButton>(R.id.deviceInfoButton).setOnClickListener {
-            startActivity(Intent(requireContext(),
-                com.cybersentinel.phoneguard.ui.DeviceInfoActivity::class.java))
-        }
-        view.findViewById<MaterialButton>(R.id.simInfoButton).setOnClickListener {
-            startActivity(Intent(requireContext(),
-                com.cybersentinel.phoneguard.ui.SimInfoActivity::class.java))
+            SystemIntents.openNotificationSettings(requireContext())
         }
     }
 
     override fun onResume() {
         super.onResume()
         refreshPermissionStatus()
-        refreshLog()
-    }
-
-    private fun bindLog(view: View) {
-        val context = requireContext()
-
-        val logging = view.findViewById<MaterialSwitch>(R.id.switchLogging)
-        logging.isChecked = Prefs.loggingEnabled(context)
-        logging.setOnCheckedChangeListener { _, checked ->
-            Prefs.setLoggingEnabled(context, checked)
-            if (checked) AppLog.log(context, "SISTEMA", "Registro attività attivato")
-            refreshLog()
-        }
-
-        view.findViewById<View>(R.id.logRefreshButton).setOnClickListener {
-            refreshLog()
-        }
-        view.findViewById<View>(R.id.logClearButton).setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                withContext(Dispatchers.IO) { AppLog.clear(context) }
-                refreshLog()
-            }
-        }
-    }
-
-    private fun refreshLog() {
-        val context = requireContext()
-        val logText = view?.findViewById<TextView>(R.id.logText) ?: return
-        if (!Prefs.loggingEnabled(context)) {
-            logText.text = getString(R.string.log_disabled)
-            return
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            val content = withContext(Dispatchers.IO) { AppLog.read(context) }
-            logText.text = content.ifBlank { getString(R.string.log_empty) }
-        }
     }
 
     private fun bindSwitches(view: View) {
@@ -142,6 +81,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         appStarts.isChecked = Prefs.appStartAlertsEnabled(context)
         appStarts.setOnCheckedChangeListener { _, checked ->
             Prefs.setAppStartAlertsEnabled(context, checked)
+        }
+
+        val logging = view.findViewById<MaterialSwitch>(R.id.switchLogging)
+        logging.isChecked = Prefs.loggingEnabled(context)
+        logging.setOnCheckedChangeListener { _, checked ->
+            Prefs.setLoggingEnabled(context, checked)
+            if (checked) AppLog.log(context, "SISTEMA", "Registro attività attivato")
         }
     }
 

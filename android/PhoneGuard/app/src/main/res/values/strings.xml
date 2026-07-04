@@ -5,9 +5,53 @@
 
     <!-- Navigazione -->
     <string name="nav_dashboard">Dashboard</string>
-    <string name="nav_security">Sicurezza</string>
-    <string name="nav_energy">Energia</string>
     <string name="nav_settings">Impostazioni</string>
+    <string name="nav_log">Registro attività</string>
+    <string name="nav_device_info">Informazioni dispositivo</string>
+    <string name="nav_sim_info">Schede SIM</string>
+    <string name="nav_file_manager">Gestione file</string>
+
+    <string name="category_security">Sicurezza</string>
+    <string name="nav_interception">Verifica intercettazione</string>
+    <string name="nav_threats">App sospette e nascoste</string>
+    <string name="nav_audit">Audit permessi</string>
+    <string name="nav_system">Analisi di sistema</string>
+    <string name="nav_files">File sospetti</string>
+    <string name="nav_wifi">Affidabilità Wi-Fi</string>
+    <string name="nav_network">Traffico di rete</string>
+    <string name="nav_updates">App da aggiornare</string>
+
+    <string name="category_energy">Energia e spazio</string>
+    <string name="nav_running">App in background</string>
+    <string name="nav_energy_usage">App energivore</string>
+    <string name="nav_clean">Pulizia spazio</string>
+    <string name="nav_inventory">Inventario app</string>
+
+    <string name="category_files">File</string>
+    <string name="category_device">Dispositivo</string>
+    <string name="category_app">App</string>
+
+    <!-- File manager -->
+    <string name="file_manager_title">Gestione file</string>
+    <string name="internal_storage">Memoria interna</string>
+    <string name="sd_card">Scheda SD %1$d</string>
+    <string name="up">⬆ Su</string>
+    <string name="toggle_view_mode">Cambia visualizzazione</string>
+    <string name="new_folder">Nuova cartella</string>
+    <string name="new_folder_hint">Nome della cartella</string>
+    <string name="create">Crea</string>
+    <string name="paste">Incolla</string>
+    <string name="copy">Copia</string>
+    <string name="cut">Taglia</string>
+    <string name="delete">Elimina</string>
+    <string name="file_manager_empty">Cartella vuota.</string>
+    <string name="copied_to_clipboard">%1$d elementi copiati. Vai nella cartella di destinazione e tocca Incolla.</string>
+    <string name="cut_to_clipboard">%1$d elementi pronti per essere spostati. Vai nella cartella di destinazione e tocca Incolla.</string>
+    <string name="paste_result">Incollati %1$d elementi (%2$s)</string>
+    <string name="paste_failed">— %1$d non riusciti</string>
+    <string name="delete_confirm_title">Eliminare %1$d elementi?</string>
+    <string name="delete_confirm_message">%1$d elementi verranno eliminati definitivamente. L\'operazione non è reversibile.</string>
+    <string name="delete_result">%1$d elementi eliminati</string>
 
     <!-- Dashboard: stato -->
     <string name="status_icon_unknown">🛡️</string>
@@ -187,6 +231,21 @@
     <string name="grant_storage_access">Concedi accesso ai file</string>
     <string name="scan_files">Scansiona file</string>
 
+    <!-- Verifica intercettazione -->
+    <string name="interception_loading">Analisi in corso…</string>
+    <string name="interception_intro">Combina tutti i segnali già raccolti dall\'app (app spia, controllo remoto, rete cellulare e Wi-Fi) in un unico verdetto, più le verifiche ufficiali sulla deviazione delle chiamate.</string>
+    <string name="interception_critical">Rilevata una minaccia critica: probabile app spia attiva</string>
+    <string name="interception_warning">Alcuni segnali da verificare con attenzione</string>
+    <string name="interception_safe">Nessun segnale di controllo o intercettazione rilevato</string>
+    <string name="interception_ussd_title">Verifica deviazione chiamate</string>
+    <string name="interception_ussd_intro">Questi codici interrogano direttamente la rete del tuo operatore: è lui a risponderti, non una stima dell\'app. Il tasto apre il tastierino già compilato: tocca la chiamata per confermare.</string>
+    <string name="interception_ussd_forward_all">Controlla se le chiamate sono deviate (*#21#)</string>
+    <string name="interception_ussd_forward_busy">Controlla deviazione se occupato (*#67#)</string>
+    <string name="interception_ussd_forward_unreachable">Controlla deviazione se irraggiungibile (*#62#)</string>
+    <string name="interception_ussd_disable_all">Disattiva tutte le deviazioni (##002#)</string>
+    <string name="interception_ussd_imei">Mostra il codice IMEI (*#06#)</string>
+    <string name="interception_disclaimer">Limite onesto: nessuna app, PhoneGuard incluso, può rilevare con certezza assoluta un\'intercettazione a livello di rete o di un\'autorità (es. IMSI-catcher, intercettazione dell\'operatore). Questi sono indizi concreti raccolti con le API disponibili a un\'app senza privilegi di sistema, non una prova definitiva.</string>
+
     <string name="wifi_section_title">Affidabilità Wi-Fi</string>
     <string name="wifi_loading">Analisi della rete in corso…</string>
     <string name="wifi_not_connected">📶 Non connesso al Wi-Fi</string>
@@ -198,6 +257,10 @@
     <string name="wifi_grant_location">Concedi la posizione per vedere il nome della rete</string>
 
     <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore)</string>
+    <string name="network_log_title">Registro rete in linguaggio semplice</string>
+    <string name="network_log_intro">Ogni 15 minuti PhoneGuard annota qui, in parole semplici, quali app hanno inviato più dati. Nota onesta: Android non permette a nessuna app di vedere il contenuto dei dati o il sito di destinazione — solo quanti byte vengono scambiati.</string>
+    <string name="network_log_disabled">Attiva il \"Registro attività\" nelle Impostazioni per vedere qui il registro di rete.</string>
+    <string name="network_log_empty">Nessun dato ancora registrato: torna tra qualche minuto.</string>
     <string name="usage_details">↑ Inviati: %1$s   ↓ Ricevuti: %2$s</string>
     <string name="suspicious_app">App con upload sospetto</string>
     <string name="grant_usage_access">Concedi accesso ai dati di utilizzo</string>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/interceptionVerdict"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/interception_loading"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/interception_intro"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="@color/cyber_on_surface_dim" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/interceptionChecks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/interception_ussd_title"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/interception_ussd_intro"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="@color/cyber_on_surface_dim" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ussdForwardAll"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/interception_ussd_forward_all" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ussdForwardBusy"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/interception_ussd_forward_busy" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ussdForwardUnreachable"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/interception_ussd_forward_unreachable" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ussdDisableAll"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/interception_ussd_disable_all" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ussdImei"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/interception_ussd_imei" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/interception_disclaimer"
+            android:textAppearance="?attr/textAppearanceLabelSmall"
+            android:textColor="@color/cyber_on_surface_dim" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

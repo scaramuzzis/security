@@ -81,16 +81,58 @@ class MonitorService : Service() {
     }
 
     private fun checkNetwork() {
-        if (!Prefs.networkAlertsEnabled(this)) return
         if (!networkMonitor.hasUsageAccess()) return
 
         val now = System.currentTimeMillis()
         val usage = networkMonitor.queryUsage(now - CHECK_INTERVAL_MS, now)
 
-        val suspicious = usage.filter {
-            !it.isSystemApp && it.isSuspicious(TX_ALERT_THRESHOLD_BYTES)
+        if (Prefs.networkAlertsEnabled(this)) {
+            val suspicious = usage.filter {
+                !it.isSystemApp && it.isSuspicious(TX_ALERT_THRESHOLD_BYTES)
+            }
+            suspicious.forEach { notifySuspiciousApp(it) }
         }
-        suspicious.forEach { notifySuspiciousApp(it) }
+
+        logNetworkSummary(usage)
+    }
+
+    /**
+     * Registra nel log, in linguaggio semplice, quali app hanno inviato
+     * dati in rete in quest'ultimo intervallo — indipendentemente dagli
+     * avvisi (quelli scattano solo sopra soglia). Se il registro attività
+     * è disattivato, AppLog.log() non scrive nulla: nessun costo extra.
+     */
+    private fun logNetworkSummary(usage: List<AppNetworkUsage>) {
+        explainNetworkLogOnce()
+
+        val senders = usage.filter { !it.isSystemApp && it.txBytes > 0 }
+            .sortedByDescending { it.txBytes }
+            .take(5)
+        if (senders.isEmpty()) return
+
+        val lines = senders.joinToString("; ") { app ->
+            "${app.appLabel}: ↑${SecurityAnalyst.formatSize(app.txBytes)} inviati, " +
+                    "↓${SecurityAnalyst.formatSize(app.rxBytes)} ricevuti"
+        }
+        AppLog.log(
+            this, "RETE",
+            "Negli ultimi 15 minuti le app che hanno inviato più dati sono: $lines."
+        )
+    }
+
+    /** Spiegazione dei limiti del log di rete, registrata una sola volta. */
+    private fun explainNetworkLogOnce() {
+        if (Prefs.networkLogExplained(this)) return
+        Prefs.setNetworkLogExplained(this, true)
+        AppLog.log(
+            this, "RETE",
+            "Cosa mostra questo registro: PhoneGuard vede quanti byte ogni app invia e riceve " +
+                    "in totale (upload/download), ma NON può vedere il contenuto dei dati, " +
+                    "verso quale sito o server vengono inviati, né in che formato — Android non lo " +
+                    "permette a un'app senza privilegi speciali. Se un'app invia molti più dati di " +
+                    "quanti dovrebbe (es. una torcia che invia MB di dati), è un segnale sospetto " +
+                    "anche senza sapere cosa contengono esattamente quei dati."
+        )
     }
 
     private fun checkBattery() {

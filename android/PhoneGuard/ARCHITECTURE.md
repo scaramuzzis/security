@@ -1,4 +1,4 @@
-# PhoneGuard 3.0 — Specifiche architetturali "Cyber-Dashboard"
+# PhoneGuard 6.0 — Specifiche architetturali "Cyber-Dashboard"
 
 Documento di architettura UI/UX e tecnica. Tutto ciò che è descritto qui è
 **implementato nel codice** di questa cartella, salvo dove indicato come
@@ -6,72 +6,68 @@ Documento di architettura UI/UX e tecnica. Tutto ciò che è descritto qui è
 
 ---
 
-## 1. Struttura ad albero dei menu
+## 0. Architettura di navigazione: menu ad hamburger, una pagina per funzione
+
+Dalla v6.0 la navigazione non è più a Bottom Navigation/fragment condivisi:
+è un **menu ad hamburger** (`DrawerLayout` + `NavigationView`) che raccoglie
+ogni funzione per categoria, e **ogni funzione vive nella propria pagina**
+(un'Activity dedicata), non più raggruppata in mega-schermate.
+
+- **`MainActivity`** — shell col drawer; mostra sempre `DashboardFragment`
+  come home. Ogni voce del drawer diversa da "Dashboard" apre una pagina.
+- **`SectionHostActivity`** — host generico riusato da tutte le pagine
+  "semplici": riceve una `Section` (enum con titolo + fabbrica del
+  Fragment) e la mostra con Toolbar e freccia indietro. Evita di scrivere
+  15 Activity quasi identiche.
+- **`DeviceInfoActivity`, `SimInfoActivity`, `FileManagerActivity`** —
+  Activity proprie perché hanno bisogno di più controlli in Toolbar
+  (selettore volumi, vista lista/griglia, incolla) di quanti l'host
+  generico preveda.
 
 ```
-PhoneGuard
+PhoneGuard (menu ad hamburger, ordinato per frequenza d'uso)
 │
-├── 📊 DASHBOARD                          [DashboardFragment]
-│   ├── Header di stato (semaforo)        🛡️ verde / ⚠️ ambra / 🚨 rosso
-│   ├── Anelli di stato (RingGaugeView)   batteria, RAM, archiviazione — Canvas nativo
-│   ├── Donut sicurezza (DonutChartView)  ripartizione OK/da verificare/critico + legenda
-│   ├── ▶ Analisi Globale                 (minacce + sistema + file + energia, un tap)
-│   │   └── Barra di avanzamento a 5 fasi con etichetta della fase corrente
-│   ├── Card consumo PhoneGuard           (CPU% e RAM dell'app stessa, refresh 2s)
-│   ├── Contatori: App sospette · Controlli falliti · File sospetti · Servizi attivi
-│   ├── Card batteria in tempo reale      (livello, W, temperatura, autonomia stimata)
-│   └── Controlli attivi (toggle)
-│       ├── Monitoraggio continuo         [ON/OFF → avvia/ferma MonitorService]
-│       ├── Avvisi batteria               [ON/OFF]
-│       ├── Scansione automatica file     [ON/OFF]
-│       └── Avviso app avviate da sole    [ON/OFF → popup heads-up]
+├── 📊 Dashboard                           [DashboardFragment — sempre la home]
 │
-├── 🛡️ SICUREZZA                          [SecurityFragment]
-│   ├── App sospette e nascoste           (anti-spyware, punteggio 0–100)
-│   │   └── per ogni app: [Disinstalla] [Info app]
-│   ├── Audit permessi critici            (Accessibilità / Admin / Notifiche / Posizione background)
-│   ├── Analisi di sistema                (root, MDM, VPN, ADB, blocco schermo, ...)
-│   ├── Affidabilità Wi-Fi                (cifratura, proxy, captive portal, DNS, VPN)
-│   ├── Controllo file sospetti           [Scansiona file: interna + microSD]
-│   ├── App da aggiornare                 (ordinate per ultimo agg., [Aggiorna]→Play Store)
-│   ├── Inventario app e sistema          (tutte le app per spazio: app/dati/cache)
-│   └── Traffico di rete per app          (↑ inviati / ↓ ricevuti, 24h)
+├── 🛡️ Sicurezza (ordine: uso frequente → occasionale)
+│   ├── 🔎 Verifica intercettazione        [InterceptionFragment] — verdetto aggregato +
+│   │      codici USSD ufficiali di deviazione chiamata (*#21#, *#67#, *#62#, ##002#, *#06#)
+│   ├── App sospette e nascoste            [ThreatsFragment] — anti-spyware, punteggio 0–100
+│   ├── Affidabilità Wi-Fi                 [WifiFragment] — controllata a ogni nuova rete
+│   ├── Traffico di rete per app           [NetworkUsageFragment] + registro rete in linguaggio semplice
+│   ├── Audit permessi critici             [PermissionAuditFragment]
+│   ├── Analisi di sistema                 [SystemAnalysisFragment] — root, MDM, VPN, ADB...
+│   ├── Controllo file sospetti            [SuspiciousFilesFragment] — interna + microSD
+│   └── App da aggiornare                  [UpdatesFragment] — [Aggiorna]→Play Store
 │
-├── ⚡ ENERGIA                             [EnergyFragment]
-│   ├── App attive in background          (servizi attivi + uso recente)
-│   │   └── [Ferma] → killBackgroundProcesses; riga → Arresto forzato
-│   ├── Lista app energivore              (ordinata per impatto %, ultime 24h)
-│   │   ├── badge ⚡ SERVIZIO IN BACKGROUND (Foreground Service rilevato)
-│   │   └── [Gestisci] → scheda di sistema (Arresto forzato, restrizione batteria)
-│   └── Pulizia spazio                    (selezione con checkbox di cosa eliminare)
-│       ├── cartelle vuote, file vuoti/temporanei, cache miniature, log/backup
-│       ├── cache dell'app PhoneGuard (eliminabile direttamente)
-│       └── [Seleziona tutto] + [Pulisci N selezionati · dimensione]
+├── ⚡ Energia e spazio
+│   ├── App in background                 [RunningAppsFragment] — solo Foreground Service attivi, [Ferma]
+│   ├── App energivore                     [EnergyUsageFragment]
+│   ├── Pulizia spazio                     [CleanSpaceFragment] — selezione con checkbox
+│   └── Inventario app                     [AppInventoryFragment] — spazio app/dati/cache
 │
-└── ⚙️ IMPOSTAZIONI                        [SettingsFragment]
-    ├── Pannello di controllo completo    (ogni funzione attivabile singolarmente):
-    │   ├── Monitoraggio continuo (servizio)
-    │   ├── Scansione anti-spyware in background
-    │   ├── Avvisi traffico dati sospetto
-    │   ├── Avvisi batteria
-    │   ├── Scansione automatica file
-    │   └── Avviso app avviate da sole
-    │   └── Nota soglie: 50 MB upload · 45 °C · 20%/h · ciclo 15 min
-    ├── Autorizzazioni di sistema         (stato ✅/❌ + scorciatoia alla schermata giusta)
-    │   ├── Accesso ai dati di utilizzo
-    │   ├── Accesso a tutti i file
-    │   └── Notifiche
-    ├── 📱 Informazioni dispositivo        (Activity dedicata: Android, patch,
-    │   hardware, memoria, batteria, cifratura, root, conteggio app)
-    ├── 📶 Schede SIM                      (Activity dedicata: operatore, numero,
-    │   rete, SIM predefinita dati/voce/SMS, roaming — sola lettura + deep-link
-    │   alle impostazioni di sistema per modificarle)
-    └── Registro attività (log)           [ON/OFF] + visualizzazione, Aggiorna, Svuota
-        └── database SQLite normalizzato (tabelle `category` + `event`),
-            scritture su thread dedicato, letture con LIMIT (memoria
-            costante), rotazione a 1000 righe; categorie: SERVIZIO,
-            AVVISO, SCANSIONE, PULIZIA, SISTEMA
+├── 🗂️ File
+│   └── Gestione file                      [FileManagerActivity] — Esplora Windows-like,
+│          vista lista/griglia, copia/taglia/incolla tra memoria interna e microSD
+│
+├── 📱 Dispositivo
+│   ├── Informazioni dispositivo           [DeviceInfoActivity]
+│   └── Schede SIM                         [SimInfoActivity]
+│
+└── ⚙️ App
+    ├── Impostazioni                       [SettingsFragment] — ogni funzione attivabile singolarmente
+    └── Registro attività                  [LogFragment] — SQLite, Aggiorna/Svuota
 ```
+
+### Eliminazione della duplicazione di codice (revisione senior)
+
+Con 15+ pagine che aprono le stesse schermate di sistema (scheda app,
+Play Store, permesso storage...), la stessa logica `Intent` + `runCatching`
+era ripetuta in 8+ file. Consolidata in **`util/SystemIntents`**: un unico
+punto per `openAppDetails`, `openUsageAccessSettings`,
+`requestAllFilesAccess`, `openNotificationSettings`, `uninstallApp`,
+`openPlayStoreListing`, `dialUssd`. Ogni pagina ora chiama l'helper invece
+di ridefinire l'`Intent`.
 
 ---
 
@@ -169,6 +165,9 @@ PhoneGuard
 | **Restrizione background** | stesso deep-link | ⚠️ `setAppStandbyBucket`/restrizione batteria sono API di sistema; la scelta "Con restrizioni / Ottimizzata / Senza restrizioni" è riservata all'utente nella scheda app. |
 | Consumo reale in mAh per app | — | ⚠️ `BatteryStatsManager` richiede il permesso di sistema `BATTERY_STATS`: si usa il tempo di primo piano come proxy documentato. |
 | WakeLock per app | — | ⚠️ non esposto alle app non-system; il rilevamento FGS è il segnale osservabile equivalente. |
+| **Gestione file (copia/taglia/incolla)** | `FileRepository`: `File.copyTo`/cancellazione ricorsiva sui volumi da `FileScanner.storageRoots()`; conflitti risolti con suffisso " (2)" invece di sovrascrivere | Nessuna dipendenza esterna; vista lista/griglia tramite `LinearLayoutManager`/`GridLayoutManager` sullo stesso `RecyclerView` |
+| **Registro rete in linguaggio semplice** | `MonitorService.logNetworkSummary()` ogni 15 min scrive in `AppLog` (categoria "RETE") i maggiori mittenti in linguaggio naturale | ⚠️ Android non espone contenuto/destinazione dei pacchetti a un'app senza VPN/root: il registro mostra solo byte inviati/ricevuti per app, dichiarato esplicitamente nel testo dell'app |
+| **Verifica intercettazione** | Aggrega `ThreatScanner`, `SystemAnalyzer` (admin/accessibilità/notifiche/MDM), `CellNetworkMonitor` (downgrade a 2G via `TelephonyManager.dataNetworkType`), `WifiAnalyzer`; più `Intent.ACTION_DIAL` con i codici USSD ufficiali (*#21#/*#67#/*#62#/##002#) per la deviazione chiamate | ⚠️ Nessuna app senza privilegi di operatore/sistema può rilevare con certezza un IMSI-catcher o un'intercettazione di rete: sono indizi euristici, dichiarati come tali in pagina. I codici USSD interrogano la rete dell'operatore direttamente — è lui a rispondere, non una stima dell'app |
 
 ### 3.3 Sicurezza
 | Funzione | API |
