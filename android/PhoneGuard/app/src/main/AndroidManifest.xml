@@ -56,8 +56,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PhoneGuard">
 
+        <!-- android:configChanges su tutte le Activity: nessuna pagina ha un
+             layout dedicato per l'orizzontale (nessuna risorsa layout-land),
+             quindi la rotazione non richiede una nuova Activity — solo un
+             riadattamento del layout esistente, già gestito da ScrollView/
+             LinearLayout. Senza questo, ogni rotazione distruggeva e
+             ricreava la pagina da zero, perdendo scansioni in corso,
+             selezioni file e risultati non ancora salvati. -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,21 +75,25 @@
 
         <activity
             android:name=".ui.DeviceInfoActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".ui.SimInfoActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".ui.SectionHostActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".ui.FileManagerActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 

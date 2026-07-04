@@ -283,6 +283,20 @@ giudizi: un telefono può essere "sicuro" (nessuna minaccia) e allo stesso
 tempo avere lo spazio di archiviazione quasi pieno — sono due domande
 diverse, e unirle in un solo verdetto avrebbe nascosto l'una o l'altra.
 
+### Rotazione dello schermo: fix perdita di stato (v6.13)
+
+Segnalato: ruotando il telefono si perdevano scansioni in corso, file
+selezionati e risultati non salvati. Causa: nessuna delle 5 Activity
+dichiarava `android:configChanges`, quindi Android le distruggeva e
+ricreava da zero a ogni rotazione (comportamento di default) — reimpostando
+tutti i campi in memoria dei Fragment (liste già scansionate, selezioni,
+appunti di copia/incolla in `FileManagerActivity`...). Aggiunto
+`android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"`
+su tutte le Activity in `AndroidManifest.xml`: nessuna pagina ha risorse
+`layout-land` dedicate (verificato: la cartella non esiste), quindi non
+c'è nulla da perdere sopprimendo la ricreazione — i layout esistenti
+(ScrollView/LinearLayout) si riadattano già correttamente da soli.
+
 ---
 
 ## 2. Mockup di layout
