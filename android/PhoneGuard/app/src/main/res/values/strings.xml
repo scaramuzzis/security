@@ -310,8 +310,11 @@
     <string name="data_gap_large">⚠️ Divario non attribuito: il sistema segnala %2$s inviati in totale, ma le app elencate ne spiegano solo %1$s — %3$s non riconducibili a un\'app specifica. Può derivare da traffico di sistema, arrotondamenti fra le query, o (raramente) processi che sfuggono all\'attribuzione standard. Non è una prova di compromissione, solo un dato da tenere d\'occhio.</string>
 
     <string name="constant_senders_title">📡 Invio dati con regolarità</string>
-    <string name="constant_senders_intro">App che hanno inviato dati in almeno 3 finestre su 4 (ultime 24 ore, blocchi da 3 ore): inviano con regolarità, non solo occasionalmente.</string>
-    <string name="constant_sender_detail">Attiva in %1$d finestre su %2$d (%3$d%% del tempo)</string>
+    <string name="constant_senders_intro">App che hanno inviato dati in almeno 3 finestre su 4 (ultime 24 ore, blocchi da 3 ore): inviano con regolarità, non solo occasionalmente. Lo stato «attiva/non attiva» qui sotto riflette ORA, non lo storico: fermare un\'app non cancella le finestre già passate, ma la sposta subito fra le «non attive».</string>
+    <string name="constant_sender_detail_active">⚡ Attiva ora — regolare in %1$d finestre su %2$d (%3$d%% del tempo)</string>
+    <string name="constant_sender_detail_stopped">✅ Non attiva ora (era regolare in %1$d/%2$d finestre)</string>
+    <string name="constant_senders_section_active">⚡ Attive ora (%1$d)</string>
+    <string name="constant_senders_section_inactive">Non attive ora (%1$d)</string>
     <string name="alert_constant_sender_title">Invio dati costante rilevato</string>
     <string name="alert_constant_sender">%1$s ha inviato dati con regolarità nelle ultime ore (%2$d%% del tempo controllato). Verifica in \"Traffico di rete\" se è previsto.</string>
     <string name="network_log_title">Registro rete in linguaggio semplice</string>

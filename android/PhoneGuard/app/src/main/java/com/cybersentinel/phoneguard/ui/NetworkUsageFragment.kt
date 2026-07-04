@@ -57,7 +57,10 @@ class NetworkUsageFragment : RefreshableFragment(R.layout.fragment_network) {
             layoutManager = LinearLayoutManager(context)
             adapter = usageAdapter
         }
-        constantSenderAdapter = ConstantSenderAdapter(onStop = { stopAndVerify(it.packageName, it.appLabel) })
+        constantSenderAdapter = ConstantSenderAdapter(
+            onStop = { stopAndVerify(it.packageName, it.appLabel) },
+            onOpenDetails = { SystemIntents.openAppDetails(requireContext(), it.packageName) }
+        )
         view.findViewById<RecyclerView>(R.id.constantSendersList).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = constantSenderAdapter
@@ -107,7 +110,7 @@ class NetworkUsageFragment : RefreshableFragment(R.layout.fragment_network) {
                 inactiveSectionTitle = getString(R.string.network_section_inactive, usage.size - activeCount)
             )
             renderDataGap(usage, gap)
-            renderConstantSenders(constantSenders)
+            renderConstantSenders(constantSenders, active)
             endRefresh()
         }
     }
@@ -128,11 +131,16 @@ class NetworkUsageFragment : RefreshableFragment(R.layout.fragment_network) {
         }
     }
 
-    private fun renderConstantSenders(senders: List<ConstantSender>) {
+    private fun renderConstantSenders(senders: List<ConstantSender>, active: Set<String>) {
         val visible = senders.isNotEmpty()
         constantSendersTitle.visibility = if (visible) View.VISIBLE else View.GONE
         constantSendersIntro.visibility = if (visible) View.VISIBLE else View.GONE
-        constantSenderAdapter.submitList(senders)
+        val activeCount = senders.count { it.packageName in active }
+        constantSenderAdapter.submit(
+            senders, active,
+            activeTitle = getString(R.string.constant_senders_section_active, activeCount),
+            inactiveTitle = getString(R.string.constant_senders_section_inactive, senders.size - activeCount)
+        )
     }
 
     /**

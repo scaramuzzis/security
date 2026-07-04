@@ -326,6 +326,27 @@ riusa la stessa funzione ogni 15 minuti per un avviso in background,
 con la stessa definizione di "costante" usata in pagina — nessuna soglia
 duplicata fra i due punti.
 
+### Stato attivo/non attivo anche per i mittenti costanti (v6.15)
+
+Segnalato: dopo aver fermato un'app dalla sezione "Invio dati con
+regolarità", la riga restava invariata — perché quella sezione mostra una
+frequenza STORICA (finestre su 24 ore) che uno stop adesso non riscrive.
+`ConstantSenderAdapter` è stato riscritto sullo stesso pattern sezionato di
+`AppUsageAdapter` (sealed class `SenderRow` con `SectionHeader`/`SenderItem`,
+due tipi di vista): le app sono ora divise in "Attive ora" / "Non attive
+ora" usando lo stesso `BackgroundAppsMonitor.activePackages()` già
+calcolato per la lista principale — fermare un'app e aggiornare la pagina
+la sposta subito nella sezione corretta, indipendentemente da cosa dice lo
+storico delle ultime 24 ore.
+
+Aggiunto anche il tocco sulla riga per aprire la scheda di sistema
+dell'app (stesso deep-link `SystemIntents.openAppDetails` già usato in
+"App in background"): quando lo stop "leggero" non ha effetto — un
+Foreground Service protetto dal sistema, come già documentato in
+`BackgroundAppsMonitor` — da lì è raggiungibile l'Arresto forzato. Il
+pulsante "Ferma" resta visibile solo per le app ancora attive: non c'è
+nulla da fermare in una riga già "non attiva ora".
+
 ---
 
 ## 2. Mockup di layout
