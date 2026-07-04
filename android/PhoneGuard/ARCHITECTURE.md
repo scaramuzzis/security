@@ -27,14 +27,22 @@ ogni funzione per categoria, e **ogni funzione vive nella propria pagina**
 ```
 PhoneGuard (menu ad hamburger, ordinato per frequenza d'uso)
 │
+├── ⭐ Più usati                           (dinamico: le 5 funzioni aperte più
+│      spesso, ricostruito a ogni apertura del drawer — sempre aggiornato)
+│
 ├── 📊 Dashboard                           [DashboardFragment — sempre la home]
+│   └── 🚀 Ottimizza il cellulare          ferma le app non di sistema/nascoste
+│          attive in background (riusa BackgroundAppsMonitor)
 │
 ├── 🛡️ Sicurezza (ordine: uso frequente → occasionale)
 │   ├── 🔎 Verifica intercettazione        [InterceptionFragment] — verdetto aggregato +
 │   │      codici USSD ufficiali di deviazione chiamata (*#21#, *#67#, *#62#, ##002#, *#06#)
 │   ├── App sospette e nascoste            [ThreatsFragment] — anti-spyware, punteggio 0–100
 │   ├── Affidabilità Wi-Fi                 [WifiFragment] — controllata a ogni nuova rete
-│   ├── Traffico di rete per app           [NetworkUsageFragment] + registro rete in linguaggio semplice
+│   ├── Traffico di rete per app           [NetworkUsageFragment] — TUTTE le app
+│   │      (comprese quelle senza icona nel launcher), ordinate per byte
+│   │      inviati, con badge "nascosta" e [Ferma] per app; + registro rete
+│   │      in linguaggio semplice
 │   ├── Audit permessi critici             [PermissionAuditFragment]
 │   ├── Analisi di sistema                 [SystemAnalysisFragment] — root, MDM, VPN, ADB...
 │   ├── Controllo file sospetti            [SuspiciousFilesFragment] — interna + microSD
@@ -182,6 +190,9 @@ inutilizzato in `WifiAnalyzer`, e l'`onBackPressed()` deprecato in
 | **Gestione file (copia/taglia/incolla)** | `FileRepository`: `File.copyTo`/cancellazione ricorsiva sui volumi da `FileScanner.storageRoots()`; conflitti risolti con suffisso " (2)" invece di sovrascrivere | Nessuna dipendenza esterna; vista lista/griglia tramite `LinearLayoutManager`/`GridLayoutManager` sullo stesso `RecyclerView` |
 | **Registro rete in linguaggio semplice** | `MonitorService.logNetworkSummary()` ogni 15 min scrive in `AppLog` (categoria "RETE") i maggiori mittenti in linguaggio naturale | ⚠️ Android non espone contenuto/destinazione dei pacchetti a un'app senza VPN/root: il registro mostra solo byte inviati/ricevuti per app, dichiarato esplicitamente nel testo dell'app |
 | **Verifica intercettazione** | Aggrega `ThreatScanner`, `SystemAnalyzer` (admin/accessibilità/notifiche/MDM), `CellNetworkMonitor` (downgrade a 2G via `TelephonyManager.dataNetworkType`), `WifiAnalyzer`; più `Intent.ACTION_DIAL` con i codici USSD ufficiali (*#21#/*#67#/*#62#/##002#) per la deviazione chiamate | ⚠️ Nessuna app senza privilegi di operatore/sistema può rilevare con certezza un IMSI-catcher o un'intercettazione di rete: sono indizi euristici, dichiarati come tali in pagina. I codici USSD interrogano la rete dell'operatore direttamente — è lui a rispondere, non una stima dell'app |
+| **App nascoste che inviano dati + Ferma** | `AppVisibility.launcherPackages` (condiviso con `ThreatScanner`) marca le app senza icona nel launcher nella lista di `NetworkUsageFragment`; `BackgroundAppsMonitor.stop()` (già usato in "App in background") ferma qualunque app non di sistema dalla stessa lista | Ordinamento per byte inviati già garantito da `NetworkMonitor.queryUsage()` |
+| **Menu "Più usati" in tempo reale** | `UsageTracker` (SharedPreferences: contatore per id di menu) incrementato a ogni navigazione in `MainActivity`; `NavigationView.menu.addSubMenu()`/`removeGroup()` ricostruiscono la sezione dinamica a ogni apertura del drawer (`DrawerLayout.DrawerListener.onDrawerOpened`) | Riusa titolo/icona della voce statica originale via `menu.findItem(id)`: nessuna tabella duplicata da mantenere |
+| **Ottimizza il cellulare** | Riusa integralmente `BackgroundAppsMonitor.runningApps()` (già filtra le app di sistema) + `.stop()` su ciascuna | Stessa logica esatta della pagina "App in background": nessuna duplicazione |
 
 ### 3.3 Sicurezza
 | Funzione | API |

@@ -19,6 +19,7 @@ import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.data.RiskLevel
 import com.cybersentinel.phoneguard.monitor.AppInventory
+import com.cybersentinel.phoneguard.monitor.BackgroundAppsMonitor
 import com.cybersentinel.phoneguard.monitor.BatteryMonitor
 import com.cybersentinel.phoneguard.monitor.EnergyMonitor
 import com.cybersentinel.phoneguard.monitor.FileScanner
@@ -51,6 +52,8 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private lateinit var batteryText: TextView
     private lateinit var selfUsageText: TextView
     private lateinit var globalScanButton: MaterialButton
+    private lateinit var optimizeButton: MaterialButton
+    private lateinit var optimizeResult: TextView
     private lateinit var scanProgress: LinearProgressIndicator
     private lateinit var scanProgressLabel: TextView
     private lateinit var analystCard: View
@@ -75,6 +78,8 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         batteryText = view.findViewById(R.id.batteryText)
         selfUsageText = view.findViewById(R.id.selfUsageText)
         globalScanButton = view.findViewById(R.id.globalScanButton)
+        optimizeButton = view.findViewById(R.id.optimizeButton)
+        optimizeResult = view.findViewById(R.id.optimizeResult)
         scanProgress = view.findViewById(R.id.scanProgress)
         scanProgressLabel = view.findViewById(R.id.scanProgressLabel)
         analystCard = view.findViewById(R.id.analystCard)
@@ -96,7 +101,39 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         setCounterLabel(R.id.counterEnergy, R.string.counter_energy)
 
         globalScanButton.setOnClickListener { runGlobalScan() }
+        optimizeButton.setOnClickListener { optimizePhone() }
         bindSwitches(view)
+    }
+
+    /**
+     * Ferma in un tap tutte le app non di sistema attive in background
+     * (Foreground Service genuinamente attivo) — comprese quelle senza
+     * icona nel launcher: sono esattamente le app "nascoste" che
+     * consumano risorse senza che l'utente le veda in esecuzione.
+     * Riusa BackgroundAppsMonitor, la stessa logica della pagina
+     * "App in background", per non duplicare la rilevazione.
+     */
+    private fun optimizePhone() {
+        val context = requireContext()
+        optimizeButton.isEnabled = false
+        optimizeResult.visibility = View.VISIBLE
+        optimizeResult.setText(R.string.optimize_running)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val monitor = BackgroundAppsMonitor(context)
+            val running = withContext(Dispatchers.Default) { monitor.runningApps() }
+            withContext(Dispatchers.Default) {
+                running.forEach { monitor.stop(it.packageName) }
+            }
+            optimizeButton.isEnabled = true
+            optimizeResult.text = if (running.isEmpty()) getString(R.string.optimize_none)
+            else getString(R.string.optimize_done, running.size)
+            AppLog.log(
+                context, "SISTEMA",
+                "Ottimizzazione: fermate ${running.size} app in background (${running.joinToString { it.appLabel }})"
+            )
+            refreshRings()
+        }
     }
 
     override fun onResume() {

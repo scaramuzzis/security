@@ -1,7 +1,6 @@
 package com.cybersentinel.phoneguard.monitor
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -34,7 +33,7 @@ class ThreatScanner(private val context: Context) {
     private val pm: PackageManager = context.packageManager
 
     fun scan(): List<AppThreat> {
-        val launcherPackages = launcherPackages()
+        val launcherPackages = AppVisibility.launcherPackages(context)
         val adminPackages = SystemServices.deviceAdminPackages(context)
         val accessibilityPackages = SystemServices.enabledServicePackages(
             context, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
@@ -84,14 +83,6 @@ class ThreatScanner(private val context: Context) {
             sideloaded = isSideloaded(app.packageName),
             surveillancePermissions = grantedSurveillancePermissions(app.packageName)
         )
-    }
-
-    /** Pacchetti che hanno almeno un'attività visibile nel launcher. */
-    private fun launcherPackages(): Set<String> {
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-        return pm.queryIntentActivities(intent, 0)
-            .map { it.activityInfo.packageName }
-            .toSet()
     }
 
     /**

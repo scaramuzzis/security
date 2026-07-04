@@ -5,6 +5,7 @@
 
     <!-- Navigazione -->
     <string name="nav_dashboard">Dashboard</string>
+    <string name="category_most_used">⭐ Più usati</string>
     <string name="nav_settings">Impostazioni</string>
     <string name="nav_log">Registro attività</string>
     <string name="nav_device_info">Informazioni dispositivo</string>
@@ -65,6 +66,10 @@
 
     <string name="global_scan">🔍 Analisi Globale</string>
     <string name="global_scan_running">Analisi in corso…</string>
+    <string name="optimize_phone">🚀 Ottimizza il cellulare</string>
+    <string name="optimize_running">Chiusura delle app non di sistema e nascoste in corso…</string>
+    <string name="optimize_none">✅ Nessuna app in background da fermare: il telefono è già ottimizzato.</string>
+    <string name="optimize_done">🚀 Ottimizzato: fermate %1$d app non di sistema attive in background.</string>
     <string name="phase_threats">Fase 1/4 — Scansione anti-spyware…</string>
     <string name="phase_system">Fase 2/4 — Analisi di sistema…</string>
     <string name="phase_files">Fase 3/4 — Scansione file (memoria interna + scheda SD)…</string>
@@ -256,7 +261,8 @@
     <string name="wifi_detail">Rete: %1$s\nSicurezza: %2$s · Segnale: %3$d%%</string>
     <string name="wifi_grant_location">Concedi la posizione per vedere il nome della rete</string>
 
-    <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore)</string>
+    <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore) — tutte le app, comprese quelle nascoste, ordinate per dati inviati</string>
+    <string name="hidden_app_badge">🫥 App nascosta: nessuna icona nel launcher</string>
     <string name="network_log_title">Registro rete in linguaggio semplice</string>
     <string name="network_log_intro">Ogni 15 minuti PhoneGuard annota qui, in parole semplici, quali app hanno inviato più dati. Nota onesta: Android non permette a nessuna app di vedere il contenuto dei dati o il sito di destinazione — solo quanti byte vengono scambiati.</string>
     <string name="network_log_disabled">Attiva il \"Registro attività\" nelle Impostazioni per vedere qui il registro di rete.</string>
