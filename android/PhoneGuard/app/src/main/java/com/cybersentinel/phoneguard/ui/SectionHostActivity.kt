@@ -24,6 +24,7 @@ class SectionHostActivity : AppCompatActivity() {
         WIFI(R.string.nav_wifi, ::WifiFragment),
         NETWORK(R.string.nav_network, ::NetworkUsageFragment),
         UPDATES(R.string.nav_updates, ::UpdatesFragment),
+        DEVICE_HEALTH(R.string.nav_device_health, ::DeviceHealthFragment),
         RUNNING(R.string.nav_running, ::RunningAppsFragment),
         ENERGY_USAGE(R.string.nav_energy_usage, ::EnergyUsageFragment),
         CLEAN(R.string.nav_clean, ::CleanSpaceFragment),
@@ -71,6 +72,7 @@ class SectionHostActivity : AppCompatActivity() {
             R.id.nav_wifi -> Section.WIFI
             R.id.nav_network -> Section.NETWORK
             R.id.nav_updates -> Section.UPDATES
+            R.id.nav_device_health -> Section.DEVICE_HEALTH
             R.id.nav_running -> Section.RUNNING
             R.id.nav_energy_usage -> Section.ENERGY_USAGE
             R.id.nav_clean -> Section.CLEAN

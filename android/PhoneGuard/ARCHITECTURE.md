@@ -252,6 +252,37 @@ viene da `BackgroundAppsMonitor.activePackages()` (nuovo metodo pubblico,
 riusato anche da `isForegroundServiceActive` per la verifica dopo lo stop),
 calcolato in un'unica query invece che una per app.
 
+### Nuova pagina "Salute dispositivo" (v6.12)
+
+Richiesto un equivalente della schermata di sistema "Assistenza dispositivo"
+(batteria, spazio, memoria, protezione, in un'unica finestra dedicata).
+Aggiunta `DeviceHealthFragment` (`ui/DeviceHealthFragment.kt` +
+`fragment_device_health.xml`), in menu sotto "Energia e spazio": verdetto
+di sintesi, pulsante "Ottimizza adesso", tre barre (batteria/spazio/RAM)
+con percentuale e dettaglio in GB, card "Protezione app" che apre
+`ThreatsFragment` al tocco.
+
+Nessuna nuova misurazione: la pagina riusa gli stessi motori già presenti
+altrove — `BatteryMonitor`, `ThreatScanner`, `BackgroundAppsMonitor.stopAll()`
+(nuovo, estratto da `DashboardFragment.optimizePhone()` per essere condiviso
+fra le due pagine invece di duplicare "prendi le app attive e fermale una
+per una"). Aggiunto anche `ResourceMonitor` (RAM/archiviazione, byte usati e
+totali con percentuale derivata), che sostituisce il calcolo di sola
+percentuale duplicato dentro `DashboardFragment.refreshRings()`. La stima
+dell'autonomia (ore/minuti rimasti) era calcolata inline solo in
+`DashboardFragment`: spostata in `BatterySnapshot.estimatedMinutesRemaining`
+(proprietà calcolata, come già `estimatedWatts`), riusabile da entrambe le
+pagine.
+
+**Perché il verdetto di sicurezza di PhoneGuard e quello di sistema
+possono differire**: il badge "sicuro/ottimizzato" della Dashboard di
+PhoneGuard è un giudizio sulla presenza di minacce/configurazioni a
+rischio (malware, permessi critici, sideload...), non sullo spazio libero
+sul telefono. "Salute dispositivo" lo rende esplicito separando i due
+giudizi: un telefono può essere "sicuro" (nessuna minaccia) e allo stesso
+tempo avere lo spazio di archiviazione quasi pieno — sono due domande
+diverse, e unirle in un solo verdetto avrebbe nascosto l'una o l'altra.
+
 ---
 
 ## 2. Mockup di layout

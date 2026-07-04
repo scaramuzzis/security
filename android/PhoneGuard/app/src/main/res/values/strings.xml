@@ -24,6 +24,7 @@
     <string name="nav_updates">App da aggiornare</string>
 
     <string name="category_energy">Energia e spazio</string>
+    <string name="nav_device_health">Salute dispositivo</string>
     <string name="nav_running">App in background</string>
     <string name="nav_energy_usage">App energivore</string>
     <string name="nav_clean">Pulizia spazio</string>
@@ -71,6 +72,28 @@
     <string name="optimize_running">Chiusura delle app non di sistema e nascoste in corso…</string>
     <string name="optimize_none">✅ Nessuna app in background da fermare: il telefono è già ottimizzato.</string>
     <string name="optimize_done">🚀 Ottimizzato: fermate %1$d app non di sistema attive in background.</string>
+
+    <!-- Salute dispositivo -->
+    <string name="health_optimize_now">Ottimizza adesso</string>
+    <string name="health_good">🟢 Buono</string>
+    <string name="health_warning">🟡 Da tenere d\'occhio</string>
+    <string name="health_critical">🔴 Attenzione richiesta</string>
+    <string name="health_good_hint">Batteria, memoria e sicurezza sono a posto.</string>
+    <string name="health_storage_hint">Lo spazio di archiviazione è quasi pieno: libera spazio dalla Pulizia spazio.</string>
+    <string name="health_ram_hint">La memoria RAM è quasi satura: prova a ottimizzare per liberarne.</string>
+    <string name="health_threats_hint">Sono state rilevate app sospette: controllale dalla pagina dedicata.</string>
+    <string name="health_battery_label">🔋 Batteria</string>
+    <string name="health_storage_label">💾 Spazio di archiviazione</string>
+    <string name="health_ram_label">🧠 Memoria (RAM)</string>
+    <string name="health_protection_label">🛡️ Protezione app</string>
+    <string name="health_battery_detail_charging">%1$d%% — in carica</string>
+    <string name="health_battery_detail_remaining">%1$d%% — %2$d h %3$d m rimasti (stima)</string>
+    <string name="health_battery_detail_unknown">%1$d%% — autonomia non stimabile ora</string>
+    <string name="health_storage_detail">%1$d%% utilizzato — %2$s / %3$s</string>
+    <string name="health_ram_detail">%1$d%% utilizzata — %2$s / %3$s</string>
+    <string name="health_protection_ok">✅ Nessuna minaccia rilevata</string>
+    <string name="health_protection_threats">⚠️ %1$d app sospette rilevate — tocca per i dettagli</string>
+    <string name="health_disclaimer">Questa pagina riassume in un unico posto batteria, spazio, memoria e minacce già calcolati altrove in PhoneGuard: non introduce nuove misurazioni. Il verdetto di sicurezza (Dashboard, Analisi Globale) resta un giudizio separato — riguarda malware e configurazioni a rischio, non lo spazio libero sul telefono.</string>
     <string name="phase_threats">Fase 1/4 — Scansione anti-spyware…</string>
     <string name="phase_system">Fase 2/4 — Analisi di sistema…</string>
     <string name="phase_files">Fase 3/4 — Scansione file (memoria interna + scheda SD)…</string>

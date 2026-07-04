@@ -95,6 +95,17 @@ class BackgroundAppsMonitor(private val context: Context) {
     }
 
     /**
+     * Ferma tutte le app non di sistema con un Foreground Service attivo
+     * (usato da "Ottimizza il cellulare" in Dashboard e Salute dispositivo).
+     * Restituisce le app per cui è stato richiesto lo stop.
+     */
+    fun stopAll(): List<RunningApp> {
+        val running = runningApps()
+        running.forEach { stop(it.packageName) }
+        return running
+    }
+
+    /**
      * Vero se [packageName] ha ancora un Foreground Service attivo, per
      * verificare l'esito reale di [stop]. `killBackgroundProcesses` non
      * termina i processi con un Foreground Service in corso — è protetto

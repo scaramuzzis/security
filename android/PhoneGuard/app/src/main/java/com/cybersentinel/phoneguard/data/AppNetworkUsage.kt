@@ -1,5 +1,7 @@
 package com.cybersentinel.phoneguard.data
 
+import kotlin.math.abs
+
 /**
  * Traffico di rete di una singola app in un intervallo di tempo.
  */
@@ -37,4 +39,12 @@ data class BatterySnapshot(
     /** Potenza istantanea stimata in watt (corrente x tensione). */
     val estimatedWatts: Float
         get() = (currentMicroAmpere / 1_000_000f) * (voltageMillivolt / 1000f)
+
+    /** Minuti di autonomia stimati da carica residua / corrente di scarica; null se in carica o dati insufficienti. */
+    val estimatedMinutesRemaining: Int?
+        get() {
+            if (isCharging || currentMicroAmpere >= 0 || chargeCounterMicroAmpereHour <= 0) return null
+            val hours = chargeCounterMicroAmpereHour.toDouble() / abs(currentMicroAmpere).toDouble()
+            return (hours * 60).toInt()
+        }
 }

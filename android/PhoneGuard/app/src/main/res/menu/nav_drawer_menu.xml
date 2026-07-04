@@ -27,6 +27,7 @@
 
     <item android:orderInCategory="40" android:title="@string/category_energy">
         <menu>
+            <item android:id="@+id/nav_device_health" android:icon="@drawable/ic_health" android:title="@string/nav_device_health" />
             <item android:id="@+id/nav_running" android:icon="@drawable/ic_energy" android:title="@string/nav_running" />
             <item android:id="@+id/nav_energy_usage" android:icon="@drawable/ic_battery" android:title="@string/nav_energy_usage" />
             <item android:id="@+id/nav_clean" android:icon="@drawable/ic_clean" android:title="@string/nav_clean" />

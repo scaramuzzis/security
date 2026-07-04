@@ -3,9 +3,7 @@ package com.cybersentinel.phoneguard.ui
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Bundle
-import android.os.Environment
 import android.os.Process
-import android.os.StatFs
 import android.os.SystemClock
 import android.view.View
 import android.widget.TextView
@@ -27,6 +25,7 @@ import com.cybersentinel.phoneguard.monitor.FileScanner
 import com.cybersentinel.phoneguard.monitor.JunkScanner
 import com.cybersentinel.phoneguard.monitor.MonitorService
 import com.cybersentinel.phoneguard.monitor.NetworkMonitor
+import com.cybersentinel.phoneguard.monitor.ResourceMonitor
 import com.cybersentinel.phoneguard.monitor.SecurityAnalyst
 import com.cybersentinel.phoneguard.monitor.SystemAnalyzer
 import com.cybersentinel.phoneguard.monitor.ThreatScanner
@@ -39,7 +38,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.abs
 
 /**
  * Home: stato complessivo del telefono, Analisi Globale con un tap,
@@ -131,11 +129,7 @@ class DashboardFragment : RefreshableFragment(R.layout.fragment_dashboard) {
         optimizeResult.setText(R.string.optimize_running)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val monitor = BackgroundAppsMonitor(context)
-            val running = withContext(Dispatchers.Default) { monitor.runningApps() }
-            withContext(Dispatchers.Default) {
-                running.forEach { monitor.stop(it.packageName) }
-            }
+            val running = withContext(Dispatchers.Default) { BackgroundAppsMonitor(context).stopAll() }
             optimizeButton.isEnabled = true
             optimizeResult.text = if (running.isEmpty()) getString(R.string.optimize_none)
             else getString(R.string.optimize_done, running.size)
@@ -167,17 +161,7 @@ class DashboardFragment : RefreshableFragment(R.layout.fragment_dashboard) {
             ringBattery.setValue(battery.levelPercent, batteryColor)
 
             val (ramPercent, storagePercent) = withContext(Dispatchers.Default) {
-                val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                val memInfo = ActivityManager.MemoryInfo().also { am.getMemoryInfo(it) }
-                val ramUsed = if (memInfo.totalMem > 0)
-                    (100 - (memInfo.availMem * 100 / memInfo.totalMem)).toInt() else 0
-
-                val stat = StatFs(Environment.getDataDirectory().path)
-                val totalStorage = stat.totalBytes
-                val storageUsed = if (totalStorage > 0)
-                    (100 - (stat.availableBytes * 100 / totalStorage)).toInt() else 0
-
-                ramUsed to storageUsed
+                ResourceMonitor.ram(context).percent to ResourceMonitor.storage().percent
             }
             ringRam.setValue(ramPercent, ringColorFor(ramPercent))
             ringStorage.setValue(storagePercent, ringColorFor(storagePercent))
@@ -433,16 +417,9 @@ class DashboardFragment : RefreshableFragment(R.layout.fragment_dashboard) {
                 snap.healthLabel,
                 snap.estimatedWatts
             )
-            // Stima autonomia: carica residua / corrente di scarica
-            val estimate = if (!snap.isCharging &&
-                snap.currentMicroAmpere < 0 && snap.chargeCounterMicroAmpereHour > 0
-            ) {
-                val hours = snap.chargeCounterMicroAmpereHour.toDouble() /
-                        abs(snap.currentMicroAmpere).toDouble()
-                val h = hours.toInt()
-                val m = ((hours - h) * 60).toInt()
-                "\n" + getString(R.string.battery_estimate, h, m)
-            } else ""
+            val estimate = snap.estimatedMinutesRemaining?.let { minutes ->
+                "\n" + getString(R.string.battery_estimate, minutes / 60, minutes % 60)
+            } ?: ""
             batteryText.text = base + estimate
         }
     }
