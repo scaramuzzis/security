@@ -126,11 +126,25 @@ class WifiAnalyzer(private val context: Context) {
         return "cifrata (tipo non rilevabile su questa versione)" to false
     }
 
+    /**
+     * Percentuale di segnale da -100dBm (assente) a -50dBm (ottimo).
+     * `WifiManager.calculateSignalLevel(rssi, numLevels)` è deprecato senza
+     * un sostituto che restituisca una percentuale (la versione a 1
+     * argomento restituisce solo un livello 0-4): calcoliamo la percentuale
+     * direttamente dal RSSI invece di dipendere da un'API deprecata.
+     */
     private fun signalPercent(info: WifiInfo): Int {
         val rssi = info.rssi
-        return WifiManager.calculateSignalLevel(rssi, 101).coerceIn(0, 100)
+        return ((rssi + 100) * 100 / 50).coerceIn(0, 100)
     }
 
+    /**
+     * `getAllNetworks()` è deprecato in favore di `NetworkCallback` per il
+     * monitoraggio continuo, ma qui serve solo un controllo sincrono
+     * una-tantum (nessuna registrazione/deregistrazione da gestire), quindi
+     * resta la scelta più semplice e corretta per questo caso d'uso.
+     */
+    @Suppress("DEPRECATION")
     private fun anyVpnTransport(cm: ConnectivityManager): Boolean =
         cm.allNetworks.any { n ->
             cm.getNetworkCapabilities(n)

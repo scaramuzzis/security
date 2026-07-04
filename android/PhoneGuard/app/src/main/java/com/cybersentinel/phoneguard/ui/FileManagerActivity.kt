@@ -79,6 +79,8 @@ class FileManagerActivity : AppCompatActivity() {
         permissionButton = findViewById(R.id.permissionButton)
         fileList = findViewById(R.id.fileList)
         swipeRefresh = findViewById(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.primary)
+        swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.cyber_surface_variant)
         swipeRefresh.setOnRefreshListener { refresh() }
 
         adapter = FileEntryAdapter(

@@ -27,6 +27,8 @@ abstract class RefreshableFragment(@LayoutRes layoutId: Int) : Fragment(layoutId
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         swipeRefresh = view.findViewById(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.primary)
+        swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.cyber_surface_variant)
     }
 
     /** Da chiamare a fine caricamento, per far sparire la rotella. */

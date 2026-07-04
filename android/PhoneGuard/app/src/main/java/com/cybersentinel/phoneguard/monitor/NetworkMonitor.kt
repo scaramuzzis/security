@@ -38,6 +38,7 @@ class NetworkMonitor(private val context: Context) {
      * Traffico per-app (Wi-Fi + mobile) tra [startTime] e [endTime]
      * (millisecondi epoch), ordinato per byte inviati decrescenti.
      */
+    @Suppress("DEPRECATION") // NetworkStatsManager.querySummary richiede questi identificatori legacy: nessun sostituto.
     fun queryUsage(startTime: Long, endTime: Long): List<AppNetworkUsage> {
         val rxByUid = HashMap<Int, Long>()
         val txByUid = HashMap<Int, Long>()

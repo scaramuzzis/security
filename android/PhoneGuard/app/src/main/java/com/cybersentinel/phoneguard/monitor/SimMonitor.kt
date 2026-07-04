@@ -34,7 +34,7 @@ class SimMonitor(private val context: Context) {
 
     fun list(): List<SimInfo> {
         if (!hasPermission()) return emptyList()
-        val sm = SubscriptionManager.from(context)
+        val sm = context.getSystemService(SubscriptionManager::class.java) ?: return emptyList()
         val subs = runCatching { sm.activeSubscriptionInfoList }.getOrNull() ?: return emptyList()
 
         val defaultData = runCatching { SubscriptionManager.getDefaultDataSubscriptionId() }.getOrDefault(-1)
@@ -48,8 +48,17 @@ class SimMonitor(private val context: Context) {
             }.getOrNull()
 
             val number = if (hasPhoneNumberPermission()) {
-                runCatching { info.number }.getOrNull()
-                    ?.takeIf { it.isNotBlank() } ?: "non disponibile"
+                // Sia SubscriptionInfo.number (deprecato dall'API 33) sia
+                // TelephonyManager.line1Number (deprecato dall'API 29) restano
+                // le uniche vie per leggere il numero: Android non offre un
+                // sostituto non deprecato, quindi si usa il migliore per versione.
+                @Suppress("DEPRECATION")
+                val raw = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    runCatching { tm?.line1Number }.getOrNull()
+                } else {
+                    runCatching { info.number }.getOrNull()
+                }
+                raw?.takeIf { it.isNotBlank() } ?: "non disponibile"
             } else "richiede permesso numero"
 
             SimInfo(

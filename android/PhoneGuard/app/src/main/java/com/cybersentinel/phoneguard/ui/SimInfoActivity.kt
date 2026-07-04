@@ -49,6 +49,8 @@ class SimInfoActivity : AppCompatActivity() {
         title = getString(R.string.sim_title_page)
 
         swipeRefresh = findViewById(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.primary)
+        swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.cyber_surface_variant)
         swipeRefresh.setOnRefreshListener { refresh() }
         header = findViewById(R.id.simHeader)
         permissionButton = findViewById(R.id.simPermissionButton)

@@ -169,6 +169,23 @@ messaggio onesto — "fermata correttamente" oppure "protetta dal sistema,
 serve l'arresto forzato dalla scheda dell'app" — invece di dare per
 scontato il successo.
 
+**Rotella colorata coerente col tema**: la `SwipeRefreshLayout` di ogni
+pagina usa `primary` (verde Cyber-Dashboard) e `cyber_surface_variant`
+come sfondo del cerchio, invece del blu/verde di default di Material —
+centralizzato in `RefreshableFragment.onViewCreated` e ripetuto nelle 3
+Activity che non possono ereditarne la logica.
+
+**Pulizia warning di deprecazione residui** (v6.7): `SubscriptionManager.from(context)`
+sostituito con `getSystemService(SubscriptionManager::class.java)`;
+`WifiManager.calculateSignalLevel(rssi, 101)` (deprecato, nessuna
+percentuale nel sostituto a 1 argomento) sostituito con un calcolo diretto
+dal RSSI. Per i pochi casi in cui l'API Android non offre alcun sostituto
+non deprecato (`NetworkStatsManager.querySummary` richiede i vecchi
+`TYPE_WIFI`/`TYPE_MOBILE`; la lettura del numero di telefono è deprecata a
+ogni livello API senza alternativa; `getAllNetworks()` per un controllo
+sincrono una-tantum) si è aggiunto un `@Suppress("DEPRECATION")` mirato con
+commento esplicativo, invece di un "aggiramento" che non cambia nulla.
+
 ---
 
 ## 2. Mockup di layout

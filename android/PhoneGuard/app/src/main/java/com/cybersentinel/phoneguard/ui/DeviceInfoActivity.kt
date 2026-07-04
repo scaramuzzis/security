@@ -27,6 +27,8 @@ class DeviceInfoActivity : AppCompatActivity() {
         title = getString(R.string.device_info_title)
 
         swipeRefresh = findViewById(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.primary)
+        swipeRefresh.setProgressBackgroundColorSchemeResource(R.color.cyber_surface_variant)
         swipeRefresh.setOnRefreshListener { loadDeviceInfo() }
         list = findViewById(R.id.infoList)
         list.layoutManager = LinearLayoutManager(this)
