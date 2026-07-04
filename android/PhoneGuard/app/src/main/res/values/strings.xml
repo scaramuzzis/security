@@ -259,6 +259,7 @@
     <string name="interception_safe">Nessun segnale di controllo o intercettazione rilevato</string>
     <string name="interception_ussd_title">Verifica deviazione chiamate</string>
     <string name="interception_ussd_intro">Questi codici interrogano direttamente la rete del tuo operatore: è lui a risponderti, non una stima dell\'app. Il tasto apre il tastierino già compilato: tocca la chiamata per confermare.</string>
+    <string name="interception_ussd_imei_note">A differenza degli altri, questo codice non interroga la rete: è gestito localmente dal tastierino del telefono. Su alcuni modelli (es. Samsung) funziona solo se digitato a mano, cifra per cifra — se tocchi questo tasto e vedi \"codice MMI non valido\", apri il tastierino e scrivi tu stesso *#06#.</string>
     <string name="interception_ussd_forward_all">Controlla se le chiamate sono deviate (*#21#)</string>
     <string name="interception_ussd_forward_busy">Controlla deviazione se occupato (*#67#)</string>
     <string name="interception_ussd_forward_unreachable">Controlla deviazione se irraggiungibile (*#62#)</string>

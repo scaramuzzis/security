@@ -186,6 +186,22 @@ ogni livello API senza alternativa; `getAllNetworks()` per un controllo
 sincrono una-tantum) si è aggiunto un `@Suppress("DEPRECATION")` mirato con
 commento esplicativo, invece di un "aggiramento" che non cambia nulla.
 
+**Chiarimento sul codice IMEI (v6.8)**: segnalato un caso reale in cui il
+tasto "Mostra il codice IMEI (`*#06#`)" restituiva "codice MMI non valido"
+su un dispositivo Samsung. A differenza degli altri quattro tasti USSD,
+che sono vere interrogazioni inviate alla rete dell'operatore, `*#06#` è
+un "codice segreto" gestito localmente dal tastierino di sistema — su
+diversi tastierini OEM (incluso quello Samsung) viene riconosciuto solo se
+digitato manualmente cifra per cifra, non quando un'app lo pre-compila
+tutto insieme tramite Intent: in quel caso il tastierino lo invia come una
+vera richiesta alla rete, che naturalmente la rifiuta. Non è correggibile
+lato app (comportamento del tastierino di sistema, non un bug di
+PhoneGuard) e non esiste un modo per leggere l'IMEI via codice su Android
+10+ per un'app senza privilegi di sistema. Aggiunta una nota onesta sotto
+il pulsante che lo spiega, correggendo anche il testo introduttivo della
+pagina che erroneamente descriveva questo codice come "interrogazione
+della rete" insieme agli altri.
+
 ---
 
 ## 2. Mockup di layout
