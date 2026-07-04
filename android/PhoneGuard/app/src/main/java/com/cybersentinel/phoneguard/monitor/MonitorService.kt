@@ -92,9 +92,37 @@ class MonitorService : Service() {
                 !it.isSystemApp && it.isSuspicious(TX_ALERT_THRESHOLD_BYTES)
             }
             suspicious.forEach { notifySuspiciousApp(it) }
+            checkConstantSenders()
         }
 
         logNetworkSummary(usage)
+    }
+
+    /**
+     * Notifica (una sola volta finché resta tale) le app che inviano dati
+     * con regolarità nelle ultime 24 ore — stessa definizione di
+     * [NetworkMonitor.constantSenders] usata dalla pagina "Traffico di
+     * rete", per non avere due soglie diverse per lo stesso concetto.
+     */
+    private fun checkConstantSenders() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val alreadyNotified = prefs.getStringSet(KEY_NOTIFIED_CONSTANT_SENDERS, emptySet()).orEmpty()
+
+        val constantSenders = networkMonitor.constantSenders()
+        val newSenders = constantSenders.filter { it.packageName !in alreadyNotified }
+        newSenders.forEachIndexed { index, sender ->
+            notifyAlert(
+                NOTIF_ID_CONSTANT_SENDER_BASE + index,
+                getString(R.string.alert_constant_sender_title),
+                getString(R.string.alert_constant_sender, sender.appLabel, sender.frequencyPercent)
+            )
+        }
+
+        // Persiste solo le app ancora rilevate come costanti: se smettono e
+        // riprendono più tardi, l'avviso può scattare di nuovo.
+        prefs.edit()
+            .putStringSet(KEY_NOTIFIED_CONSTANT_SENDERS, constantSenders.map { it.packageName }.toSet())
+            .apply()
     }
 
     /**
@@ -378,6 +406,7 @@ class MonitorService : Service() {
         private const val NOTIF_ID_FILE_BASE = 5000
         private const val NOTIF_ID_THREAT_BASE = 8000
         private const val NOTIF_ID_APPSTART_BASE = 12000
+        private const val NOTIF_ID_CONSTANT_SENDER_BASE = 15000
 
         /** Controllo avvii in background: ogni minuto. */
         private const val APP_START_INTERVAL_MS = 60_000L
@@ -390,6 +419,7 @@ class MonitorService : Service() {
 
         private const val PREFS_NAME = "phoneguard"
         private const val KEY_NOTIFIED_THREATS = "notified_threats"
+        private const val KEY_NOTIFIED_CONSTANT_SENDERS = "notified_constant_senders"
 
         /** Ogni quanto eseguire i controlli (15 minuti). */
         const val CHECK_INTERVAL_MS = 15L * 60 * 1000

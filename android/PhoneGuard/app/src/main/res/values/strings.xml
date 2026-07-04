@@ -305,6 +305,15 @@
     <string name="hidden_app_badge">🫥 App nascosta: nessuna icona nel launcher</string>
     <string name="network_section_active">⚡ Servizi attivi ora (%1$d)</string>
     <string name="network_section_inactive">Non attivi al momento (%1$d)</string>
+
+    <string name="data_gap_small">✅ Nessun divario significativo: i dati attribuiti alle app (%1$s inviati) corrispondono al totale visto dal sistema (%2$s).</string>
+    <string name="data_gap_large">⚠️ Divario non attribuito: il sistema segnala %2$s inviati in totale, ma le app elencate ne spiegano solo %1$s — %3$s non riconducibili a un\'app specifica. Può derivare da traffico di sistema, arrotondamenti fra le query, o (raramente) processi che sfuggono all\'attribuzione standard. Non è una prova di compromissione, solo un dato da tenere d\'occhio.</string>
+
+    <string name="constant_senders_title">📡 Invio dati con regolarità</string>
+    <string name="constant_senders_intro">App che hanno inviato dati in almeno 3 finestre su 4 (ultime 24 ore, blocchi da 3 ore): inviano con regolarità, non solo occasionalmente.</string>
+    <string name="constant_sender_detail">Attiva in %1$d finestre su %2$d (%3$d%% del tempo)</string>
+    <string name="alert_constant_sender_title">Invio dati costante rilevato</string>
+    <string name="alert_constant_sender">%1$s ha inviato dati con regolarità nelle ultime ore (%2$d%% del tempo controllato). Verifica in \"Traffico di rete\" se è previsto.</string>
     <string name="network_log_title">Registro rete in linguaggio semplice</string>
     <string name="network_log_intro">Ogni 15 minuti PhoneGuard annota qui, in parole semplici, quali app hanno inviato più dati. Nota onesta: Android non permette a nessuna app di vedere il contenuto dei dati o il sito di destinazione — solo quanti byte vengono scambiati.</string>
     <string name="network_log_disabled">Attiva il \"Registro attività\" nelle Impostazioni per vedere qui il registro di rete.</string>

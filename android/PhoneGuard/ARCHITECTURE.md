@@ -297,6 +297,35 @@ su tutte le Activity in `AndroidManifest.xml`: nessuna pagina ha risorse
 c'è nulla da perdere sopprimendo la ricreazione — i layout esistenti
 (ScrollView/LinearLayout) si riadattano già correttamente da soli.
 
+### Divario dati e mittenti costanti (v6.14)
+
+Aggiunte due analisi alla pagina "Traffico di rete", entrambe realizzabili
+senza alcun nuovo permesso (nessun conflitto con l'assenza di INTERNET):
+
+**Divario dati non attribuiti**: `NetworkMonitor.deviceTotal()` legge, via
+`NetworkStatsManager.querySummaryForDevice`, il totale wifi+mobile visto
+dal sistema per l'intero dispositivo, confrontato con la somma dei byte
+già attribuiti alle singole app in `queryUsage`. Un divario ampio è
+segnalato in pagina con un'intestazione onesta: **non prova nulla da solo**
+— può derivare da traffico di sistema non attribuibile, arrotondamenti fra
+query separate, o (raramente) processi che sfuggono all'attribuzione
+standard. Non è nemmeno un test affidabile contro una compromissione
+sofisticata: se il kernel stesso è compromesso, può falsificare in modo
+coerente sia il totale sia i conteggi per-app, dato che sono la stessa
+fonte di dati (`/proc/net` / contabilità eBPF) — lo stesso limite di
+qualsiasi controllo fatto in user-space discusso con l'utente durante lo
+sviluppo di questa funzione.
+
+**App che inviano dati con regolarità**: `NetworkMonitor.constantSenders()`
+riusa `queryUsage` su più finestre temporali (default: 8 blocchi da 3 ore
+nelle ultime 24) invece di introdurre una query diversa; le app attive in
+almeno il 75% delle finestre sono segnalate con la frequenza esatta
+("attiva in 7 finestre su 8") e un pulsante Ferma che riusa la stessa
+verifica di esito già presente nella pagina. `MonitorService.checkConstantSenders()`
+riusa la stessa funzione ogni 15 minuti per un avviso in background,
+con la stessa definizione di "costante" usata in pagina — nessuna soglia
+duplicata fra i due punti.
+
 ---
 
 ## 2. Mockup di layout

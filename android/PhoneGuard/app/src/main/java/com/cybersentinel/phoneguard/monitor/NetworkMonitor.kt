@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.Process
 import com.cybersentinel.phoneguard.data.AppNetworkUsage
+import com.cybersentinel.phoneguard.data.ConstantSender
 
 /**
  * Legge, tramite NetworkStatsManager, quanti dati ogni app ha inviato e
@@ -54,6 +55,63 @@ class NetworkMonitor(private val context: Context) {
             .mapNotNull { uid -> toAppUsage(uid, rxByUid[uid] ?: 0, txByUid[uid] ?: 0) }
             .filter { it.totalBytes > 0 }
             .sortedByDescending { it.txBytes }
+    }
+
+    /**
+     * Totale wifi+mobile visto dal sistema per l'INTERO dispositivo tra
+     * [startTime] ed [endTime] — non solo le app che PhoneGuard riesce ad
+     * attribuire a un pacchetto. Confrontato con la somma di [queryUsage]
+     * nello stesso intervallo, un divario ampio può segnalare traffico non
+     * attribuito a una app specifica (vedi [NetworkUsageFragment]).
+     */
+    @Suppress("DEPRECATION") // stesso motivo di queryUsage: nessun sostituto per TYPE_WIFI/TYPE_MOBILE.
+    fun deviceTotal(startTime: Long, endTime: Long): Pair<Long, Long> {
+        var rx = 0L
+        var tx = 0L
+        for (networkType in listOf(ConnectivityManager.TYPE_WIFI, ConnectivityManager.TYPE_MOBILE)) {
+            runCatching {
+                val bucket = statsManager.querySummaryForDevice(networkType, null, startTime, endTime)
+                rx += bucket.rxBytes
+                tx += bucket.txBytes
+            }
+        }
+        return rx to tx
+    }
+
+    /**
+     * App che hanno inviato dati in almeno [minFrequencyPercent]% delle
+     * finestre analizzate nelle ultime [hoursBack] ore (divise in blocchi da
+     * [sliceHours] ore) — cioè inviano dati con regolarità, non solo una
+     * volta ogni tanto. Riusa [queryUsage] più volte invece di introdurre
+     * una query diversa: stessa logica di rilevamento, stessa definizione di
+     * "app di sistema" ed "escluse", nessuna duplicazione.
+     */
+    fun constantSenders(
+        hoursBack: Int = 24,
+        sliceHours: Int = 3,
+        minFrequencyPercent: Int = 75
+    ): List<ConstantSender> {
+        val now = System.currentTimeMillis()
+        val sliceMs = sliceHours * 60L * 60 * 1000
+        val totalSlices = hoursBack / sliceHours
+        val activeSlices = HashMap<String, Int>()
+        val labels = HashMap<String, String>()
+
+        for (i in 0 until totalSlices) {
+            val end = now - i * sliceMs
+            val start = end - sliceMs
+            queryUsage(start, end)
+                .filter { !it.isSystemApp && it.txBytes > 0 }
+                .forEach { app ->
+                    activeSlices.merge(app.packageName, 1, Int::plus)
+                    labels[app.packageName] = app.appLabel
+                }
+        }
+
+        return activeSlices.entries
+            .filter { (it.value * 100 / totalSlices) >= minFrequencyPercent }
+            .map { ConstantSender(it.key, labels[it.key] ?: it.key, it.value, totalSlices) }
+            .sortedByDescending { it.activeSlices }
     }
 
     private fun collect(

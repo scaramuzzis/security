@@ -25,6 +25,19 @@ data class AppNetworkUsage(
 }
 
 /**
+ * App che ha inviato dati in una quota elevata delle finestre temporali
+ * analizzate — cioè manda dati con regolarità, non solo una volta ogni tanto.
+ */
+data class ConstantSender(
+    val packageName: String,
+    val appLabel: String,
+    val activeSlices: Int,
+    val totalSlices: Int
+) {
+    val frequencyPercent: Int get() = if (totalSlices > 0) activeSlices * 100 / totalSlices else 0
+}
+
+/**
  * Fotografia dello stato della batteria.
  */
 data class BatterySnapshot(
