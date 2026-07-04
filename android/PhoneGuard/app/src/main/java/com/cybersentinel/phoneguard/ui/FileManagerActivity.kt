@@ -6,6 +6,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -93,6 +94,17 @@ class FileManagerActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.copyButton).setOnClickListener { copySelection() }
         findViewById<MaterialButton>(R.id.cutButton).setOnClickListener { cutSelection() }
         findViewById<MaterialButton>(R.id.deleteButton).setOnClickListener { confirmDeleteSelection() }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (::currentDir.isInitialized && currentDir != currentRoot) {
+                    navigateUp()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     override fun onResume() {
@@ -112,13 +124,6 @@ class FileManagerActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onBackPressed() {
-        if (::currentDir.isInitialized && currentDir != currentRoot) {
-            navigateUp()
-        } else {
-            super.onBackPressed()
-        }
-    }
 
     private fun setupRoots() {
         roots = repository.roots()

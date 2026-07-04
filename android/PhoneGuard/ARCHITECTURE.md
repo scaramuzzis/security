@@ -69,6 +69,20 @@ punto per `openAppDetails`, `openUsageAccessSettings`,
 `openPlayStoreListing`, `dialUssd`. Ogni pagina ora chiama l'helper invece
 di ridefinire l'`Intent`.
 
+`FileRepository` (copia/taglia/incolla) è stata scomposta in **`FileOps`**,
+un `object` puro senza alcuna dipendenza da Android (solo `java.io.File`):
+`FileRepository` resta la facciata che aggiunge ciò che richiede un
+`Context` (permesso di archiviazione, elenco dei volumi), ma la logica di
+copia/spostamento/conflitti-di-nome è ora testabile con veri unit test JVM
+su cartelle temporanee — 9 test in `FileOpsTest`, nessun dispositivo o
+Robolectric necessario.
+
+Rimossi anche: un parametro morto in `SecurityAnalyst.buildSummary`
+(il conteggio delle app ad alto rischio veniva calcolato ma mai mostrato
+nel messaggio — ora il messaggio lo riporta), un parametro `ConnectivityManager`
+inutilizzato in `WifiAnalyzer`, e l'`onBackPressed()` deprecato in
+`MainActivity`/`FileManagerActivity` sostituito con `OnBackPressedCallback`.
+
 ---
 
 ## 2. Mockup di layout

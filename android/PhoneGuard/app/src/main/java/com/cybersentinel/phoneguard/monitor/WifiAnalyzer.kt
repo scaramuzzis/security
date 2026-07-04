@@ -45,7 +45,7 @@ class WifiAnalyzer(private val context: Context) {
             )
         }
 
-        val wifiInfo = currentWifiInfo(cm, caps)
+        val wifiInfo = currentWifiInfo(caps)
         val ssid = readableSsid(wifiInfo)
         val (securityLabel, isOpen) = security(wifiInfo)
 
@@ -90,10 +90,7 @@ class WifiAnalyzer(private val context: Context) {
         )
     }
 
-    private fun currentWifiInfo(
-        cm: ConnectivityManager,
-        caps: NetworkCapabilities?
-    ): WifiInfo? {
+    private fun currentWifiInfo(caps: NetworkCapabilities?): WifiInfo? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (caps?.transportInfo as? WifiInfo)?.let { return it }
         }

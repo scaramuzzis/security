@@ -6,8 +6,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -48,6 +48,17 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(Gravity.START)) {
+                    drawerLayout.closeDrawers()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+
         askNotificationPermission()
         if (Prefs.monitoringEnabled(this)) {
             MonitorService.start(this)
@@ -64,14 +75,6 @@ class MainActivity : AppCompatActivity() {
                 val section = SectionHostActivity.sectionFor(itemId) ?: return
                 startActivity(SectionHostActivity.intentFor(this, section))
             }
-        }
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(Gravity.START)) {
-            drawerLayout.closeDrawers()
-        } else {
-            super.onBackPressed()
         }
     }
 

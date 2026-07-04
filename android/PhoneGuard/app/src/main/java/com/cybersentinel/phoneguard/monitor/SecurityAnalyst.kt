@@ -99,7 +99,8 @@ object SecurityAnalyst {
                 RiskLevel.CRITICO ->
                     "L'analisi ha individuato $critical app ad altissimo rischio che si comportano come software spia."
                 RiskLevel.ALTO ->
-                    "Ho rilevato configurazioni o app che aumentano l'esposizione del telefono."
+                    if (high > 0) "Ho rilevato $high app ad alto rischio e configurazioni che aumentano l'esposizione del telefono."
+                    else "Ho rilevato configurazioni che aumentano l'esposizione del telefono."
                 RiskLevel.SOSPETTO ->
                     "Il quadro generale è buono, ma restano alcuni dettagli da sistemare."
                 RiskLevel.SICURO ->
