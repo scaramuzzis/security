@@ -11,8 +11,8 @@ android {
         applicationId = "com.cybersentinel.phoneguard"
         minSdk = 26
         targetSdk = 34
-        versionCode = 9
-        versionName = "4.4"
+        versionCode = 10
+        versionName = "5.0"
     }
 
     signingConfigs {

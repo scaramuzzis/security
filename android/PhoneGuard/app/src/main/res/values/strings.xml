@@ -31,6 +31,16 @@
     <string name="analyst_disclaimer">Analisi eseguita interamente sul dispositivo (nessun dato inviato online).</string>
     <string name="self_usage_loading">🖥️ Consumo di PhoneGuard: misurazione…</string>
     <string name="self_usage">🖥️ Consumo di PhoneGuard in tempo reale\nCPU: %1$.1f%%   ·   RAM: %2$.0f MB</string>
+
+    <string name="device_status">Stato del dispositivo</string>
+    <string name="ring_battery">Batteria</string>
+    <string name="ring_ram">RAM</string>
+    <string name="ring_storage">Archivio</string>
+
+    <string name="security_breakdown">Ripartizione sicurezza</string>
+    <string name="legend_ok">✅ regolare — %1$d</string>
+    <string name="legend_warn">⚠️ da verificare — %1$d</string>
+    <string name="legend_danger">🚨 critico — %1$d</string>
     <string name="counter_placeholder">—</string>
     <string name="counter_threats">App sospette</string>
     <string name="counter_checks">Controlli falliti</string>
@@ -121,6 +131,24 @@
 
     <string name="device_info_open">📱 Informazioni dispositivo</string>
     <string name="device_info_title">Informazioni dispositivo</string>
+
+    <string name="sim_info_open">📶 Schede SIM</string>
+    <string name="sim_title_page">Schede SIM</string>
+    <string name="sim_loading">Lettura delle schede SIM…</string>
+    <string name="sim_permission_needed">Concedi il permesso per leggere le schede SIM installate.</string>
+    <string name="sim_grant_permission">Concedi permesso telefono</string>
+    <string name="sim_open_manager">Apri gestione SIM di sistema</string>
+    <string name="sim_none">Nessuna scheda SIM attiva rilevata.</string>
+    <string name="sim_count">%1$d scheda/e SIM attiva/e. Le opzioni (SIM predefinita, roaming) sono policy di sistema: modificale dalle schermate ufficiali qui sotto.</string>
+    <string name="sim_title">SIM %1$d — %2$s</string>
+    <string name="sim_details">Operatore: %1$s\nNumero: %2$s\nPaese: %3$s · Rete: %4$s</string>
+    <string name="sim_flag_data">📶 Dati predefiniti</string>
+    <string name="sim_flag_voice">📞 Chiamate predefinite</string>
+    <string name="sim_flag_sms">💬 SMS predefiniti</string>
+    <string name="sim_flag_esim">eSIM</string>
+    <string name="sim_flag_roaming_on">🌍 Roaming attivo</string>
+    <string name="sim_flag_roaming_off">🌍 Roaming disattivato</string>
+    <string name="sim_open_network_settings">Apri impostazioni di rete mobile</string>
 
     <string name="battery_loading">Lettura stato batteria…</string>
     <string name="battery_summary">🔋 Batteria: %1$d%% (%2$s)\n🌡️ Temperatura: %3$.1f °C — Salute: %4$s\n⚡ Potenza stimata: %5$.2f W</string>

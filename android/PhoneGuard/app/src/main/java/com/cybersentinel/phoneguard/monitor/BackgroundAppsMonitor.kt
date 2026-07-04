@@ -13,11 +13,12 @@ import com.cybersentinel.phoneguard.data.RunningApp
  *
  * Nota di piattaforma: da Android 5.1 `getRunningAppProcesses()` restituisce
  * solo il processo della propria app, quindi non è utilizzabile per elencare
- * le altre. Usiamo invece gli eventi di utilizzo (`UsageEvents`) per due
- * segnali affidabili di attività in background:
- *  - un **servizio in background** (Foreground Service) avviato e non ancora
- *    fermato: l'app sta lavorando anche a schermo spento;
- *  - un **uso molto recente** in primo piano (ultimi minuti).
+ * le altre. Usiamo invece gli eventi di utilizzo (`UsageEvents`) per l'unico
+ * segnale davvero affidabile: un **Foreground Service** avviato e non ancora
+ * fermato, cioè un'app che sta effettivamente lavorando anche a schermo
+ * spento. Il semplice "uso recente" è stato scartato di proposito: non
+ * indica un'attività in corso e avrebbe suggerito di fermare app innocue
+ * appena chiuse dall'utente.
  *
  * Lo stop usa `ActivityManager.killBackgroundProcesses` (permesso
  * KILL_BACKGROUND_PROCESSES): chiede al sistema di terminare i processi in
@@ -33,45 +34,40 @@ class BackgroundAppsMonitor(private val context: Context) {
 
     fun hasUsageAccess(): Boolean = NetworkMonitor(context).hasUsageAccess()
 
+    /**
+     * Elenca solo le app con un Foreground Service *genuinamente attivo*.
+     *
+     * Nota anti-falso-positivo: la versione iniziale includeva anche le app
+     * "usate di recente" (ultimi 30 minuti). Ma l'uso recente non indica
+     * un'attività in corso: un'app chiusa correttamente un minuto fa non sta
+     * consumando nulla in background. Includerla con un pulsante "Ferma"
+     * avrebbe indotto a chiudere app innocue (magari quella che si stava
+     * usando un istante prima) senza alcun beneficio reale. L'unico segnale
+     * affidabile di attività in background è il Foreground Service attivo.
+     */
     fun runningApps(): List<RunningApp> {
         if (!hasUsageAccess()) return emptyList()
 
         val now = System.currentTimeMillis()
         val fgsPackages = activeForegroundServices(now - FGS_WINDOW_MS, now)
 
-        // Ultimo uso in primo piano per pacchetto.
-        val lastUsed = HashMap<String, Long>()
-        usageStatsManager
-            .queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - RECENT_WINDOW_MS, now)
-            .orEmpty()
-            .forEach { lastUsed.merge(it.packageName, it.lastTimeUsed, ::maxOf) }
-
         val pm = context.packageManager
-        val candidates = (fgsPackages + lastUsed.keys.filter {
-            (lastUsed[it] ?: 0) >= now - RECENT_WINDOW_MS
-        }).toSet()
-
-        return candidates
+        return fgsPackages
             .asSequence()
             .filter { it != context.packageName }
             .mapNotNull { pkg ->
                 val info = runCatching { pm.getApplicationInfo(pkg, 0) }.getOrNull()
                     ?: return@mapNotNull null
                 if ((info.flags and ApplicationInfo.FLAG_SYSTEM) != 0) return@mapNotNull null
-                val fgs = pkg in fgsPackages
                 RunningApp(
                     packageName = pkg,
                     appLabel = pm.getApplicationLabel(info).toString(),
-                    reason = if (fgs) "Servizio in background attivo"
-                    else "Usata di recente",
-                    lastActiveMillis = lastUsed[pkg] ?: now,
-                    hasForegroundService = fgs
+                    reason = "Servizio in background attivo",
+                    lastActiveMillis = now,
+                    hasForegroundService = true
                 )
             }
-            .sortedWith(
-                compareByDescending<RunningApp> { it.hasForegroundService }
-                    .thenByDescending { it.lastActiveMillis }
-            )
+            .sortedBy { it.appLabel.lowercase() }
             .toList()
     }
 
@@ -100,6 +96,5 @@ class BackgroundAppsMonitor(private val context: Context) {
 
     companion object {
         private const val FGS_WINDOW_MS = 6L * 60 * 60 * 1000   // 6 ore
-        private const val RECENT_WINDOW_MS = 30L * 60 * 1000    // 30 minuti
     }
 }

@@ -13,8 +13,10 @@ PhoneGuard
 │
 ├── 📊 DASHBOARD                          [DashboardFragment]
 │   ├── Header di stato (semaforo)        🛡️ verde / ⚠️ ambra / 🚨 rosso
+│   ├── Anelli di stato (RingGaugeView)   batteria, RAM, archiviazione — Canvas nativo
+│   ├── Donut sicurezza (DonutChartView)  ripartizione OK/da verificare/critico + legenda
 │   ├── ▶ Analisi Globale                 (minacce + sistema + file + energia, un tap)
-│   │   └── Barra di avanzamento a 4 fasi con etichetta della fase corrente
+│   │   └── Barra di avanzamento a 5 fasi con etichetta della fase corrente
 │   ├── Card consumo PhoneGuard           (CPU% e RAM dell'app stessa, refresh 2s)
 │   ├── Contatori: App sospette · Controlli falliti · File sospetti · Servizi attivi
 │   ├── Card batteria in tempo reale      (livello, W, temperatura, autonomia stimata)
@@ -61,6 +63,9 @@ PhoneGuard
     │   └── Notifiche
     ├── 📱 Informazioni dispositivo        (Activity dedicata: Android, patch,
     │   hardware, memoria, batteria, cifratura, root, conteggio app)
+    ├── 📶 Schede SIM                      (Activity dedicata: operatore, numero,
+    │   rete, SIM predefinita dati/voce/SMS, roaming — sola lettura + deep-link
+    │   alle impostazioni di sistema per modificarle)
     └── Registro attività (log)           [ON/OFF] + visualizzazione, Aggiorna, Svuota
         └── database SQLite normalizzato (tabelle `category` + `event`),
             scritture su thread dedicato, letture con LIMIT (memoria
@@ -158,6 +163,8 @@ PhoneGuard
 | **Disabilitare/abilitare app** | deep-link scheda app (`ACTION_APPLICATION_DETAILS_SETTINGS`) | ⚠️ `setApplicationEnabledSetting` su altre app richiede `CHANGE_COMPONENT_ENABLED_STATE` (signature\|system): il pulsante "Disattiva" della scheda è l'unico canale consentito |
 | **App in background + Ferma** | rilevamento via `UsageEvents` (FGS start/stop) + uso recente; stop con `ActivityManager.killBackgroundProcesses` (permesso `KILL_BACKGROUND_PROCESSES`) | ⚠️ best-effort: il sistema può riavviare i processi; per la chiusura definitiva resta l'Arresto forzato nella scheda app |
 | **Informazioni dispositivo** | `Build.*`, `Build.VERSION.SECURITY_PATCH`, `ActivityManager.MemoryInfo`, `StatFs`, `DevicePolicyManager.storageEncryptionStatus`, `DisplayMetrics` | tutto locale, nessun dato inviato |
+| **Schede SIM** | `SubscriptionManager.getActiveSubscriptionInfoList`, `getDefaultData/Voice/SmsSubscriptionId`, `TelephonyManager.createForSubscriptionId().dataNetworkType` | ⚠️ `MODIFY_PHONE_STATE` (cambiare SIM predefinita, roaming) è riservato alle app di sistema/operatore: la pagina è di sola lettura con deep-link a `ACTION_NETWORK_OPERATOR_SETTINGS`/`ACTION_WIRELESS_SETTINGS` per modificare |
+| Grafici Dashboard | `RingGaugeView`/`DonutChartView`: View custom disegnate su `Canvas`, nessuna libreria di charting esterna | coerente con la filosofia "poche dipendenze" dell'app |
 | **Forza Arresto** | `Settings.ACTION_APPLICATION_DETAILS_SETTINGS` (deep-link) | ⚠️ `FORCE_STOP_PACKAGES` è un permesso *signature\|system*: nessuna app di terze parti può arrestare un altro processo direttamente. Il pulsante di sistema è nella scheda app. |
 | **Restrizione background** | stesso deep-link | ⚠️ `setAppStandbyBucket`/restrizione batteria sono API di sistema; la scelta "Con restrizioni / Ottimizzata / Senza restrizioni" è riservata all'utente nella scheda app. |
 | Consumo reale in mAh per app | — | ⚠️ `BatteryStatsManager` richiede il permesso di sistema `BATTERY_STATS`: si usa il tempo di primo piano come proxy documentato. |
@@ -187,7 +194,22 @@ PhoneGuard
 
 ---
 
-## 4. Roadmap (funzioni del brief non implementabili senza componenti aggiuntivi)
+## 4. Falsi positivi corretti (revisione senior)
+
+Durante lo sviluppo sono stati identificati e corretti tre difetti che
+avrebbero generato allarmi ingiustificati, colpendo in particolare il
+pubblico naturale di un'app di sicurezza (utenti privacy-conscious):
+
+| Difetto | Impatto reale | Correzione |
+|---|---|---|
+| `installer == null` trattato come "sideload" (ThreatScanner + SystemAnalyzer) | Ogni app installata via ADB o ripristinata da backup al cambio telefono (scenario comune) veniva segnalata come sospetta | `installer == null` ora è neutro; si segnala solo un installer *presente ma non riconosciuto* |
+| F-Droid/Aurora Store assenti dagli installer fidati | Utenti che scelgono store open-source (il profilo tipico di chi installa un anti-spyware) vedevano le proprie app segnalate | Aggiunti `org.fdroid.fdroid` e `com.aurora.store` a `TRUSTED_INSTALLERS`, con test di regressione |
+| VPN attiva sempre segnalata come "attenzione" | Chi usa una VPN di proposito (privacy, lavoro) vedeva un falso allarme costante | Il controllo VPN è ora informativo (`ok=true`), non conta più come controllo fallito nel verdetto |
+| Servizi di accessibilità/notifiche di sistema segnalati come "verifica se ti fidi" | TalkBack e altri servizi di accessibilità di sistema (usati da utenti con disabilità) comparivano come app da controllare | Filtrati i pacchetti con `FLAG_SYSTEM` prima di generare l'avviso |
+| "App attive in background" includeva app usate negli ultimi 30 minuti | Un'app appena chiusa dall'utente compariva con un pulsante "Ferma", inducendo a chiuderla senza motivo | Il segnale "uso recente" è stato rimosso: resta solo il Foreground Service genuinamente attivo |
+| Pulizia file: preselezione automatica di tutto, inclusi `.log`/`.bak` | Rischio di cancellare backup intenzionali dell'utente con un solo tocco | I file di log/backup non sono più preselezionati di default (restano comunque selezionabili) |
+
+## 5. Roadmap (funzioni del brief non implementabili senza componenti aggiuntivi)
 
 | Funzione richiesta | Stato | Architettura prevista |
 |---|---|---|

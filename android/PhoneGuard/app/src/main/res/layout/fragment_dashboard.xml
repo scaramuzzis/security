@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -76,6 +77,107 @@
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="@color/cyber_on_surface_dim"
             android:visibility="gone" />
+
+        <!-- Anelli di stato: batteria, RAM, archiviazione -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/device_status"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    app:drawableStartCompat="@drawable/ic_dashboard" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout style="@style/RingColumn">
+                        <com.cybersentinel.phoneguard.ui.chart.RingGaugeView
+                            android:id="@+id/ringBattery"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp" />
+                        <TextView style="@style/RingCaption" android:text="@string/ring_battery"
+                            app:drawableTopCompat="@drawable/ic_battery" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/RingColumn">
+                        <com.cybersentinel.phoneguard.ui.chart.RingGaugeView
+                            android:id="@+id/ringRam"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp" />
+                        <TextView style="@style/RingCaption" android:text="@string/ring_ram"
+                            app:drawableTopCompat="@drawable/ic_memory" />
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/RingColumn">
+                        <com.cybersentinel.phoneguard.ui.chart.RingGaugeView
+                            android:id="@+id/ringStorage"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp" />
+                        <TextView style="@style/RingCaption" android:text="@string/ring_storage"
+                            app:drawableTopCompat="@drawable/ic_storage" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Donut: ripartizione della sicurezza (dopo l'Analisi Globale) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/securityChartCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <com.cybersentinel.phoneguard.ui.chart.DonutChartView
+                    android:id="@+id/securityDonut"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/security_breakdown"
+                        android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+                    <TextView android:id="@+id/legendOk" style="@style/Legend"
+                        app:drawableStartCompat="@drawable/dot" />
+                    <TextView android:id="@+id/legendWarn" style="@style/Legend"
+                        app:drawableStartCompat="@drawable/dot" />
+                    <TextView android:id="@+id/legendDanger" style="@style/Legend"
+                        app:drawableStartCompat="@drawable/dot" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Contatori -->
         <LinearLayout

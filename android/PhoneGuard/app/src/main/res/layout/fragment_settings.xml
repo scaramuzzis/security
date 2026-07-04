@@ -125,6 +125,14 @@
             android:layout_marginTop="16dp"
             android:text="@string/device_info_open" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/simInfoButton"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/sim_info_open" />
+
         <!-- Registro attività -->
         <TextView
             android:layout_width="match_parent"

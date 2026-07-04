@@ -183,9 +183,14 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
         viewLifecycleOwner.lifecycleScope.launch {
             val found = withContext(Dispatchers.IO) { scanner.scan() }
             junkFound = found
-            // Preselezione: tutto selezionato, l'utente deseleziona cosa tenere.
+            // Preselezione prudente: tutto tranne i file di log/backup
+            // (.log, .bak, .old), che potrebbero essere backup intenzionali
+            // dell'utente e non solo scarti — meglio chiedere conferma esplicita.
             selectedJunk.clear()
-            selectedJunk.addAll(found.map { it.path })
+            selectedJunk.addAll(
+                found.filter { it.category != com.cybersentinel.phoneguard.data.JunkCategory.LOG_FILE }
+                    .map { it.path }
+            )
             junkAdapter.submitList(found)
             cleanProgress.visibility = View.GONE
             scanJunkButton.isEnabled = true
@@ -199,7 +204,7 @@ class EnergyFragment : Fragment(R.layout.fragment_energy) {
                     R.string.clean_found, found.size, SecurityAnalyst.formatSize(total)
                 )
                 selectAll.visibility = View.VISIBLE
-                selectAll.isChecked = true
+                selectAll.isChecked = selectedJunk.size == found.size
             }
             updateCleanButton()
             AppLog.log(context, "PULIZIA", "Scansione file inutili: ${found.size} elementi, ${SecurityAnalyst.formatSize(total)}")

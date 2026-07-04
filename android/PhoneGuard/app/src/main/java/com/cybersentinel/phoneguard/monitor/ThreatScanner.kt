@@ -94,6 +94,15 @@ class ThreatScanner(private val context: Context) {
             .toSet()
     }
 
+    /**
+     * Nota anti-falso-positivo: un installer `null` non conta come sideload.
+     * È il caso normale di app installate via ADB, ripristinate da backup
+     * al cambio telefono o preinstallate da alcuni OEM — tutti scenari
+     * innocui e comunissimi. Contarli come "sideload" farebbe scattare
+     * l'allarme anti-spyware su app del tutto legittime (es. una tastiera
+     * ripristinata da backup, combinata col segnale "invisibile nel
+     * launcher", supererebbe già da sola la soglia di segnalazione).
+     */
     private fun isSideloaded(packageName: String): Boolean {
         val installer = runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -103,7 +112,7 @@ class ThreatScanner(private val context: Context) {
                 pm.getInstallerPackageName(packageName)
             }
         }.getOrNull()
-        return installer == null || installer !in SystemAnalyzer.TRUSTED_INSTALLERS
+        return installer != null && installer !in SystemAnalyzer.TRUSTED_INSTALLERS
     }
 
     /** Permessi di sorveglianza effettivamente concessi all'app. */

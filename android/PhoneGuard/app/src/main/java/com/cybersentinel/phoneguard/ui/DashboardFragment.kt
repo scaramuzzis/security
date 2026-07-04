@@ -3,7 +3,9 @@ package com.cybersentinel.phoneguard.ui
 import android.app.ActivityManager
 import android.content.Context
 import android.os.Bundle
+import android.os.Environment
 import android.os.Process
+import android.os.StatFs
 import android.os.SystemClock
 import android.view.View
 import android.widget.TextView
@@ -11,6 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.cybersentinel.phoneguard.R
+import com.cybersentinel.phoneguard.ui.chart.DonutChartView
+import com.cybersentinel.phoneguard.ui.chart.RingGaugeView
 import com.cybersentinel.phoneguard.util.AppLog
 import com.cybersentinel.phoneguard.data.Prefs
 import com.cybersentinel.phoneguard.data.RiskLevel
@@ -53,6 +57,14 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private lateinit var analystHeadline: TextView
     private lateinit var analystSummary: TextView
     private lateinit var analystRecommendations: TextView
+    private lateinit var ringBattery: RingGaugeView
+    private lateinit var ringRam: RingGaugeView
+    private lateinit var ringStorage: RingGaugeView
+    private lateinit var securityChartCard: View
+    private lateinit var securityDonut: DonutChartView
+    private lateinit var legendOk: TextView
+    private lateinit var legendWarn: TextView
+    private lateinit var legendDanger: TextView
 
     private var selfUsageJob: Job? = null
 
@@ -69,6 +81,14 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         analystHeadline = view.findViewById(R.id.analystHeadline)
         analystSummary = view.findViewById(R.id.analystSummary)
         analystRecommendations = view.findViewById(R.id.analystRecommendations)
+        ringBattery = view.findViewById(R.id.ringBattery)
+        ringRam = view.findViewById(R.id.ringRam)
+        ringStorage = view.findViewById(R.id.ringStorage)
+        securityChartCard = view.findViewById(R.id.securityChartCard)
+        securityDonut = view.findViewById(R.id.securityDonut)
+        legendOk = view.findViewById(R.id.legendOk)
+        legendWarn = view.findViewById(R.id.legendWarn)
+        legendDanger = view.findViewById(R.id.legendDanger)
 
         setCounterLabel(R.id.counterThreats, R.string.counter_threats)
         setCounterLabel(R.id.counterChecks, R.string.counter_checks)
@@ -82,8 +102,49 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     override fun onResume() {
         super.onResume()
         refreshBattery()
+        refreshRings()
         startSelfUsageLoop()
     }
+
+    /** Aggiorna gli anelli di stato: batteria, RAM e archiviazione. */
+    private fun refreshRings() {
+        val context = context ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val battery = withContext(Dispatchers.Default) { BatteryMonitor(context).snapshot() }
+            val batteryColor = when {
+                battery.levelPercent <= 20 -> colorOf(R.color.status_danger)
+                battery.levelPercent <= 50 -> colorOf(R.color.status_warn)
+                else -> colorOf(R.color.status_ok)
+            }
+            ringBattery.setValue(battery.levelPercent, batteryColor)
+
+            val (ramPercent, storagePercent) = withContext(Dispatchers.Default) {
+                val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                val memInfo = ActivityManager.MemoryInfo().also { am.getMemoryInfo(it) }
+                val ramUsed = if (memInfo.totalMem > 0)
+                    (100 - (memInfo.availMem * 100 / memInfo.totalMem)).toInt() else 0
+
+                val stat = StatFs(Environment.getDataDirectory().path)
+                val totalStorage = stat.totalBytes
+                val storageUsed = if (totalStorage > 0)
+                    (100 - (stat.availableBytes * 100 / totalStorage)).toInt() else 0
+
+                ramUsed to storageUsed
+            }
+            ringRam.setValue(ramPercent, ringColorFor(ramPercent))
+            ringStorage.setValue(storagePercent, ringColorFor(storagePercent))
+        }
+    }
+
+    /** Verde sotto il 70%, ambra fino all'90%, rosso oltre: soglie di utilizzo risorse. */
+    private fun ringColorFor(usedPercent: Int): Int = when {
+        usedPercent >= 90 -> colorOf(R.color.status_danger)
+        usedPercent >= 70 -> colorOf(R.color.status_warn)
+        else -> colorOf(R.color.status_ok)
+    }
+
+    private fun colorOf(colorRes: Int): Int =
+        ContextCompat.getColor(requireContext(), colorRes)
 
     override fun onPause() {
         selfUsageJob?.cancel()
@@ -222,6 +283,14 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             setCounterValue(R.id.counterEnergy, energyHogs?.toString() ?: "—")
 
             showAnalystReport(report)
+            showSecurityDonut(
+                threatsCritical = threats.count { it.riskLevel == RiskLevel.CRITICO },
+                threatsWarning = threats.count { it.riskLevel == RiskLevel.ALTO || it.riskLevel == RiskLevel.SOSPETTO },
+                threatsOk = 1, // il sistema stesso conta come una voce verificata
+                checksOk = systemChecks.count { it.ok },
+                checksFailed = failedChecks
+            )
+            refreshRings()
             when (report.verdict) {
                 RiskLevel.CRITICO -> setStatus(
                     "🚨", R.string.status_critical,
@@ -266,6 +335,38 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         analystRecommendations.text =
             report.recommendations.joinToString("\n\n") { "• $it" }
         analystCard.visibility = View.VISIBLE
+    }
+
+    /**
+     * Donut "ripartizione sicurezza": quante voci controllate sono OK,
+     * da verificare o critiche, contando minacce + controlli di sistema.
+     */
+    private fun showSecurityDonut(
+        threatsCritical: Int, threatsWarning: Int, threatsOk: Int,
+        checksOk: Int, checksFailed: Int
+    ) {
+        val ok = threatsOk + checksOk
+        val warn = threatsWarning
+        val danger = threatsCritical + checksFailed
+        val okColor = colorOf(R.color.status_ok)
+        val warnColor = colorOf(R.color.status_warn)
+        val dangerColor = colorOf(R.color.status_danger)
+
+        securityDonut.setData(
+            listOf(
+                DonutChartView.Segment(ok.toFloat(), okColor),
+                DonutChartView.Segment(warn.toFloat(), warnColor),
+                DonutChartView.Segment(danger.toFloat(), dangerColor)
+            ),
+            centerLabel = "${ok + warn + danger}"
+        )
+        legendOk.text = getString(R.string.legend_ok, ok)
+        legendWarn.text = getString(R.string.legend_warn, warn)
+        legendDanger.text = getString(R.string.legend_danger, danger)
+        legendOk.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(okColor)
+        legendWarn.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(warnColor)
+        legendDanger.compoundDrawableTintList = android.content.res.ColorStateList.valueOf(dangerColor)
+        securityChartCard.visibility = View.VISIBLE
     }
 
     private fun refreshBattery() {

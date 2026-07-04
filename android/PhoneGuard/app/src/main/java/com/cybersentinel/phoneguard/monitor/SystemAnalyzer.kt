@@ -140,10 +140,19 @@ class SystemAnalyzer(private val context: Context) {
         )
     }
 
-    /** Servizi di accessibilità attivi: possono leggere schermo e digitazione. */
+    /**
+     * Servizi di accessibilità attivi: possono leggere schermo e digitazione.
+     *
+     * Filtriamo i servizi di sistema (TalkBack, Seleziona per parlare,
+     * Accesso vocale, ecc.): sono funzioni di accessibilità del produttore,
+     * non app di terze parti, e segnalarle spaventerebbe inutilmente
+     * chi le usa per necessità (utenti con disabilità visive/motorie).
+     */
     private fun accessibilityCheck(): SecurityCheck {
-        val services = SystemServices.enabledServicePackages(
-            context, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        val services = nonSystemPackages(
+            SystemServices.enabledServicePackages(
+                context, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            )
         ).map { appLabel(it) }
 
         return if (services.isEmpty()) SecurityCheck(
@@ -158,8 +167,10 @@ class SystemAnalyzer(private val context: Context) {
 
     /** App autorizzate a leggere tutte le notifiche (messaggi, chat, OTP). */
     private fun notificationListenerCheck(): SecurityCheck {
-        val listeners = SystemServices.enabledServicePackages(
-            context, SystemServices.NOTIFICATION_LISTENERS_SETTING
+        val listeners = nonSystemPackages(
+            SystemServices.enabledServicePackages(
+                context, SystemServices.NOTIFICATION_LISTENERS_SETTING
+            )
         ).map { appLabel(it) }
 
         return if (listeners.isEmpty()) SecurityCheck(
@@ -172,7 +183,13 @@ class SystemAnalyzer(private val context: Context) {
         )
     }
 
-    /** VPN attiva: legittima in molti casi, ma instrada tutto il traffico. */
+    /**
+     * VPN attiva: informativo, non un'anomalia. Molti utenti attenti alla
+     * privacy (il pubblico naturale di quest'app) tengono una VPN sempre
+     * attiva di proposito; segnalarlo come "attenzione richiesta" sarebbe un
+     * falso allarme costante per loro. Restiamo neutrali: mostriamo lo stato
+     * senza farlo contare come controllo fallito.
+     */
     private fun vpnCheck(): SecurityCheck {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val active = cm.activeNetwork?.let { network ->
@@ -181,11 +198,21 @@ class SystemAnalyzer(private val context: Context) {
         } ?: false
 
         return if (active) SecurityCheck(
-            "VPN", false,
-            "È attiva una VPN: tutto il traffico passa dal suo gestore. Se non l'hai attivata tu, indaga subito."
+            "VPN", true,
+            "VPN attiva: se l'hai attivata tu (es. per privacy o lavoro) va tutto bene. Se non la riconosci, verifica quale app la gestisce da Impostazioni > Rete > VPN."
         ) else SecurityCheck(
             "VPN", true, "Nessuna VPN attiva"
         )
+    }
+
+    /** Filtra via i pacchetti marcati come app di sistema (FLAG_SYSTEM). */
+    private fun nonSystemPackages(packages: Set<String>): Set<String> {
+        val pm = context.packageManager
+        return packages.filterNot { pkg ->
+            runCatching {
+                (pm.getApplicationInfo(pkg, 0).flags and ApplicationInfo.FLAG_SYSTEM) != 0
+            }.getOrDefault(false)
+        }.toSet()
     }
 
     private fun appLabel(packageName: String): String = runCatching {
@@ -219,7 +246,19 @@ class SystemAnalyzer(private val context: Context) {
         return signs
     }
 
-    /** Nomi delle app utente non installate da uno store riconosciuto. */
+    /**
+     * Nomi delle app utente installate da uno store di terze parti
+     * *riconosciuto ma non ufficiale* (es. store alternativi non elencati).
+     *
+     * Nota anti-falso-positivo: un installer `null` NON viene considerato
+     * sideload. Succede in casi larghissimamente comuni e innocui: app
+     * installate tramite ADB (sviluppatori), ripristinate durante il
+     * trasferimento a un telefono nuovo (Smart Switch, Google backup) o
+     * preinstallate da alcuni OEM. Trattarlo come "fuori store" genererebbe
+     * un allarme su quasi ogni telefono con più di qualche app installata
+     * manualmente. Segnaliamo solo un installer *presente ma non
+     * riconosciuto*, il segnale realmente informativo.
+     */
     private fun sideloadedApps(): List<String> {
         val pm = context.packageManager
         return pm.getInstalledApplications(0)
@@ -235,7 +274,7 @@ class SystemAnalyzer(private val context: Context) {
                         pm.getInstallerPackageName(app.packageName)
                     }
                 }.getOrNull()
-                installer == null || installer !in TRUSTED_INSTALLERS
+                installer != null && installer !in TRUSTED_INSTALLERS
             }
             .map { pm.getApplicationLabel(it).toString() }
             .sorted()
@@ -252,7 +291,9 @@ class SystemAnalyzer(private val context: Context) {
             "com.xiaomi.mipicks",               // Xiaomi GetApps
             "com.amazon.venezia",               // Amazon Appstore
             "com.oppo.market",
-            "com.heytap.market"
+            "com.heytap.market",
+            "org.fdroid.fdroid",         // F-Droid: store open-source legittimo
+            "com.aurora.store"           // Aurora Store: client Play Store senza account Google
         )
 
         /** Admin di sistema noti e innocui (es. Trova il mio dispositivo). */

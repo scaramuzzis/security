@@ -57,6 +57,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             startActivity(Intent(requireContext(),
                 com.cybersentinel.phoneguard.ui.DeviceInfoActivity::class.java))
         }
+        view.findViewById<MaterialButton>(R.id.simInfoButton).setOnClickListener {
+            startActivity(Intent(requireContext(),
+                com.cybersentinel.phoneguard.ui.SimInfoActivity::class.java))
+        }
     }
 
     override fun onResume() {
