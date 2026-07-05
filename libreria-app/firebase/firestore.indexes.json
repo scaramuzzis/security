@@ -158,6 +158,13 @@
       "indexes": [
         { "queryScope": "COLLECTION_GROUP", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "comments",
+      "fieldPath": "status",
+      "indexes": [
+        { "queryScope": "COLLECTION_GROUP", "order": "ASCENDING" }
+      ]
     }
   ]
 }

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>LibreriBrà — Backoffice</title>
+<style>
+  :root {
+    --paper: #FAF5EC; --ink: #2B2118; --terracotta: #C4572E;
+    --salvia: #6E8B6B; --blu: #33506D; --miele: #E9B44C;
+    --rosa: #E8C4B8; --errore: #A63D2F;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: var(--paper); color: var(--ink); }
+  header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--ink); color: var(--paper); }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  header .who { margin-left: auto; font-size: 13px; opacity: .8; }
+  nav { display: flex; gap: 4px; padding: 8px 20px; background: #fff; border-bottom: 2px solid var(--rosa); flex-wrap: wrap; }
+  nav button { border: none; background: none; padding: 10px 14px; font-size: 15px; cursor: pointer; border-radius: 8px; color: var(--ink); }
+  nav button.active { background: var(--terracotta); color: #fff; }
+  main { padding: 20px; max-width: 1100px; margin: 0 auto; }
+  section.panel { display: none; }
+  section.panel.active { display: block; }
+  .card { background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(43,33,24,.08); }
+  .card h2 { margin: 0 0 12px; font-size: 17px; }
+  label { display: block; font-size: 13px; margin: 10px 0 4px; font-weight: 600; }
+  input, textarea, select { width: 100%; padding: 9px 10px; border: 1px solid #d8cfc2; border-radius: 8px; font-size: 14px; background: var(--paper); }
+  textarea { min-height: 90px; font-family: inherit; }
+  button.primary { background: var(--terracotta); color: #fff; border: none; padding: 11px 18px; border-radius: 22px; font-size: 15px; cursor: pointer; margin-top: 12px; }
+  button.secondary { background: none; border: 1.5px solid var(--ink); color: var(--ink); padding: 8px 14px; border-radius: 18px; font-size: 13px; cursor: pointer; }
+  button.danger { border-color: var(--errore); color: var(--errore); }
+  button:disabled { opacity: .5; cursor: default; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #eee5d8; vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #7a6a58; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .pill.ok { background: #e3ecdf; color: var(--salvia); }
+  .pill.warn { background: #f7ead0; color: #8a6a1f; }
+  .pill.bad { background: #f3dcd6; color: var(--errore); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 12px 20px; border-radius: 10px; font-size: 14px; display: none; max-width: 90vw; z-index: 50; }
+  #toast.error { background: var(--errore); }
+  #login { position: fixed; inset: 0; background: var(--paper); display: flex; align-items: center; justify-content: center; z-index: 40; }
+  #login .card { width: 340px; }
+  .kpi { display: inline-block; background: var(--paper); border-radius: 10px; padding: 12px 18px; margin: 0 10px 10px 0; }
+  .kpi b { display: block; font-size: 26px; }
+  .kpi span { font-size: 12px; color: #7a6a58; }
+  .muted { color: #7a6a58; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="card">
+    <h2>LibreriBrà — Backoffice</h2>
+    <p class="muted">Accesso riservato allo staff.</p>
+    <label>Email</label><input id="login-email" type="email" autocomplete="username">
+    <label>Password</label><input id="login-password" type="password" autocomplete="current-password">
+    <button class="primary" id="login-btn">Entra</button>
+    <p id="login-error" class="muted" style="color:var(--errore)"></p>
+  </div>
+</div>
+
+<header>
+  <h1>📚 LibreriBrà — Backoffice</h1>
+  <span class="who" id="who"></span>
+  <button class="secondary" id="logout-btn" style="border-color:var(--paper);color:var(--paper)">Esci</button>
+</header>
+
+<nav id="nav">
+  <button data-panel="feed" class="active">Feed</button>
+  <button data-panel="libri">Libri</button>
+  <button data-panel="eventi">Eventi</button>
+  <button data-panel="utenti">Utenti</button>
+  <button data-panel="loyalty">Loyalty &amp; Lotteria</button>
+  <button data-panel="report">Report</button>
+</nav>
+
+<main>
+  <!-- FEED -->
+  <section class="panel active" id="panel-feed">
+    <div class="card">
+      <h2>Nuovo post</h2>
+      <label>Caption</label><textarea id="post-caption" maxlength="2200"></textarea>
+      <label>URL foto (una per riga, carica prima su Storage /public/posts/)</label>
+      <textarea id="post-photos" placeholder="https://..."></textarea>
+      <button class="primary" id="post-publish">Pubblica</button>
+    </div>
+    <div class="card">
+      <h2>Commenti in revisione e segnalazioni</h2>
+      <div id="moderation-list" class="muted">Caricamento…</div>
+    </div>
+    <div class="card">
+      <h2>Ultimi post</h2>
+      <div id="posts-list" class="muted">Caricamento…</div>
+    </div>
+  </section>
+
+  <!-- LIBRI -->
+  <section class="panel" id="panel-libri">
+    <div class="card">
+      <h2>Import catalogo CSV</h2>
+      <p class="muted">Colonne: isbn;titolo;autore;editore;prezzo;fasce_eta;temi;disponibilita;consiglio_libraio;descrizione;novita;saldo;prezzo_saldo</p>
+      <input type="file" id="csv-file" accept=".csv,text/csv">
+      <button class="primary" id="csv-import">Importa</button>
+      <div id="csv-result" class="muted"></div>
+    </div>
+    <div class="card">
+      <h2>Catalogo</h2>
+      <input id="book-search" placeholder="Cerca per titolo…">
+      <div id="books-list" class="muted" style="margin-top:12px">Caricamento…</div>
+    </div>
+  </section>
+
+  <!-- EVENTI -->
+  <section class="panel" id="panel-eventi">
+    <div class="card">
+      <h2>Nuovo evento</h2>
+      <div class="grid2">
+        <div><label>Titolo</label><input id="ev-title"></div>
+        <div><label>Categoria</label><select id="ev-category"></select></div>
+        <div><label>Data e ora</label><input id="ev-start" type="datetime-local"></div>
+        <div><label>Durata (min)</label><input id="ev-duration" type="number" value="60"></div>
+        <div><label>Capienza</label><input id="ev-capacity" type="number" value="15"></div>
+        <div><label>Prezzo € (0 = gratuito)</label><input id="ev-price" type="number" value="0" step="0.5"></div>
+        <div><label>Fascia età</label><select id="ev-age"><option value="">Tutte</option><option>0-2</option><option>3-5</option><option>6-8</option><option>9-12</option><option>13+</option></select></div>
+        <div><label>Lista d'attesa (posti)</label><input id="ev-waitlist" type="number" value="10"></div>
+      </div>
+      <label>Descrizione</label><textarea id="ev-desc"></textarea>
+      <button class="primary" id="ev-create">Pubblica evento</button>
+    </div>
+    <div class="card">
+      <h2>Check-in</h2>
+      <div class="grid2">
+        <div><label>ID evento</label><input id="ci-event"></div>
+        <div><label>UID prenotazione + QR token</label><input id="ci-data" placeholder="uid|token dal QR"></div>
+      </div>
+      <button class="primary" id="ci-do">Check-in (+20 punti)</button>
+    </div>
+    <div class="card">
+      <h2>Prossimi eventi</h2>
+      <div id="events-list" class="muted">Caricamento…</div>
+    </div>
+    <div class="card">
+      <h2>Ordini da preparare / ritirare</h2>
+      <div id="orders-list" class="muted">Caricamento…</div>
+    </div>
+  </section>
+
+  <!-- UTENTI -->
+  <section class="panel" id="panel-utenti">
+    <div class="card">
+      <h2>Cerca utente</h2>
+      <label>Email esatta</label><input id="user-email" type="email">
+      <button class="primary" id="user-search">Cerca</button>
+      <div id="user-result" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- LOYALTY & LOTTERIA -->
+  <section class="panel" id="panel-loyalty">
+    <div class="grid2">
+      <div class="card">
+        <h2>Accredita punti acquisto</h2>
+        <label>UID cliente (dal QR wallet)</label><input id="cp-uid">
+        <label>Importo scontrino €</label><input id="cp-amount" type="number" step="0.01">
+        <label>Numero scontrino</label><input id="cp-receipt">
+        <label>Il tuo PIN</label><input id="cp-pin" type="password" inputmode="numeric">
+        <button class="primary" id="cp-do">Accredita</button>
+      </div>
+      <div class="card">
+        <h2>Riscatta coupon in cassa</h2>
+        <label>Codice coupon</label><input id="mc-code" placeholder="LB-XXXX-XXXX">
+        <label>Il tuo PIN</label><input id="mc-pin" type="password" inputmode="numeric">
+        <button class="primary" id="mc-do">Segna come usato</button>
+      </div>
+    </div>
+    <div class="card" id="lottery-admin-card">
+      <h2>Estrazione dei Lettori (solo admin)</h2>
+      <p class="muted">⚠️ Un round non si apre senza il regolamento validato dal legale (rules_url).</p>
+      <div class="grid2">
+        <div><label>Nome round</label><input id="lr-name" placeholder="Estrazione di Marzo"></div>
+        <div><label>URL regolamento approvato</label><input id="lr-rules" placeholder="https://…/regolamento.pdf"></div>
+        <div><label>Apertura</label><input id="lr-open" type="datetime-local"></div>
+        <div><label>Chiusura vendite</label><input id="lr-close" type="datetime-local"></div>
+        <div><label>Estrazione</label><input id="lr-draw" type="datetime-local"></div>
+        <div><label>Costo numero (punti)</label><input id="lr-cost" type="number" value="150"></div>
+      </div>
+      <label>Premi (uno per riga: descrizione | valore €)</label>
+      <textarea id="lr-prizes">Buono libri da 50€ | 50
+Buono libri da 25€ | 25
+Un libro a scelta fino a 15€ | 15</textarea>
+      <button class="primary" id="lr-create">Crea round (bozza)</button>
+      <div id="rounds-list" class="muted" style="margin-top:14px">Caricamento…</div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="panel" id="panel-report">
+    <div class="card">
+      <h2>Questa è la situazione</h2>
+      <div id="kpis">Caricamento…</div>
+      <p class="muted">Visite portate dall'app = check-in eventi + coupon usati + ritiri completati.</p>
+    </div>
+  </section>
+</main>
+
+<div id="toast"></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
