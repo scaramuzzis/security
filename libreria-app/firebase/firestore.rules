@@ -1,0 +1,225 @@
+rules_version = '2';
+
+// LibreriBrà — Firestore Security Rules v1 (Sprint 0)
+// Principio: default DENY. Nessun match catch-all permissivo.
+// Le collezioni economiche (wallet, transazioni, ordini, biglietti, log)
+// sono scrivibili SOLO dalle Cloud Functions (Admin SDK bypassa le rules).
+// Riferimento: libreria-app/docs/06-data-model.md
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Helpers ----------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    function isStaff() {
+      return isSignedIn() && request.auth.token.role in ['staff', 'admin'];
+    }
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+
+    // ---------- Identità ----------
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isStaff();
+      allow write: if false; // solo Functions (onUserCreate, callables)
+
+      match /children/{childId} {
+        // Dati minori: solo il genitore proprietario. Lo staff NON legge i figli.
+        // consent_at obbligatorio alla creazione (GDPR art. 8).
+        allow read: if isSelf(uid);
+        allow create: if isSelf(uid)
+          && request.resource.data.keys().hasAll(['nickname', 'birth_year', 'consent_at'])
+          && request.resource.data.consent_at is timestamp
+          && request.resource.data.birth_year is int;
+        allow update: if isSelf(uid)
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['consent_at']);
+        allow delete: if isSelf(uid);
+      }
+
+      match /saves/{postId} {
+        allow read, write: if isSelf(uid);
+      }
+
+      match /game_sessions/{sessionId} {
+        allow read: if isSelf(uid);
+        allow write: if false; // solo callable completeGameSession (anti-cheat, cap punti)
+      }
+
+      match /loyalty_transactions/{txId} {
+        allow read: if isSelf(uid) || isStaff();
+        allow write: if false; // append-only da Functions
+      }
+
+      match /notifications/{notifId} {
+        allow read: if isSelf(uid);
+        // l'utente può solo marcare come letto
+        allow update: if isSelf(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+        allow create, delete: if false;
+      }
+    }
+
+    match /profiles/{uid} {
+      // Dati pubblici minimi (nome, foto) mostrati accanto ai commenti.
+      allow read: if isSignedIn();
+      allow create, update: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['display_name', 'photo_url', 'neighborhood'])
+        && request.resource.data.display_name is string
+        && request.resource.data.display_name.size() <= 60;
+      allow delete: if false; // cascata gestita da onUserDelete
+    }
+
+    // ---------- Feed ----------
+    match /posts/{postId} {
+      allow read: if resource.data.status == 'published' || isStaff();
+      // Lo staff scrive i contenuti ma MAI i contatori denormalizzati.
+      allow create: if isStaff()
+        && request.resource.data.like_count == 0
+        && request.resource.data.comment_count == 0
+        && request.resource.data.save_count == 0;
+      allow update: if isStaff()
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['like_count', 'comment_count', 'save_count']);
+      allow delete: if isAdmin();
+
+      match /comments/{commentId} {
+        // Il client crea in 'pending'; onCommentCreate promuove a 'visible'.
+        allow read: if resource.data.status == 'visible'
+          || (isSignedIn() && resource.data.author_uid == request.auth.uid)
+          || isStaff();
+        allow create: if isSignedIn()
+          && request.resource.data.author_uid == request.auth.uid
+          && request.resource.data.status == 'pending'
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 500;
+        // Moderazione (hide) solo staff, e solo i campi di moderazione.
+        allow update: if isStaff()
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'hidden_reason']);
+        allow delete: if false; // soft-delete only
+      }
+
+      match /likes/{likeId} {
+        // Doc id composito {postId}_{uid} = un like per utente, idempotente.
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && likeId == postId + '_' + request.auth.uid;
+        allow delete: if isSignedIn() && likeId == postId + '_' + request.auth.uid;
+        allow update: if false;
+      }
+    }
+
+    // ---------- Catalogo e ordini ----------
+    match /books/{bookId} {
+      allow read: if true; // catalogo pubblico (browse senza account)
+      allow write: if isStaff();
+    }
+
+    match /inventory/{bookId} {
+      allow read: if isStaff();
+      allow write: if false; // solo Functions (transazioni prenotazione)
+    }
+
+    match /discounts/{code} {
+      allow read: if isStaff()
+        || (isSignedIn() && resource.data.owner_uid == request.auth.uid)
+        || resource.data.owner_uid == null; // campagne aperte
+      allow write: if false; // solo Functions e backoffice via callable
+    }
+
+    match /orders/{orderId} {
+      allow read: if isStaff()
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow write: if false; // solo Functions (reserveBook, markReady, markPickedUp)
+    }
+
+    // ---------- Eventi ----------
+    match /event_categories/{catId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if resource.data.status in ['published', 'sold_out', 'completed']
+        || isStaff();
+      allow create: if isStaff() && request.resource.data.booked_count == 0;
+      allow update: if isStaff()
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['booked_count']);
+      allow delete: if isAdmin();
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if isStaff()
+        || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow write: if false; // solo Functions (bookEvent, cancelBooking, checkIn)
+    }
+
+    // ---------- Negozio ----------
+    match /store_locations/{storeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- Giochi ----------
+    match /games/{gameId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /quiz_questions/{qId} {
+      allow read: if isSignedIn() && resource.data.status == 'approved' || isStaff();
+      allow write: if isStaff();
+    }
+
+    match /puzzle_assets/{aId} {
+      allow read: if isSignedIn() && resource.data.status == 'approved' || isStaff();
+      allow write: if isStaff();
+    }
+
+    // ---------- Loyalty ----------
+    match /loyalty_wallet/{uid} {
+      allow read: if isSelf(uid) || isStaff();
+      allow write: if false; // solo applyLoyaltyTransaction
+    }
+
+    // ---------- Lotteria ----------
+    match /lottery_rounds/{roundId} {
+      allow read: if resource.data.status in ['open', 'closed', 'drawn', 'refunded', 'archived']
+        || isAdmin();
+      allow write: if false; // solo callable admin + scheduler (gate rules_url nel codice)
+
+      match /prizes/{rank} {
+        allow read: if true;
+        allow write: if false;
+      }
+
+      match /grid/{gridDoc} {
+        // Aggregato pubblico della griglia (90 bool), senza uid esposti.
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    match /lottery_tickets/{ticketId} {
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid || isAdmin();
+      allow write: if false; // solo buyLotteryTicket (transazione atomica)
+    }
+
+    // ---------- Sistema ----------
+    match /reports/{reportId} {
+      allow read, update: if isStaff();
+      allow create: if false; // create via callable (rate limit 5/giorno)
+      allow delete: if false;
+    }
+
+    match /admin_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // append-only da Functions: è il registro di audit
+    }
+  }
+}

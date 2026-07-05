@@ -1,0 +1,33 @@
+rules_version = '2';
+
+// LibreriBrà — Storage Rules v1 (Sprint 0)
+// /public/**  : asset del negozio (copertine, foto negozio, tavole giochi) — lettura aperta, scrittura staff
+// /users/{uid}: foto profilo — solo proprietario, solo immagini, max 5 MB
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isStaff() {
+      return isSignedIn() && request.auth.token.role in ['staff', 'admin'];
+    }
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStaff() && isValidImage();
+    }
+
+    match /users/{uid}/{allPaths=**} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if isSignedIn() && request.auth.uid == uid && isValidImage();
+    }
+
+    // Tutto il resto: negato (default deny implicito, nessun catch-all)
+  }
+}
