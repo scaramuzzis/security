@@ -20,6 +20,7 @@ import { randomBytes } from "node:crypto";
 import { applyLoyaltyTransaction } from "./loyalty";
 
 export { importBooksCsv, onBookRestocked } from "./catalog";
+export { bookEvent, cancelBooking, checkIn, eventReminders } from "./events";
 
 initializeApp();
 const db = getFirestore();

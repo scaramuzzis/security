@@ -27,15 +27,26 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-  rules-validate:
+  emulator-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Validate Firestore rules syntax (dry-run compile via emulator)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Install test dependencies
         working-directory: libreria-app/firebase
         run: |
-          npx --yes firebase-tools@latest emulators:exec --only firestore \
-            --project demo-libreribra "echo rules loaded OK"
+          npm --prefix functions ci
+          npm --prefix functions run build
+          npm --prefix tests install
+      - name: Run rules + integration tests on Firestore emulator
+        working-directory: libreria-app/firebase
+        run: |
+          npx --yes firebase-tools@13 emulators:exec --only firestore \
+            --project demo-libreribra \
+            "npm --prefix tests test && npm --prefix functions test"

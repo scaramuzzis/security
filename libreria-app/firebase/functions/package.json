@@ -11,13 +11,16 @@
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions,firestore,auth",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "vitest run test",
+    "test:emulator": "cd .. && npx firebase-tools@13 emulators:exec --only firestore --project demo-libreribra \"npm --prefix functions test\""
   },
   "dependencies": {
     "firebase-admin": "^12.1.0",
     "firebase-functions": "^5.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.1"
   }
 }
