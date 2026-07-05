@@ -51,6 +51,7 @@ export {
   onNotificationCreate,
 } from "./push";
 export { completeGameSession, mintGamesToken } from "./games";
+export { setUserRole } from "./admin-users";
 export {
   createLotteryRound,
   openLotteryRound,

@@ -6,6 +6,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth, connectAuthEmulator, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  sendPasswordResetEmail,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, connectFirestoreEmulator, collection, collectionGroup, doc, addDoc,
@@ -62,6 +63,14 @@ $("login-btn").onclick = () =>
   }, $("login-btn")).catch(() => {});
 
 $("logout-btn").onclick = () => signOut(auth);
+
+$("reset-btn").onclick = () =>
+  guard(async () => {
+    const email = $("login-email").value.trim();
+    if (!email) throw new Error("Scrivi la tua email qui sopra, poi ripremi.");
+    await sendPasswordResetEmail(auth, email);
+    toast(`Email di recupero inviata a ${email}. Controlla la posta (anche lo spam).`);
+  }, $("reset-btn"));
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -344,10 +353,28 @@ $("user-search").onclick = (e) =>
       const w = await getDocs(query(collection(db, "loyalty_wallet"), where("__name__", "==", d.id)));
       wallet = w.empty ? null : w.docs[0].data();
     } catch { /* wallet non leggibile: mostra solo l'anagrafica */ }
+    const roleBtns =
+      role === "admin" && u.role !== "admin"
+        ? u.role === "staff"
+          ? `<button class="secondary danger" data-role="parent" data-uid="${esc(d.id)}">Revoca staff</button>`
+          : `<button class="secondary" data-role="staff" data-uid="${esc(d.id)}">Rendi staff</button>`
+        : "";
     $("user-result").innerHTML = `
       <p><b>UID:</b> <code>${esc(d.id)}</code> — usalo per l'accredito punti</p>
-      <p><b>Ruolo:</b> ${esc(u.role)} · <b>Stato:</b> ${esc(u.status)}</p>
+      <p><b>Ruolo:</b> ${esc(u.role)} · <b>Stato:</b> ${esc(u.status)} ${roleBtns}</p>
       <p><b>Punti:</b> ${wallet ? `${wallet.balance} (${esc(wallet.tier)})` : "—"}</p>`;
+    $("user-result").querySelectorAll("button[data-role]").forEach((b) => {
+      b.onclick = () =>
+        guard(async () => {
+          await call("setUserRole")({ targetUid: b.dataset.uid, role: b.dataset.role });
+          toast(
+            b.dataset.role === "staff"
+              ? "Ora fa parte dello staff (attivo dal suo prossimo login). Ricorda di impostargli il PIN di cassa."
+              : "Ruolo staff revocato (attivo dal suo prossimo login)."
+          );
+          $("user-search").click();
+        }, b);
+    });
   }, e.target);
 
 // ---------- LOYALTY & LOTTERIA ----------
