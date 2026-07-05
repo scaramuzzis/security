@@ -8,6 +8,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 import { createHash, randomBytes } from "node:crypto";
 import { applyLoyaltyTransaction } from "./loyalty";
+import { resolveWalletCustomer } from "./wallet-code";
 
 const REGION = "europe-west1";
 const STORE_ID = "libreribra-sangiovanni";
@@ -67,16 +68,19 @@ export const creditPurchasePoints = onCall(async (request) => {
   if (!role || !["staff", "admin"].includes(role)) {
     throw new HttpsError("permission-denied", "Riservato allo staff.");
   }
-  const { customerUid, amountEur, receiptId, pin } = request.data ?? {};
+  // `customer` = codice QR a rotazione (W...) o, in fallback, UID diretto.
+  const { customer, customerUid, amountEur, receiptId, pin } = request.data ?? {};
+  const customerInput = typeof customer === "string" ? customer : customerUid;
   if (
-    typeof customerUid !== "string" ||
+    typeof customerInput !== "string" ||
+    customerInput.length === 0 ||
     typeof receiptId !== "string" ||
     receiptId.length === 0 ||
     typeof amountEur !== "number" ||
     !Number.isFinite(amountEur) ||
     amountEur <= 0
   ) {
-    throw new HttpsError("invalid-argument", "customerUid, amountEur e receiptId richiesti.");
+    throw new HttpsError("invalid-argument", "customer (codice QR o UID), amountEur e receiptId richiesti.");
   }
   if (amountEur > MAX_PURCHASE_EUR_STAFF && role !== "admin") {
     throw new HttpsError(
@@ -91,8 +95,10 @@ export const creditPurchasePoints = onCall(async (request) => {
     throw new HttpsError("invalid-argument", "Importo troppo basso per generare punti.");
   }
 
+  const resolvedUid = await resolveWalletCustomer(customerInput);
+
   const result = await applyLoyaltyTransaction({
-    uid: customerUid,
+    uid: resolvedUid,
     amount: points,
     source: "purchase",
     refId: receiptId,

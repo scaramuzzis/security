@@ -12,7 +12,7 @@
     "serve": "npm run build && firebase emulators:start --only functions,firestore,auth",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "vitest run test",
+    "test": "vitest run test --no-file-parallelism",
     "test:emulator": "cd .. && npx firebase-tools@13 emulators:exec --only firestore --project demo-libreribra \"npm --prefix functions test\""
   },
   "dependencies": {

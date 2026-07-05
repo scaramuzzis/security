@@ -381,7 +381,7 @@ $("user-search").onclick = (e) =>
 $("cp-do").onclick = (e) =>
   guard(async () => {
     const { data } = await call("creditPurchasePoints")({
-      customerUid: $("cp-uid").value.trim(),
+      customer: $("cp-uid").value.trim(),
       amountEur: Number($("cp-amount").value),
       receiptId: $("cp-receipt").value.trim(),
       pin: $("cp-pin").value,

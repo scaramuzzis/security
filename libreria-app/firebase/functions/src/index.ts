@@ -52,6 +52,7 @@ export {
 } from "./push";
 export { completeGameSession, mintGamesToken } from "./games";
 export { setUserRole } from "./admin-users";
+export { mintWalletCode, cleanupWalletCodes } from "./wallet-code";
 export {
   createLotteryRound,
   openLotteryRound,
