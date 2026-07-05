@@ -11,12 +11,13 @@
  */
 
 import * as functionsV1 from "firebase-functions/v1";
-import { onCall } from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
 import { randomBytes } from "node:crypto";
+import { applyLoyaltyTransaction } from "./loyalty";
 
 initializeApp();
 const db = getFirestore();
@@ -107,3 +108,122 @@ export const healthCheck = onCall(async (request) => {
     userDocExists,
   };
 });
+
+/**
+ * Fine onboarding (O5): marca il flag e accredita il bonus di benvenuto.
+ * Idempotente: richiamarla due volte non duplica i punti (refId = uid).
+ */
+export const completeOnboarding = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Accesso richiesto.");
+  }
+
+  const userRef = db.doc(`users/${uid}`);
+  const snap = await userRef.get();
+  if (!snap.exists) {
+    throw new HttpsError("not-found", "Utente non trovato.");
+  }
+
+  if (!snap.data()?.onboarding_completed) {
+    await userRef.update({
+      onboarding_completed: true,
+      updated_at: FieldValue.serverTimestamp(),
+    });
+  }
+
+  const result = await applyLoyaltyTransaction({
+    uid,
+    amount: WELCOME_BONUS_POINTS,
+    source: "welcome",
+    refId: uid, // una sola volta nella vita dell'account
+  });
+
+  return {
+    balance: result.balanceAfter,
+    welcomeBonusGranted: !result.duplicate,
+  };
+});
+
+const NOTIFICATION_CATEGORIES = ["eventi", "novita", "promozioni", "lotteria"];
+
+/** Aggiorna le preferenze push per categoria (P8). */
+export const updateNotificationPrefs = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Accesso richiesto.");
+  }
+
+  const prefs = request.data?.prefs;
+  if (
+    typeof prefs !== "object" ||
+    prefs === null ||
+    Object.keys(prefs).some(
+      (k) => !NOTIFICATION_CATEGORIES.includes(k) || typeof prefs[k] !== "boolean"
+    )
+  ) {
+    throw new HttpsError(
+      "invalid-argument",
+      `Preferenze valide: ${NOTIFICATION_CATEGORIES.join(", ")} (boolean).`
+    );
+  }
+
+  const updates: Record<string, boolean | FirebaseFirestore.FieldValue> = {
+    updated_at: FieldValue.serverTimestamp(),
+  };
+  for (const [k, v] of Object.entries(prefs)) {
+    updates[`notification_prefs.${k}`] = v as boolean;
+  }
+  await db.doc(`users/${uid}`).update(updates);
+  return { ok: true };
+});
+
+/**
+ * Cancellazione account richiesta dall'utente (P8).
+ * Elimina l'utente Auth: la cascata dei dati avviene in onUserDelete.
+ */
+export const deleteAccount = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Accesso richiesto.");
+  }
+  await getAuth().deleteUser(uid);
+  return { ok: true };
+});
+
+async function deleteCollection(path: string): Promise<void> {
+  const col = db.collection(path);
+  // I volumi per utente sono piccoli (max centinaia di doc): batch da 400.
+  let snap = await col.limit(400).get();
+  while (!snap.empty) {
+    const batch = db.batch();
+    snap.docs.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+    snap = await col.limit(400).get();
+  }
+}
+
+/**
+ * Cascata GDPR alla cancellazione dell'account: profili figlio, salvataggi,
+ * sessioni gioco, transazioni, notifiche, profilo pubblico, wallet, doc utente.
+ */
+export const onUserDelete = functionsV1
+  .region(REGION)
+  .auth.user()
+  .onDelete(async (user) => {
+    const uid = user.uid;
+    for (const sub of [
+      "children",
+      "saves",
+      "game_sessions",
+      "loyalty_transactions",
+      "notifications",
+    ]) {
+      await deleteCollection(`users/${uid}/${sub}`);
+    }
+    const batch = db.batch();
+    batch.delete(db.doc(`profiles/${uid}`));
+    batch.delete(db.doc(`loyalty_wallet/${uid}`));
+    batch.delete(db.doc(`users/${uid}`));
+    await batch.commit();
+  });
