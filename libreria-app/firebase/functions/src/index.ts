@@ -21,6 +21,21 @@ import { applyLoyaltyTransaction } from "./loyalty";
 
 export { importBooksCsv, onBookRestocked } from "./catalog";
 export { bookEvent, cancelBooking, checkIn, eventReminders } from "./events";
+export {
+  setStaffPin,
+  creditPurchasePoints,
+  redeemCoupon,
+  markCouponRedeemed,
+  expirePointsJob,
+  reconcileWalletsJob,
+} from "./loyalty-ops";
+export {
+  reserveBook,
+  cancelOrder,
+  markOrderReady,
+  markOrderPickedUp,
+  expireOrdersJob,
+} from "./orders";
 
 initializeApp();
 const db = getFirestore();

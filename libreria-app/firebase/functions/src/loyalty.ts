@@ -28,12 +28,18 @@ export interface LoyaltyTxInput {
   /** Se presente, la transazione è idempotente: id = `${source}_${refId}` */
   refId?: string;
   operatorUid?: string;
+  /**
+   * Scritture aggiuntive eseguite NELLA STESSA transazione del movimento
+   * punti (es. creazione coupon, biglietto lotteria): o tutto o niente.
+   * Non eseguite se la transazione risulta duplicata.
+   */
+  extraWrites?: (t: FirebaseFirestore.Transaction) => void;
 }
 
 export async function applyLoyaltyTransaction(
   input: LoyaltyTxInput
 ): Promise<{ balanceAfter: number; duplicate: boolean }> {
-  const { uid, amount, source, refId, operatorUid } = input;
+  const { uid, amount, source, refId, operatorUid, extraWrites } = input;
   if (!Number.isInteger(amount) || amount === 0) {
     throw new HttpsError("invalid-argument", "Importo punti non valido.");
   }
@@ -92,6 +98,8 @@ export async function applyLoyaltyTransaction(
         : {}),
       updated_at: FieldValue.serverTimestamp(),
     });
+
+    if (extraWrites) extraWrites(t);
 
     return { balanceAfter, duplicate: false };
   });
