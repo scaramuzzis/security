@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="robots" content="noindex">
+<title>LibreriBrà — Giochi</title>
+<style>
+  :root {
+    --paper: #FAF5EC; --ink: #2B2118; --terracotta: #D45A2B;
+    --salvia: #6E9B68; --blu: #33506D; --miele: #F0B93E; --rosa: #EFC2B3;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  body { margin: 0; font-family: "Nunito", system-ui, sans-serif; background: var(--paper);
+         color: var(--ink); font-size: 18px; line-height: 1.5; overflow-x: hidden; }
+  .view { display: none; min-height: 100vh; padding: 20px; max-width: 560px; margin: 0 auto; }
+  .view.active { display: flex; flex-direction: column; }
+
+  /* Gate di uscita: tieni premuto 3 secondi */
+  #exit-gate { position: fixed; top: 10px; right: 10px; z-index: 30; }
+  #exit-btn { width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--ink);
+              background: #fff; font-size: 20px; cursor: pointer; position: relative; }
+  #exit-progress { position: absolute; inset: -3px; border-radius: 50%;
+                   background: conic-gradient(var(--terracotta) calc(var(--p,0)*1%), transparent 0);
+                   -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%);
+                   mask: radial-gradient(circle, transparent 62%, #000 64%); pointer-events: none; }
+
+  h1 { font-size: 28px; margin: 8px 0 4px; }
+  .sub { color: #7a6a58; font-size: 15px; margin-bottom: 20px; }
+  .game-card { display: flex; align-items: center; gap: 16px; background: #fff; border-radius: 20px;
+               padding: 18px; margin-bottom: 14px; border: 3px solid transparent; cursor: pointer;
+               box-shadow: 0 2px 8px rgba(43,33,24,.1); min-height: 96px; }
+  .game-card:active { border-color: var(--miele); transform: scale(.98); }
+  .game-card .emoji { font-size: 44px; }
+  .game-card b { font-size: 20px; display: block; }
+  .game-card span { color: #7a6a58; font-size: 14px; }
+
+  .qbox { background: #fff; border-radius: 20px; padding: 22px; margin: 14px 0;
+          box-shadow: 0 2px 8px rgba(43,33,24,.1); font-size: 21px; font-weight: 700; }
+  .opt { display: block; width: 100%; margin: 10px 0; padding: 16px; font-size: 19px; font-weight: 700;
+         font-family: inherit; background: #fff; border: 3px solid var(--rosa); border-radius: 16px;
+         cursor: pointer; text-align: left; min-height: 64px; color: var(--ink); }
+  .opt.right { border-color: var(--salvia); background: #eaf3e7; }
+  .opt.wrong { border-color: var(--terracotta); background: #fbe9e2; }
+  .explain { background: var(--miele); border-radius: 14px; padding: 14px 16px; font-size: 16px;
+             margin-top: 10px; }
+  .progress { display: flex; gap: 6px; margin: 6px 0 12px; }
+  .progress i { flex: 1; height: 8px; border-radius: 4px; background: #e7dccb; }
+  .progress i.done { background: var(--salvia); }
+  .progress i.miss { background: var(--rosa); }
+
+  #puzzle-board { position: relative; width: 100%; aspect-ratio: 1; background: #fff;
+                  border-radius: 16px; box-shadow: 0 2px 8px rgba(43,33,24,.1); touch-action: none; }
+  .slot { position: absolute; border: 2px dashed #e0d4c2; border-radius: 6px; }
+  .piece { position: absolute; border-radius: 6px; cursor: grab; box-shadow: 0 3px 8px rgba(43,33,24,.25);
+           background-size: 300% 300%; touch-action: none; }
+  .piece.placed { box-shadow: none; cursor: default; }
+  #hint-btn { margin-top: 14px; }
+
+  .big-btn { background: var(--terracotta); color: #fff; border: none; border-radius: 28px;
+             padding: 16px 28px; font-size: 20px; font-weight: 800; font-family: inherit;
+             cursor: pointer; min-height: 60px; }
+  .ghost-btn { background: none; border: 3px solid var(--ink); color: var(--ink); border-radius: 24px;
+               padding: 12px 22px; font-size: 17px; font-weight: 700; font-family: inherit; cursor: pointer; }
+
+  #view-end { text-align: center; justify-content: center; }
+  #end-stars { font-size: 56px; margin: 10px 0; }
+  .book-tip { background: #fff; border-radius: 20px; padding: 18px; margin: 18px 0;
+              box-shadow: 0 2px 8px rgba(43,33,24,.1); text-align: left; display: flex; gap: 14px; }
+  .book-tip .emoji { font-size: 40px; }
+  #demo-badge { position: fixed; bottom: 8px; left: 8px; font-size: 11px; color: #b0a390; }
+</style>
+</head>
+<body>
+
+<div id="exit-gate">
+  <button id="exit-btn" aria-label="Esci (tieni premuto)">✕<div id="exit-progress"></div></button>
+</div>
+
+<!-- HUB -->
+<section class="view active" id="view-hub">
+  <h1>Ciao, piccolo lettore! 👋</h1>
+  <p class="sub" id="hub-sub">Scegli un gioco</p>
+  <div class="game-card" data-game="quiz-esploratore">
+    <div class="emoji">🔭</div>
+    <div><b>Quiz del piccolo esploratore</b><span>Storie, scienza e mondi da scoprire</span></div>
+  </div>
+  <div class="game-card" data-game="ricomponi-la-figura">
+    <div class="emoji">🧩</div>
+    <div><b>Ricomponi la figura</b><span>Rimetti insieme l'illustrazione</span></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="view" id="view-quiz">
+  <h1>🔭 Quiz</h1>
+  <div class="progress" id="quiz-progress"></div>
+  <div class="qbox" id="quiz-question"></div>
+  <div id="quiz-options"></div>
+  <div id="quiz-explain"></div>
+</section>
+
+<!-- PUZZLE -->
+<section class="view" id="view-puzzle">
+  <h1>🧩 Ricomponi la figura</h1>
+  <p class="sub">Trascina i pezzi al posto giusto</p>
+  <div id="puzzle-board"></div>
+  <button class="ghost-btn" id="hint-btn">💡 Aiutino (guarda la figura)</button>
+</section>
+
+<!-- FINE -->
+<section class="view" id="view-end">
+  <div id="end-stars"></div>
+  <h1 id="end-title"></h1>
+  <p class="sub" id="end-points"></p>
+  <div class="book-tip"><div class="emoji" id="tip-emoji"></div>
+    <div><b>Per il grande lettore che sei…</b><br><span id="tip-text"></span></div></div>
+  <button class="big-btn" id="end-again">Gioca ancora</button>
+</section>
+
+<div id="demo-badge"></div>
+<script src="./games.js"></script>
+</body>
+</html>

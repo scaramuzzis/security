@@ -50,7 +50,7 @@ export {
   unregisterDeviceToken,
   onNotificationCreate,
 } from "./push";
-export { completeGameSession } from "./games";
+export { completeGameSession, mintGamesToken } from "./games";
 export {
   createLotteryRound,
   openLotteryRound,

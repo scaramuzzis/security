@@ -6,6 +6,7 @@
 
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 import { applyLoyaltyTransaction } from "./loyalty";
 
 const STORE_ID = "libreribra-sangiovanni";
@@ -88,6 +89,18 @@ export async function completeGameSessionCore(
 
   return { pointsAwarded, dailyRemaining: remaining - pointsAwarded };
 }
+
+/**
+ * Token per la webview giochi: l'app FluxBuilder lo richiede autenticata
+ * e lo passa nell'URL della webview, che fa signInWithCustomToken.
+ * Scadenza gestita da Firebase (1h), stesso uid del genitore.
+ */
+export const mintGamesToken = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Accesso richiesto.");
+  const token = await getAuth().createCustomToken(uid, { webview: "games" });
+  return { token };
+});
 
 export const completeGameSession = onCall(async (request) => {
   const uid = request.auth?.uid;
