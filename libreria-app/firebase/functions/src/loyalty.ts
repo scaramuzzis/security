@@ -34,12 +34,23 @@ export interface LoyaltyTxInput {
    * Non eseguite se la transazione risulta duplicata.
    */
   extraWrites?: (t: FirebaseFirestore.Transaction) => void;
+  /**
+   * Verifiche (SOLO letture) eseguite prima del movimento, nella stessa
+   * transazione: se lancia, l'intera operazione è annullata.
+   */
+  preCheck?: (t: FirebaseFirestore.Transaction) => Promise<void>;
+  /**
+   * Ricalcola l'importo dopo preCheck (es. costo letto dal DB nella
+   * stessa transazione). Deve restituire un intero non nullo.
+   */
+  amountOverride?: () => number;
 }
 
 export async function applyLoyaltyTransaction(
   input: LoyaltyTxInput
 ): Promise<{ balanceAfter: number; duplicate: boolean }> {
-  const { uid, amount, source, refId, operatorUid, extraWrites } = input;
+  const { uid, amount, source, refId, operatorUid, extraWrites, preCheck, amountOverride } =
+    input;
   if (!Number.isInteger(amount) || amount === 0) {
     throw new HttpsError("invalid-argument", "Importo punti non valido.");
   }
@@ -61,12 +72,19 @@ export async function applyLoyaltyTransaction(
       }
     }
 
+    if (preCheck) await preCheck(t);
+
+    const effAmount = amountOverride ? amountOverride() : amount;
+    if (!Number.isInteger(effAmount) || effAmount === 0) {
+      throw new HttpsError("invalid-argument", "Importo punti non valido.");
+    }
+
     const wallet = await t.get(walletRef);
     if (!wallet.exists) {
       throw new HttpsError("not-found", "Wallet inesistente.");
     }
     const balance = (wallet.data()?.balance as number) ?? 0;
-    const balanceAfter = balance + amount;
+    const balanceAfter = balance + effAmount;
     if (balanceAfter < 0) {
       throw new HttpsError(
         "failed-precondition",
@@ -75,14 +93,14 @@ export async function applyLoyaltyTransaction(
     }
 
     const expiresAt =
-      amount > 0
+      effAmount > 0
         ? Timestamp.fromMillis(
             Date.now() + POINTS_VALIDITY_MONTHS * 30 * 24 * 3600 * 1000
           )
         : null;
 
     t.set(txRef, {
-      amount,
+      amount: effAmount,
       source,
       ref_id: refId ?? null,
       operator_uid: operatorUid ?? null,
@@ -93,8 +111,8 @@ export async function applyLoyaltyTransaction(
 
     t.update(walletRef, {
       balance: balanceAfter,
-      ...(amount > 0
-        ? { earned_this_year: FieldValue.increment(amount) }
+      ...(effAmount > 0
+        ? { earned_this_year: FieldValue.increment(effAmount) }
         : {}),
       updated_at: FieldValue.serverTimestamp(),
     });

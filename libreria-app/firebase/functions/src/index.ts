@@ -50,6 +50,15 @@ export {
   unregisterDeviceToken,
   onNotificationCreate,
 } from "./push";
+export { completeGameSession } from "./games";
+export {
+  createLotteryRound,
+  openLotteryRound,
+  closeLotterySales,
+  autoCloseLotterySales,
+  buyLotteryTicket,
+  drawLottery,
+} from "./lottery";
 
 initializeApp();
 const db = getFirestore();
