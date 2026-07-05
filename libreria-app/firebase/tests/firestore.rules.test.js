@@ -88,6 +88,25 @@ describe("Profili figlio (dati minori)", () => {
     ));
 });
 
+describe("Wishlist libri", () => {
+  it("l'utente aggiunge un libro alla propria wishlist", () =>
+    assertSucceeds(
+      setDoc(doc(asAlice(), `users/${ALICE}/wishlist/book1`), {
+        book_id: "book1",
+      })
+    ));
+
+  it("creazione con book_id incoerente col doc id negata", () =>
+    assertFails(
+      setDoc(doc(asAlice(), `users/${ALICE}/wishlist/book1x`), {
+        book_id: "book9",
+      })
+    ));
+
+  it("un altro utente NON legge la wishlist altrui", () =>
+    assertFails(getDoc(doc(asBob(), `users/${ALICE}/wishlist/book1`))));
+});
+
 describe("Collezioni economiche blindate", () => {
   it("il client NON scrive il proprio wallet", () =>
     assertFails(

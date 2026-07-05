@@ -45,6 +45,14 @@ service cloud.firestore {
         allow read, write: if isSelf(uid);
       }
 
+      match /wishlist/{bookId} {
+        // book_id ridondante nel doc: serve alla collection-group query
+        // del trigger di riassortimento.
+        allow read, delete: if isSelf(uid);
+        allow create: if isSelf(uid) && request.resource.data.book_id == bookId;
+        allow update: if false;
+      }
+
       match /game_sessions/{sessionId} {
         allow read: if isSelf(uid);
         allow write: if false; // solo callable completeGameSession (anti-cheat, cap punti)
