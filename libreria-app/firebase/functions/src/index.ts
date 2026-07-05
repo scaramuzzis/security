@@ -36,6 +36,20 @@ export {
   markOrderPickedUp,
   expireOrdersJob,
 } from "./orders";
+export {
+  onCommentCreate,
+  onLikeCreate,
+  onLikeDelete,
+  onSaveCreate,
+  onSaveDelete,
+  moderateComment,
+  submitReport,
+} from "./feed";
+export {
+  registerDeviceToken,
+  unregisterDeviceToken,
+  onNotificationCreate,
+} from "./push";
 
 initializeApp();
 const db = getFirestore();
