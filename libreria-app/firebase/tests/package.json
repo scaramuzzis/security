@@ -1,0 +1,14 @@
+{
+  "name": "libreribra-rules-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:emulator": "cd .. && npx firebase-tools emulators:exec --only firestore --project demo-libreribra \"npm --prefix tests test\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "firebase": "^10.12.2",
+    "vitest": "^1.6.0"
+  }
+}
