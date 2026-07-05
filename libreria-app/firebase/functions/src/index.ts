@@ -19,6 +19,8 @@ import { getAuth } from "firebase-admin/auth";
 import { randomBytes } from "node:crypto";
 import { applyLoyaltyTransaction } from "./loyalty";
 
+export { importBooksCsv, onBookRestocked } from "./catalog";
+
 initializeApp();
 const db = getFirestore();
 
