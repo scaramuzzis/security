@@ -1,0 +1,41 @@
+# CI per l'app LibreriBrà — gira solo sui path libreria-app/**
+# (non tocca il progetto AI Security Scanner presente nello stesso repo)
+name: LibreriBra App CI
+
+on:
+  push:
+    paths:
+      - "libreria-app/**"
+      - ".github/workflows/libreria-app-ci.yml"
+  pull_request:
+    paths:
+      - "libreria-app/**"
+
+jobs:
+  functions-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: libreria-app/firebase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: libreria-app/firebase/functions/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  rules-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate Firestore rules syntax (dry-run compile via emulator)
+        working-directory: libreria-app/firebase
+        run: |
+          npx --yes firebase-tools@latest emulators:exec --only firestore \
+            --project demo-libreribra "echo rules loaded OK"
