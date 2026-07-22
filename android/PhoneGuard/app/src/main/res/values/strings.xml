@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PhoneGuard</string>
+    <string name="dashboard_title">🛡️ PhoneGuard — Monitoraggio sicurezza</string>
+
+    <!-- Navigazione -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="category_most_used">⭐ Più usati</string>
+    <string name="nav_settings">Impostazioni</string>
+    <string name="nav_log">Registro attività</string>
+    <string name="nav_about">Informazioni app</string>
+    <string name="nav_device_info">Informazioni dispositivo</string>
+    <string name="nav_sim_info">Schede SIM</string>
+    <string name="nav_file_manager">Gestione file</string>
+
+    <string name="category_security">Sicurezza</string>
+    <string name="nav_interception">Verifica intercettazione</string>
+    <string name="nav_threats">App sospette e nascoste</string>
+    <string name="nav_audit">Audit permessi</string>
+    <string name="nav_app_permissions">Autorizzazioni app</string>
+    <string name="nav_system">Analisi di sistema</string>
+    <string name="nav_files">File sospetti</string>
+    <string name="nav_wifi">Affidabilità Wi-Fi</string>
+    <string name="nav_network">Traffico di rete</string>
+    <string name="nav_updates">App da aggiornare</string>
+
+    <string name="category_energy">Energia e spazio</string>
+    <string name="nav_device_health">Salute dispositivo</string>
+    <string name="nav_running">App in background</string>
+    <string name="nav_energy_usage">App energivore</string>
+    <string name="nav_clean">Pulizia spazio</string>
+    <string name="nav_inventory">Inventario app</string>
+
+    <string name="category_files">File</string>
+    <string name="category_device">Dispositivo</string>
+    <string name="category_app">App</string>
+
+    <!-- File manager -->
+    <string name="file_manager_title">Gestione file</string>
+    <string name="internal_storage">Memoria interna</string>
+    <string name="sd_card">Scheda SD %1$d</string>
+    <string name="up">⬆ Su</string>
+    <string name="toggle_view_mode">Cambia visualizzazione</string>
+    <string name="new_folder">Nuova cartella</string>
+    <string name="new_folder_hint">Nome della cartella</string>
+    <string name="create">Crea</string>
+    <string name="paste">Incolla</string>
+    <string name="copy">Copia</string>
+    <string name="cut">Taglia</string>
+    <string name="delete">Elimina</string>
+    <string name="file_manager_empty">Cartella vuota.</string>
+    <string name="copied_to_clipboard">%1$d elementi copiati. Vai nella cartella di destinazione e tocca Incolla.</string>
+    <string name="cut_to_clipboard">%1$d elementi pronti per essere spostati. Vai nella cartella di destinazione e tocca Incolla.</string>
+    <string name="paste_result">Incollati %1$d elementi (%2$s)</string>
+    <string name="paste_failed">— %1$d non riusciti</string>
+    <string name="delete_confirm_title">Eliminare %1$d elementi?</string>
+    <string name="delete_confirm_message">%1$d elementi verranno eliminati definitivamente. L\'operazione non è reversibile.</string>
+    <string name="delete_result">%1$d elementi eliminati</string>
+
+    <!-- Dashboard: stato -->
+    <string name="status_icon_unknown">🛡️</string>
+    <string name="status_unknown">In attesa di analisi</string>
+    <string name="status_unknown_detail">Tocca \"Analisi Globale\" per il primo controllo completo</string>
+    <string name="status_ok">Protetto e ottimizzato</string>
+    <string name="status_ok_detail">Nessuna minaccia, nessuna anomalia rilevata</string>
+    <string name="status_warnings">Attenzione richiesta</string>
+    <string name="status_critical">Rischio critico rilevato</string>
+    <string name="status_detail">%1$d app sospette · %2$d controlli di sistema falliti</string>
+
+    <string name="global_scan">🔍 Analisi Globale</string>
+    <string name="global_scan_running">Analisi in corso…</string>
+    <string name="optimize_phone">🚀 Ottimizza il cellulare</string>
+    <string name="optimize_running">Chiusura delle app non di sistema e nascoste in corso…</string>
+    <string name="optimize_none">✅ Nessuna app in background da fermare: il telefono è già ottimizzato.</string>
+    <string name="optimize_done">🚀 Ottimizzato: fermate %1$d app non di sistema attive in background.</string>
+
+    <!-- Salute dispositivo -->
+    <string name="health_optimize_now">Ottimizza adesso</string>
+    <string name="health_good">🟢 Buono</string>
+    <string name="health_warning">🟡 Da tenere d\'occhio</string>
+    <string name="health_critical">🔴 Attenzione richiesta</string>
+    <string name="health_good_hint">Batteria, memoria e sicurezza sono a posto.</string>
+    <string name="health_storage_hint">Lo spazio di archiviazione è quasi pieno: libera spazio dalla Pulizia spazio.</string>
+    <string name="health_ram_hint">La memoria RAM è quasi satura: prova a ottimizzare per liberarne.</string>
+    <string name="health_threats_hint">Sono state rilevate app sospette: controllale dalla pagina dedicata.</string>
+    <string name="health_battery_label">🔋 Batteria</string>
+    <string name="health_storage_label">💾 Spazio di archiviazione</string>
+    <string name="health_ram_label">🧠 Memoria (RAM)</string>
+    <string name="health_protection_label">🛡️ Protezione app</string>
+    <string name="health_battery_detail_charging">%1$d%% — in carica</string>
+    <string name="health_battery_detail_remaining">%1$d%% — %2$d h %3$d m rimasti (stima)</string>
+    <string name="health_battery_detail_unknown">%1$d%% — autonomia non stimabile ora</string>
+    <string name="health_storage_detail">%1$d%% utilizzato — %2$s / %3$s</string>
+    <string name="health_ram_detail">%1$d%% utilizzata — %2$s / %3$s</string>
+    <string name="health_protection_ok">✅ Nessuna minaccia rilevata</string>
+    <string name="health_protection_threats">⚠️ %1$d app sospette rilevate — tocca per i dettagli</string>
+    <string name="health_disclaimer">Questa pagina riassume in un unico posto batteria, spazio, memoria e minacce già calcolati altrove in PhoneGuard: non introduce nuove misurazioni. Il verdetto di sicurezza (Dashboard, Analisi Globale) resta un giudizio separato — riguarda malware e configurazioni a rischio, non lo spazio libero sul telefono.</string>
+    <string name="phase_threats">Fase 1/4 — Scansione anti-spyware…</string>
+    <string name="phase_system">Fase 2/4 — Analisi di sistema…</string>
+    <string name="phase_files">Fase 3/4 — Scansione file (memoria interna + scheda SD)…</string>
+    <string name="phase_energy">Fase 4/5 — Analisi consumi e spazio…</string>
+    <string name="phase_analyst">Fase 5/5 — Referto dell\'analista…</string>
+    <string name="phase_done">✅ Analisi completata</string>
+
+    <string name="analyst_disclaimer">Analisi eseguita interamente sul dispositivo (nessun dato inviato online).</string>
+    <string name="self_usage_loading">🖥️ Consumo di PhoneGuard: misurazione…</string>
+    <string name="self_usage">🖥️ Consumo di PhoneGuard in tempo reale\nCPU: %1$.1f%%   ·   RAM: %2$.0f MB</string>
+
+    <string name="device_status">Stato del dispositivo</string>
+    <string name="ring_battery">Batteria</string>
+    <string name="ring_ram">RAM</string>
+    <string name="ring_storage">Archivio</string>
+
+    <string name="security_breakdown">Ripartizione sicurezza</string>
+    <string name="legend_ok">✅ regolare — %1$d</string>
+    <string name="legend_warn">⚠️ da verificare — %1$d</string>
+    <string name="legend_danger">🚨 critico — %1$d</string>
+    <string name="counter_placeholder">—</string>
+    <string name="counter_threats">App sospette</string>
+    <string name="counter_checks">Controlli falliti</string>
+    <string name="counter_files">File sospetti</string>
+    <string name="counter_energy">App con servizi attivi</string>
+    <string name="system_checks_failed_header">⚠️ %1$d controlli falliti su %2$d (mostrati per primi)</string>
+    <string name="system_checks_all_ok_header">✅ Tutti i %1$d controlli superati</string>
+
+    <string name="active_controls">Controlli attivi</string>
+    <string name="toggle_monitoring">Monitoraggio continuo in background</string>
+    <string name="toggle_battery_alerts">Avvisi batteria (surriscaldamento/scarica)</string>
+    <string name="toggle_file_scan">Scansione automatica nuovi file</string>
+    <string name="toggle_app_start_alerts">Avviso quando un\'app si avvia da sola</string>
+    <string name="toggle_threat_scan">Scansione anti-spyware in background</string>
+    <string name="toggle_network_alerts">Avvisi traffico dati sospetto</string>
+    <string name="toggle_logging">Registro attività (log)</string>
+    <string name="log_section_title">Registro attività</string>
+    <string name="log_refresh">Aggiorna</string>
+    <string name="log_clear">Svuota</string>
+    <string name="log_empty">Nessun evento registrato finora.</string>
+    <string name="log_disabled">Registro disattivato: attiva l\'interruttore per registrare avvisi, scansioni ed eventi del servizio.</string>
+    <string name="battery_estimate">⏳ Autonomia stimata: %1$dh %2$dm</string>
+
+    <!-- App in background -->
+    <string name="running_section_title">App attive in background</string>
+    <string name="running_loading">Controllo delle app attive…</string>
+    <string name="running_no_access">Concedi \"Accesso ai dati di utilizzo\" per vedere le app attive in background.</string>
+    <string name="running_none">✅ Nessuna app di terze parti attiva in background.</string>
+    <string name="running_found">%1$d app attive in background. Tocca \"Ferma\" per chiuderle; tocca la riga per l\'arresto forzato.</string>
+    <string name="stop_app">Ferma</string>
+    <string name="stop_requested">Richiesta di stop inviata a %1$s</string>
+    <string name="stop_confirmed">✅ %1$s si è fermata correttamente</string>
+    <string name="stop_still_active">⚠️ %1$s ha ancora un servizio attivo: Android lo protegge dall\'arresto in background. Usa \"Arresta forzatamente\" nella scheda dell\'app per chiuderla davvero.</string>
+
+    <!-- Energia -->
+    <string name="energy_header">Classifica delle ultime 24 ore, per impatto stimato dal tempo di utilizzo: un\'app appena arrestata resta in elenco finché il conteggio di oggi non si aggiorna, perché il tempo già trascorso in primo piano non si cancella. Il badge SERVIZIO IN BACKGROUND indica invece lo stato attuale: se non c\'è più, l\'app non sta più lavorando in background. \"Gestisci\" apre la scheda di sistema con Arresto forzato e restrizione batteria.</string>
+    <string name="energy_details">%1$s in primo piano · %2$d%% del totale</string>
+    <string name="fgs_badge">⚡ SERVIZIO IN BACKGROUND</string>
+    <string name="manage_app">Gestisci</string>
+
+    <!-- Pulizia spazio -->
+    <string name="clean_section_title">Pulizia spazio</string>
+    <string name="clean_idle">Cerca file e cartelle inutili (vuote, temporanee, cache miniature) nella memoria interna e sulla scheda SD.</string>
+    <string name="clean_scanning">Ricerca file inutili in corso…</string>
+    <string name="clean_none">✅ Nessun file inutile trovato.</string>
+    <string name="clean_found">Trovati %1$d elementi inutili · %2$s recuperabili</string>
+    <string name="clean_done">✅ Liberati %1$s</string>
+    <string name="scan_junk">Cerca file inutili</string>
+    <string name="clean_now">Pulisci</string>
+    <string name="clean_selected">Pulisci %1$d selezionati · %2$s</string>
+    <string name="select_all">Seleziona tutto</string>
+    <string name="clean_confirm_title">Confermi la pulizia?</string>
+    <string name="clean_confirm_message">Verranno eliminati %1$d elementi (%2$s). L\'operazione riguarda solo file inutili nella memoria condivisa e non è reversibile.</string>
+    <string name="clean_confirm_ok">Elimina</string>
+    <string name="cancel">Annulla</string>
+
+    <!-- Inventario app -->
+    <string name="updates_section_title">App da aggiornare</string>
+    <string name="updates_loading">Controllo delle app installate dal Play Store…</string>
+    <string name="updates_none">Nessuna app dal Play Store da mostrare.</string>
+    <string name="updates_ok">%1$d app dal Play Store, ordinate per anzianità. Android non rivela se esiste un aggiornamento: tocca \"Aggiorna\" per aprire lo store e verificarlo.</string>
+    <string name="updates_stale">⚠️ %1$d app ferme da oltre 4 mesi: potrebbero avere aggiornamenti (anche di sicurezza) in sospeso. Tocca \"Aggiorna\" per controllare sullo store.</string>
+    <string name="update_details">v%1$s · ultimo agg. %2$s</string>
+    <string name="update_now">Aggiorna</string>
+
+    <string name="inventory_section_title">Inventario app e sistema</string>
+    <string name="inventory_loading">Analisi dello spazio occupato dalle app…</string>
+    <string name="inventory_header">%1$d app installate · cache totale liberabile: %2$s. Tocca \"Gestisci\" per svuotare la cache o disinstallare.</string>
+    <string name="inventory_no_access">Concedi \"Accesso ai dati di utilizzo\" per vedere lo spazio occupato dalle app.</string>
+    <string name="storage_details">%1$s totali · %2$s cache</string>
+    <string name="system_tag">sistema</string>
+
+    <!-- Permission Auditor -->
+    <string name="audit_section_title">Audit permessi critici</string>
+    <string name="audit_loading">Analisi permessi in corso…</string>
+    <string name="audit_none">Nessuna app</string>
+
+    <!-- Impostazioni -->
+    <string name="automation_section_title">Regole di automazione</string>
+    <string name="automation_rules_note">Soglie attive: upload sospetto oltre 50 MB per intervallo · batteria oltre 45 °C · scarica oltre 20%/ora · controlli ogni 15 minuti.</string>
+    <string name="permissions_section_title">Autorizzazioni di sistema</string>
+    <string name="perm_usage_unknown">Accesso ai dati di utilizzo</string>
+    <string name="perm_usage_ok">✅ Accesso ai dati di utilizzo — concesso</string>
+    <string name="perm_usage_missing">❌ Accesso ai dati di utilizzo — tocca per concedere</string>
+    <string name="perm_storage_unknown">Accesso a tutti i file</string>
+    <string name="perm_storage_ok">✅ Accesso a tutti i file — concesso</string>
+    <string name="perm_storage_missing">❌ Accesso a tutti i file — tocca per concedere</string>
+    <string name="perm_notifications_unknown">Notifiche</string>
+    <string name="perm_notifications_ok">✅ Notifiche — attive</string>
+    <string name="perm_notifications_missing">❌ Notifiche — tocca per attivare</string>
+    <string name="perm_battery_unknown">Esenzione ottimizzazione batteria</string>
+    <string name="perm_battery_ok">✅ Monitoraggio protetto dal risparmio energetico</string>
+    <string name="perm_battery_missing">❌ Il sistema potrebbe fermare il monitoraggio — tocca per proteggerlo</string>
+
+    <string name="device_info_open">📱 Informazioni dispositivo</string>
+    <string name="device_info_title">Informazioni dispositivo</string>
+
+    <!-- Informazioni app -->
+    <string name="about_icon">🛡️</string>
+    <string name="about_version">Versione %1$s (build %2$d) · rilasciata a %3$s</string>
+    <string name="about_description">PhoneGuard è l\'app anti-spyware del team Cyber Sentinel: ti aiuta a capire se il telefono è sotto controllo da parte di qualcuno — app spia nascoste, accesso remoto, intercettazione delle chiamate — e a tenerlo pulito e veloce.</string>
+    <string name="about_features_title">Cosa fa</string>
+    <string name="about_features_body">🕵️ Rileva app spia e nascoste, con disinstallazione guidata\n📶 Verifica se il telefono è sotto intercettazione (rete cellulare, Wi-Fi, deviazione chiamate)\n🌐 Mostra quali app inviano dati in rete, comprese quelle nascoste, e le può fermare\n🔋 Controlla batteria, app energivore e app attive in background\n🗂️ Cerca file sospetti e pulisce lo spazio inutile su memoria interna e microSD\n📂 Gestione file con copia/taglia/incolla tra cartelle\n📱 Informazioni su dispositivo e schede SIM installate</string>
+    <string name="about_privacy">🔒 Privacy: PhoneGuard non ha il permesso di accedere a Internet. Non può inviare nulla a nessuno: tutte le analisi restano sul telefono.</string>
+    <string name="about_team">Sviluppata dal team Cyber Sentinel</string>
+
+    <string name="sim_info_open">📶 Schede SIM</string>
+    <string name="sim_title_page">Schede SIM</string>
+    <string name="sim_loading">Lettura delle schede SIM…</string>
+    <string name="sim_permission_needed">Concedi il permesso per leggere le schede SIM installate.</string>
+    <string name="sim_grant_permission">Concedi permesso telefono</string>
+    <string name="sim_open_manager">Apri gestione SIM di sistema</string>
+    <string name="sim_none">Nessuna scheda SIM attiva rilevata.</string>
+    <string name="sim_count">%1$d scheda/e SIM attiva/e. Le opzioni (SIM predefinita, roaming) sono policy di sistema: modificale dalle schermate ufficiali qui sotto.</string>
+    <string name="sim_title">SIM %1$d — %2$s</string>
+    <string name="sim_details">Operatore: %1$s\nNumero: %2$s\nPaese: %3$s · Rete: %4$s</string>
+    <string name="sim_flag_data">📶 Dati predefiniti</string>
+    <string name="sim_flag_voice">📞 Chiamate predefinite</string>
+    <string name="sim_flag_sms">💬 SMS predefiniti</string>
+    <string name="sim_flag_esim">eSIM</string>
+    <string name="sim_flag_roaming_on">🌍 Roaming attivo</string>
+    <string name="sim_flag_roaming_off">🌍 Roaming disattivato</string>
+    <string name="sim_open_network_settings">Apri impostazioni di rete mobile</string>
+
+    <string name="battery_loading">Lettura stato batteria…</string>
+    <string name="battery_summary">🔋 Batteria: %1$d%% (%2$s)\n🌡️ Temperatura: %3$.1f °C — Salute: %4$s\n⚡ Potenza stimata: %5$.2f W</string>
+    <string name="charging">in carica</string>
+    <string name="discharging">in scarica</string>
+
+    <string name="system_section_title">Analisi di sistema</string>
+    <string name="system_loading">Analisi in corso…</string>
+
+    <string name="threats_section_title">App sospette e nascoste</string>
+    <string name="threats_loading">Scansione anti-spyware in corso…</string>
+    <string name="threats_none">✅ Nessuna app sospetta o nascosta rilevata.</string>
+    <string name="threats_found">⚠️ %1$d app da controllare, ordinate per rischio. Disinstalla quelle che non riconosci.</string>
+    <string name="threat_name">%1$s (%2$s)</string>
+    <string name="risk_critical">RISCHIO CRITICO — punteggio %1$d/100</string>
+    <string name="risk_high">Rischio alto — punteggio %1$d/100</string>
+    <string name="risk_suspicious">Da verificare — punteggio %1$d/100</string>
+    <string name="uninstall">Disinstalla</string>
+    <string name="app_info">Info app</string>
+
+    <string name="reason_stalkerware">Pacchetto riconducibile a stalkerware noto</string>
+    <string name="reason_hidden">Invisibile nel launcher: non ha un\'icona con cui aprirla</string>
+    <string name="reason_accessibility">Servizio di accessibilità attivo: può leggere schermo e digitazione</string>
+    <string name="reason_device_admin">Amministratore del dispositivo: può impedire la disinstallazione (revoca il privilegio da \"Info app\")</string>
+    <string name="reason_notification_listener">Legge tutte le notifiche (messaggi, chat, codici OTP)</string>
+    <string name="reason_sideloaded">Installata fuori dagli store ufficiali</string>
+    <string name="reason_suspicious_name">Nome del pacchetto con parole chiave sospette</string>
+    <string name="reason_permissions">Permessi di sorveglianza concessi: %1$s</string>
+
+    <string name="files_section_title">Controllo file sospetti</string>
+    <string name="files_idle">Premi \"Scansiona file\" per cercare file sospetti nella memoria interna e sulla scheda microSD (APK fuori store, doppie estensioni, eseguibili nascosti).</string>
+    <string name="files_scanning">Scansione della memoria in corso…</string>
+    <string name="files_scanning_roots">Scansione in corso su: %1$s</string>
+    <string name="files_none">✅ Nessun file sospetto trovato (memoria interna e scheda SD).</string>
+    <string name="files_found">⚠️ Trovati %1$d file sospetti:</string>
+    <string name="grant_storage_access">Concedi accesso ai file</string>
+    <string name="scan_files">Scansiona file</string>
+
+    <!-- Verifica intercettazione -->
+    <string name="interception_loading">Analisi in corso…</string>
+    <string name="interception_intro">Combina tutti i segnali già raccolti dall\'app (app spia, controllo remoto, rete cellulare e Wi-Fi) in un unico verdetto, più le verifiche ufficiali sulla deviazione delle chiamate.</string>
+    <string name="interception_critical">Rilevata una minaccia critica: probabile app spia attiva</string>
+    <string name="interception_warning">Alcuni segnali da verificare con attenzione</string>
+    <string name="interception_safe">Nessun segnale di controllo o intercettazione rilevato</string>
+    <string name="interception_ussd_title">Verifica deviazione chiamate</string>
+    <string name="interception_ussd_intro">Questi codici interrogano direttamente la rete del tuo operatore: è lui a risponderti, non una stima dell\'app. Il tasto apre il tastierino già compilato: tocca la chiamata per confermare.</string>
+    <string name="interception_ussd_imei_note">A differenza degli altri, questo codice non interroga la rete: è gestito localmente dal tastierino del telefono. Su alcuni modelli (es. Samsung) funziona solo se digitato a mano, cifra per cifra — se tocchi questo tasto e vedi \"codice MMI non valido\", apri il tastierino e scrivi tu stesso *#06#.</string>
+    <string name="interception_ussd_forward_all">Controlla se le chiamate sono deviate (*#21#)</string>
+    <string name="interception_ussd_forward_busy">Controlla deviazione se occupato (*#67#)</string>
+    <string name="interception_ussd_forward_unreachable">Controlla deviazione se irraggiungibile (*#62#)</string>
+    <string name="interception_ussd_disable_all">Disattiva tutte le deviazioni (##002#)</string>
+    <string name="interception_ussd_imei">Mostra il codice IMEI (*#06#)</string>
+    <string name="interception_disclaimer">Limite onesto: nessuna app, PhoneGuard incluso, può rilevare con certezza assoluta un\'intercettazione a livello di rete o di un\'autorità (es. IMSI-catcher, intercettazione dell\'operatore). Questi sono indizi concreti raccolti con le API disponibili a un\'app senza privilegi di sistema, non una prova definitiva.</string>
+
+    <string name="wifi_section_title">Affidabilità Wi-Fi</string>
+    <string name="wifi_loading">Analisi della rete in corso…</string>
+    <string name="wifi_not_connected">📶 Non connesso al Wi-Fi</string>
+    <string name="wifi_not_connected_detail">Collegati a una rete Wi-Fi per analizzarne l\'affidabilità.</string>
+    <string name="wifi_trusted">✅ Rete affidabile</string>
+    <string name="wifi_caution">⚠️ Rete da usare con cautela</string>
+    <string name="wifi_untrusted">🚨 Rete non affidabile</string>
+    <string name="wifi_detail">Rete: %1$s\nSicurezza: %2$s · Segnale: %3$d%%</string>
+    <string name="wifi_grant_location">Concedi la posizione per vedere il nome della rete</string>
+
+    <string name="network_section_title">Dati inviati/ricevuti per app (ultime 24 ore) — tutte le app, comprese quelle nascoste, ordinate per dati inviati</string>
+    <string name="hidden_app_badge">🫥 App nascosta: nessuna icona nel launcher</string>
+    <string name="network_section_active">⚡ Servizi attivi ora (%1$d)</string>
+    <string name="network_section_inactive">Non attivi al momento (%1$d)</string>
+
+    <string name="data_gap_small">✅ Nessun divario significativo: i dati attribuiti alle app (%1$s inviati) corrispondono al totale visto dal sistema (%2$s).</string>
+    <string name="data_gap_large">⚠️ Divario non attribuito: il sistema segnala %2$s inviati in totale, ma le app elencate ne spiegano solo %1$s — %3$s non riconducibili a un\'app specifica. Può derivare da traffico di sistema, arrotondamenti fra le query, o (raramente) processi che sfuggono all\'attribuzione standard. Non è una prova di compromissione, solo un dato da tenere d\'occhio.</string>
+
+    <string name="constant_senders_title">📡 Invio dati con regolarità</string>
+    <string name="constant_senders_intro">App che hanno inviato dati in almeno 3 finestre su 4 (ultime 24 ore, blocchi da 3 ore): inviano con regolarità, non solo occasionalmente. Lo stato «attiva/non attiva» qui sotto riflette ORA, non lo storico: fermare un\'app non cancella le finestre già passate, ma la sposta subito fra le «non attive».</string>
+    <string name="constant_sender_detail_active">⚡ Attiva ora — regolare in %1$d finestre su %2$d (%3$d%% del tempo)</string>
+    <string name="constant_sender_detail_stopped">✅ Non attiva ora (era regolare in %1$d/%2$d finestre)</string>
+    <string name="constant_senders_section_active">⚡ Attive ora (%1$d)</string>
+    <string name="constant_senders_section_inactive">Non attive ora (%1$d)</string>
+    <string name="alert_constant_sender_title">Invio dati costante rilevato</string>
+    <string name="alert_constant_sender">%1$s ha inviato dati con regolarità nelle ultime ore (%2$d%% del tempo controllato). Verifica in \"Traffico di rete\" se è previsto.</string>
+    <string name="network_log_title">Registro rete in linguaggio semplice</string>
+    <string name="network_log_intro">Ogni 15 minuti PhoneGuard annota qui, in parole semplici, quali app hanno inviato più dati. Nota onesta: Android non permette a nessuna app di vedere il contenuto dei dati o il sito di destinazione — solo quanti byte vengono scambiati.</string>
+    <string name="network_log_disabled">Attiva il \"Registro attività\" nelle Impostazioni per vedere qui il registro di rete.</string>
+    <string name="network_log_empty">Nessun dato ancora registrato: torna tra qualche minuto.</string>
+    <string name="usage_details">↑ Inviati: %1$s   ↓ Ricevuti: %2$s</string>
+    <string name="suspicious_app">App con upload sospetto</string>
+    <string name="grant_usage_access">Concedi accesso ai dati di utilizzo</string>
+
+    <string name="service_running_title">PhoneGuard attivo</string>
+    <string name="service_running_text">Monitoraggio di rete e batteria in corso</string>
+    <string name="channel_status">Stato del monitoraggio</string>
+    <string name="channel_alerts">Avvisi di sicurezza</string>
+
+    <string name="alert_network_title">⚠️ Traffico dati sospetto</string>
+    <string name="alert_upload">L\'app \"%1$s\" ha inviato %2$.1f MB nell\'ultimo intervallo di controllo. Verifica che sia un comportamento previsto.</string>
+    <string name="alert_battery_title">⚠️ Anomalia batteria</string>
+    <string name="alert_overheat">La batteria ha raggiunto %1$.1f °C. Chiudi le app in uso e lascia raffreddare il telefono.</string>
+    <string name="alert_drain">La batteria si sta scaricando a circa il %1$.0f%% all\'ora. Un\'app potrebbe consumare in modo anomalo.</string>
+    <string name="alert_file_title">⚠️ Nuovo file sospetto</string>
+    <string name="alert_file">%1$s\n%2$s</string>
+    <string name="alert_appstart_title">👁️ App avviata da sola</string>
+    <string name="alert_appstart">\"%1$s\" si è avviata in background senza che tu l\'abbia aperta. Se non te lo aspettavi, controllala nella sezione Sicurezza.</string>
+    <string name="alert_threat_title">🚨 Possibile app spia rilevata</string>
+    <string name="alert_threat">\"%1$s\" ha un punteggio di rischio %2$d/100: %3$s. Apri PhoneGuard per disinstallarla.</string>
+
+    <!-- Autorizzazioni app -->
+    <string name="app_permissions_intro">Le app raggruppate per autorizzazione effettivamente concessa (non solo richiesta): fotocamera, microfono, posizione, contatti, SMS, telefono, archiviazione, calendario, sensori corporei. Tocca un\'app per aprire la sua scheda e revocare il permesso.</string>
+    <string name="app_permissions_none">✅ Nessuna app (oltre alle app di sistema) ha queste autorizzazioni concesse.</string>
+    <string name="permission_category_header">%1$s %2$s (%3$d)</string>
+</resources>

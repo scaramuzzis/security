@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="6dp">
+
+    <TextView
+        android:id="@+id/infoLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.42"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="@color/cyber_on_surface_dim" />
+
+    <TextView
+        android:id="@+id/infoValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="0.58"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textIsSelectable="true" />
+</LinearLayout>

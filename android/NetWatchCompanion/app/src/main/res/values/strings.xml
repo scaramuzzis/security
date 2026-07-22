@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NetWatch</string>
+    <string name="app_title">🌐 NetWatch</string>
+    <string name="app_intro">App companion di PhoneGuard: mostra quali domini contattano le altre app installate, intercettando solo le interrogazioni DNS (nessuna lettura del contenuto del traffico).</string>
+
+    <string name="status_active">🟢 Protezione attiva</string>
+    <string name="status_inactive">⚪ Protezione non attiva</string>
+    <string name="start_protection">Avvia protezione</string>
+    <string name="stop_protection">Ferma protezione</string>
+
+    <string name="dns_limitation_note">Limite onesto: vengono viste solo le interrogazioni DNS che passano dal resolver di sistema. Le app che usano DNS-over-HTTPS/TLS proprio (alcuni browser, alcune app aggiornate) non compaiono qui. Mentre la protezione è attiva, le query DNS passano da Cloudflare (1.1.1.1) invece che dal DNS del tuo operatore/router: se la tua rete risolve nomi interni (NAS, stampanti), potrebbero non funzionare finché la disattivi.</string>
+
+    <string name="log_title">Domini richiesti (recenti)</string>
+    <string name="clear_log">Svuota</string>
+
+    <string name="notification_title">NetWatch — protezione attiva</string>
+    <string name="notification_text">Le interrogazioni DNS delle app vengono osservate e inoltrate normalmente.</string>
+    <string name="channel_name">Stato protezione</string>
+
+    <string name="unknown_app">App sconosciuta</string>
+    <string name="uid_label">UID %1$d</string>
+</resources>
